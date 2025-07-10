@@ -1,5 +1,3 @@
-use std::os::linux::raw;
-
 use clap::Parser;
 
 use v4l::Device;

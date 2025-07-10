@@ -1370,6 +1370,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "main-camera-system"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "tokio",
+ "turbojpeg",
+ "v4l",
+ "zenoh",
+]
+
+[[package]]
 name = "matchers"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3681,17 +3692,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5265ef2020ef1698159f7084ac16b65745106cf80450a379943193489039a986"
 dependencies = [
  "zenoh-collections",
-]
-
-[[package]]
-name = "zenoh-cam"
-version = "0.1.0"
-dependencies = [
- "clap",
- "tokio",
- "turbojpeg",
- "v4l",
- "zenoh",
 ]
 
 [[package]]
