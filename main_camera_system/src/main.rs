@@ -8,6 +8,9 @@ use v4l::io::traits::CaptureStream;
 use v4l::video::Capture;
 use zenoh;
 
+use env_logger;
+use log::debug;
+
 #[derive(Parser, Debug)]
 struct Args {
     #[arg(short, long, default_value = "0")]
@@ -24,6 +27,8 @@ struct Args {
 
 #[tokio::main]
 async fn main() {
+    env_logger::init();
+
     let args = Args::parse();
 
     // Create a new capture device with a few extra parameters
@@ -76,7 +81,7 @@ async fn main() {
 
     loop {
         let (buf, meta) = stream.next().unwrap();
-        println!(
+        debug!(
             "Buffer size: {}, seq: {}, timestamp: {}",
             buf.len(),
             meta.sequence,
