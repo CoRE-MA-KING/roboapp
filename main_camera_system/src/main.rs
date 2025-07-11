@@ -17,6 +17,9 @@ struct Args {
 
     #[arg(short, long, action)]
     raw: bool,
+
+    #[arg(short, long, action)]
+    jpg: bool,
 }
 
 #[tokio::main]
@@ -49,10 +52,16 @@ async fn main() {
         "cam".to_string()
     };
 
-    let jpg_publisher = zenoh
-        .declare_publisher(format!("{}/jpg", prefix))
-        .await
-        .unwrap();
+    let jpg_publisher: Option<zenoh::pubsub::Publisher> = if args.jpg {
+        Some(
+            zenoh
+                .declare_publisher(format!("{}/jpg", prefix))
+                .await
+                .unwrap(),
+        )
+    } else {
+        None
+    };
 
     let raw_publisher: Option<zenoh::pubsub::Publisher> = if args.raw {
         Some(
@@ -74,18 +83,19 @@ async fn main() {
             meta.timestamp
         );
 
-        jpg_publisher
-            .put(buf)
-            .await
-            .expect("Failed to publish JPEG buffer");
-
-        let result = match turbojpeg::decompress(buf, turbojpeg::PixelFormat::RGB).ok() {
-            Some(image) => image.pixels,
-            None => continue,
-        };
+        if let Some(jpg_publisher) = &jpg_publisher {
+            jpg_publisher
+                .put(buf)
+                .await
+                .expect("Failed to publish JPEG buffer");
+        }
 
         // Publish the buffer data to Zenoh
         if let Some(raw_publisher) = &raw_publisher {
+            let result = match turbojpeg::decompress(buf, turbojpeg::PixelFormat::RGB).ok() {
+                Some(image) => image.pixels,
+                None => continue,
+            };
             raw_publisher
                 .put(result)
                 .await
