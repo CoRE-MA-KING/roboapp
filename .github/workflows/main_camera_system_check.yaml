@@ -13,7 +13,7 @@ env:
   WORKDIR: main_camera_system
 
 jobs:
-  build:
+  MainCameraSystem_Check:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -33,14 +33,12 @@ jobs:
       run: |
         cd "$WORKDIR"
         cargo clippy --all-targets --all-features -- -D warnings
-      continue-on-error: true
     - name: Format
       run: |
         cd "$WORKDIR"
         cargo fmt --all -- --check
-      continue-on-error: true
     - name: Run Tests
       run: |
         cd "$WORKDIR"
         cargo test --all-features -- --nocapture
-      continue-on-error: true
+

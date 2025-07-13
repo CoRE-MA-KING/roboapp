@@ -12,7 +12,7 @@ env:
   CARGO_TERM_COLOR: always
   WORKDIR: main_camera_system
 jobs:
-  build:
+  MainCameraSystem_Cache:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
