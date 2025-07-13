@@ -7,7 +7,6 @@ use v4l::io::mmap::Stream;
 use v4l::io::traits::CaptureStream;
 use v4l::video::Capture;
 
-use env_logger;
 use futures_util::{SinkExt, StreamExt};
 use log::{debug, info};
 use std::env;
@@ -15,7 +14,6 @@ use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener;
 use tokio_tungstenite::accept_async;
 use tokio_tungstenite::tungstenite::Message;
-use zenoh;
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -48,7 +46,7 @@ async fn main() {
     env_logger::init();
 
     // Create a new capture device with a few extra parameters
-    let mut dev = Device::new(args.camera_id).expect("Failed to open device");
+    let dev = Device::new(args.camera_id).expect("Failed to open device");
 
     // Let's say we want to explicitly request another format
     let mut fmt = dev.format().expect("Failed to read format");
@@ -58,10 +56,10 @@ async fn main() {
     // fmt.fourcc = FourCC::new(b"YUYV");
     let fmt = dev.set_format(&fmt).expect("Failed to write format");
 
-    println!("Format in use:\n{}", fmt);
+    println!("Format in use:\n{fmt}");
 
-    let mut stream = Stream::with_buffers(&mut dev, Type::VideoCapture, 4)
-        .expect("Failed to create buffer stream");
+    let mut stream =
+        Stream::with_buffers(&dev, Type::VideoCapture, 4).expect("Failed to create buffer stream");
 
     // Initialize Zenoh client
 
@@ -74,71 +72,63 @@ async fn main() {
     };
 
     let jpg_publisher: Option<zenoh::pubsub::Publisher> = if args.jpg {
-        info!("JPEG publishing enabled at {}", format!("{}/jpg", prefix));
-        Some(
-            zenoh
-                .declare_publisher(format!("{}/jpg", prefix))
-                .await
-                .unwrap(),
-        )
+        let topic_name = format!("{prefix}/jpg");
+        info!("JPEG publishing enabled at {topic_name}");
+        Some(zenoh.declare_publisher(topic_name).await.unwrap())
     } else {
         None
     };
 
     let raw_publisher: Option<zenoh::pubsub::Publisher> = if args.raw {
-        info!("Raw publishing enabled at {}", format!("{}/raw", prefix));
-        Some(
-            zenoh
-                .declare_publisher(format!("{}/raw", prefix))
-                .await
-                .unwrap(),
-        )
+        let topic_name = format!("{prefix}/raw");
+        info!("Raw publishing enabled at {topic_name}");
+        Some(zenoh.declare_publisher(topic_name).await.unwrap())
     } else {
         None
     };
 
     // WebSocket配信を有効化する場合のみサーバーを起動
-    let ws_clients: Option<Arc<Mutex<Vec<tokio::sync::mpsc::UnboundedSender<Vec<u8>>>>>> =
-        if args.websocket {
-            let ws_clients: Arc<Mutex<Vec<tokio::sync::mpsc::UnboundedSender<Vec<u8>>>>> =
-                Arc::new(Mutex::new(Vec::new()));
-            let ws_clients_clone = ws_clients.clone();
-            tokio::spawn(async move {
-                let listener = TcpListener::bind(format!("0.0.0.0:{}", args.port))
-                    .await
-                    .expect("Failed to bind WebSocket port");
-                info!("WebSocket server listening on ws://0.0.0.0:{}", args.port);
-                while let Ok((stream, _)) = listener.accept().await {
-                    let ws_clients_inner = ws_clients_clone.clone();
-                    tokio::spawn(async move {
-                        let ws_stream = accept_async(stream)
-                            .await
-                            .expect("WebSocket handshake failed");
-                        let (mut ws_sender, mut ws_receiver) = ws_stream.split();
-                        let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel::<Vec<u8>>();
-                        ws_clients_inner.lock().unwrap().push(tx);
-                        // 送信タスク
-                        let send_task = tokio::spawn(async move {
-                            while let Some(data) = rx.recv().await {
-                                if ws_sender.send(Message::Binary(data.into())).await.is_err() {
-                                    break;
-                                }
+    type WsClients = Arc<Mutex<Vec<tokio::sync::mpsc::UnboundedSender<Vec<u8>>>>>;
+
+    let ws_clients: Option<WsClients> = if args.websocket {
+        let ws_clients: WsClients = Arc::new(Mutex::new(Vec::new()));
+        let ws_clients_clone = ws_clients.clone();
+        tokio::spawn(async move {
+            let listener = TcpListener::bind(format!("0.0.0.0:{}", args.port))
+                .await
+                .expect("Failed to bind WebSocket port");
+            info!("WebSocket server listening on ws://0.0.0.0:{}", args.port);
+            while let Ok((stream, _)) = listener.accept().await {
+                let ws_clients_inner = ws_clients_clone.clone();
+                tokio::spawn(async move {
+                    let ws_stream = accept_async(stream)
+                        .await
+                        .expect("WebSocket handshake failed");
+                    let (mut ws_sender, mut ws_receiver) = ws_stream.split();
+                    let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel::<Vec<u8>>();
+                    ws_clients_inner.lock().unwrap().push(tx);
+                    // 送信タスク
+                    let send_task = tokio::spawn(async move {
+                        while let Some(data) = rx.recv().await {
+                            if ws_sender.send(Message::Binary(data.into())).await.is_err() {
+                                break;
                             }
-                        });
-                        // 受信タスク（クライアントからの切断検知用）
-                        let recv_task = tokio::spawn(async move {
-                            while let Some(_msg) = ws_receiver.next().await {
-                                // ここでは何もしない
-                            }
-                        });
-                        let _ = tokio::join!(send_task, recv_task);
+                        }
                     });
-                }
-            });
-            Some(ws_clients)
-        } else {
-            None
-        };
+                    // 受信タスク（クライアントからの切断検知用）
+                    let recv_task = tokio::spawn(async move {
+                        while let Some(_msg) = ws_receiver.next().await {
+                            // ここでは何もしない
+                        }
+                    });
+                    let _ = tokio::join!(send_task, recv_task);
+                });
+            }
+        });
+        Some(ws_clients)
+    } else {
+        None
+    };
 
     loop {
         let (buf, meta) = stream.next().unwrap();
