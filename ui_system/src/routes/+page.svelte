@@ -8,8 +8,8 @@
 		const matches = await getMatches();
 		const args = matches.args;
 
-		if (args.host?.value && typeof args.host?.value === "string" && args.host.value.trim() !== "") {
-			host = args.host.value;
+		if (args.address?.value && typeof args.address?.value === "string" && args.address.value.trim() !== "") {
+			host = args.address.value;
 		}
 
 		if (args.port?.value && typeof args.port?.value === "string" && args.port.value.trim() !== "") {
