@@ -11,7 +11,6 @@ on:
 env:
   CARGO_TERM_COLOR: always
   WORKDIR: main_camera_system
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,5 +25,6 @@ jobs:
           $WORKDIR/target
         key: ${{ runner.os }}-cargo-${{ hashFiles('$WORKDIR/Cargo.lock') }}
     - name: Install Dependencies
-      run: cargo fetch
-      working-directory: $WORKDIR
+      run: |
+        cd "$WORKDIR"
+        cargo fetch

@@ -26,17 +26,21 @@ jobs:
           $WORKDIR/target
         key: ${{ runner.os }}-cargo-${{ hashFiles('$WORKDIR/Cargo.lock') }}
     - name: Install Dependencies
-      run: cargo fetch
-      working-directory: $WORKDIR
+      run: |
+        cd "$WORKDIR"
+        cargo fetch
     - name: Lint
-      run: cargo clippy --all-targets --all-features -- -D warnings
-      working-directory: $WORKDIR
+      run: |
+        cd "$WORKDIR"
+        cargo clippy --all-targets --all-features -- -D warnings
       continue-on-error: true
     - name: Format
-      run: cargo fmt --all -- --check
-      working-directory: $WORKDIR
+      run: |
+        cd "$WORKDIR"
+        cargo fmt --all -- --check
       continue-on-error: true
     - name: Run Tests
-      run: cargo test --all-features -- --nocapture
-      working-directory: $WORKDIR
+      run: |
+        cd "$WORKDIR"
+        cargo test --all-features -- --nocapture
       continue-on-error: true
