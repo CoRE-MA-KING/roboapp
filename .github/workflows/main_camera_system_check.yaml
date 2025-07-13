@@ -29,6 +29,8 @@ jobs:
       run: |
         cd "$WORKDIR"
         cargo fetch
+        sudo apt-get update
+        sudo apt-get install nasm
     - name: Lint
       run: |
         cd "$WORKDIR"
