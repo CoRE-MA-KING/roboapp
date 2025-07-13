@@ -42,7 +42,7 @@ struct Args {
 async fn main() {
     let args = Args::parse();
 
-    env::set_var("RUST_LOG", if args.debug { "debug" } else { "info" });
+    unsafe { env::set_var("RUST_LOG", if args.debug { "debug" } else { "info" }) };
     env_logger::init();
 
     // Create a new capture device with a few extra parameters
