@@ -139,11 +139,14 @@ async fn main() {
             meta.timestamp
         );
 
+        // Convert buffer to Vec<u8> and wrap in Arc for efficient sharing
+        let data = Arc::new(buf.to_vec());
+
         // WebSocketクライアントに配信（有効時のみ）
         if let Some(ws_clients) = &ws_clients {
             let clients = ws_clients.lock().unwrap();
             clients.iter().for_each(|tx| {
-                let _ = tx.send(buf.to_vec());
+                let _ = tx.send(data.clone());
             });
         }
 
