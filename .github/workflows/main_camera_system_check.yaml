@@ -23,8 +23,8 @@ jobs:
         path: |
           ~/.cargo/registry
           ~/.cargo/git
-          $WORKDIR/target
-        key: ${{ runner.os }}-cargo-${{ hashFiles('$WORKDIR/Cargo.lock') }}
+          ${{env.WORKDIR}}/target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('${{env.WORKDIR}}/Cargo.lock') }}
     - name: Install Dependencies
       run: |
         cd "$WORKDIR"
