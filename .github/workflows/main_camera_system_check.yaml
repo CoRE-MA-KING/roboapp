@@ -9,8 +9,8 @@ on:
       - ".github/workflows/main_camera_system_check.yaml"
 
 env:
-    CARGO_TERM_COLOR: always
-    WORKDIR: main_camera_system
+  CARGO_TERM_COLOR: always
+  WORKDIR: main_camera_system
 
 jobs:
   build:
