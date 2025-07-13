@@ -29,7 +29,7 @@ jobs:
           ~/.cargo/registry
           ~/.cargo/git
           ${{env.WORKDIR}}/target
-        key: ${{ runner.os }}-cargo-${{ steps.cargo-lock-hash.outputs.CARGO_LOCK_HASH }}
+        key: ${{ runner.os }}-cargo-${{ env.CARGO_LOCK_HASH }}
     - name: Install Dependencies
       run: |
         cd "$WORKDIR"
