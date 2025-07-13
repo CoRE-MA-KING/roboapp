@@ -8,6 +8,7 @@ on:
       - "main_camera_system/src/**"
       - ".github/workflows/main_camera_system_cache.yaml"
 
+
 env:
   CARGO_TERM_COLOR: always
   WORKDIR: main_camera_system
@@ -16,15 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Cache
-      uses: actions/cache@v4
+    - uses: ./.github/actions/rust
       with:
-        path: |
-          ~/.cargo/registry
-          ~/.cargo/git
-          $WORKDIR/target
-        key: ${{ runner.os }}-cargo-${{ hashFiles('$WORKDIR/Cargo.lock') }}
-    - name: Install Dependencies
-      run: |
-        cd "$WORKDIR"
-        cargo fetch
+        workdir: ${{ env.WORKDIR }}

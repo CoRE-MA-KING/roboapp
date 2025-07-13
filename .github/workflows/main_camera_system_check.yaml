@@ -17,23 +17,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Compute Cargo.lock hash
-      id: cargo-lock-hash
-      run: |
-        HASH=$(sha256sum $WORKDIR/Cargo.lock | awk '{print $1}')
-        echo "CARGO_LOCK_HASH=$HASH" >> $GITHUB_ENV
-    - name: Cache
-      uses: actions/cache@v4
+    - uses: ./.github/actions/rust
       with:
-        path: |
-          ~/.cargo/registry
-          ~/.cargo/git
-          ${{env.WORKDIR}}/target
-        key: ${{ runner.os }}-cargo-${{ env.CARGO_LOCK_HASH }}
+        workdir: ${{ env.WORKDIR }}
     - name: Install Dependencies
       run: |
-        cd "$WORKDIR"
-        cargo fetch
         sudo apt-get update
         sudo apt-get install nasm
     - name: Lint
