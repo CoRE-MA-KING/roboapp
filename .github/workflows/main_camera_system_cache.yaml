@@ -1,5 +1,4 @@
 name: Main Camera System Cache
-
 on:
   push:
     branches:
@@ -7,16 +6,14 @@ on:
     paths:
       - "main_camera_system/src/**"
       - ".github/workflows/main_camera_system_cache.yaml"
-
 env:
   CARGO_TERM_COLOR: always
   WORKDIR: main_camera_system
-
 jobs:
   MainCameraSystem_Cache:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: ./.github/actions/rust
-      with:
-        workdir: ${{ env.WORKDIR }}
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/rust
+        with:
+          workdir: ${{ env.WORKDIR }}

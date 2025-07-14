@@ -1,11 +1,9 @@
 name: "Setup Rust Environment"
 description: "Setup Rust Environment"
-
 inputs:
   workdir:
     description: "Working directory for the Rust project"
     required: true
-
 runs:
   using: "composite"
   steps:

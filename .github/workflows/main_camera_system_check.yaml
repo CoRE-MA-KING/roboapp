@@ -1,5 +1,4 @@
 name: Main Camera System Check
-
 on:
   pull_request:
     branches:
@@ -7,33 +6,30 @@ on:
     paths:
       - "main_camera_system/src/**"
       - ".github/workflows/main_camera_system_check.yaml"
-
 env:
   CARGO_TERM_COLOR: always
   WORKDIR: main_camera_system
-
 jobs:
   MainCameraSystem_Check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: ./.github/actions/rust
-      with:
-        workdir: ${{ env.WORKDIR }}
-    - name: Install Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install nasm
-    - name: Lint
-      run: |
-        cd "$WORKDIR"
-        cargo clippy --all-targets --all-features -- -D warnings
-    - name: Format
-      run: |
-        cd "$WORKDIR"
-        cargo fmt --all -- --check
-    - name: Run Tests
-      run: |
-        cd "$WORKDIR"
-        cargo test --all-features -- --nocapture
-
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/rust
+        with:
+          workdir: ${{ env.WORKDIR }}
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install nasm
+      - name: Lint
+        run: |
+          cd "$WORKDIR"
+          cargo clippy --all-targets --all-features -- -D warnings
+      - name: Format
+        run: |
+          cd "$WORKDIR"
+          cargo fmt --all -- --check
+      - name: Run Tests
+        run: |
+          cd "$WORKDIR"
+          cargo test --all-features -- --nocapture
