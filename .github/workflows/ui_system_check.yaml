@@ -5,6 +5,7 @@ on:
       - "main"
     paths:
       - "ui_system/src/**"
+      - "ui_system/src-tauri/**"
       - ".github/workflows/ui_system_check.yaml"
 env:
   CARGO_TERM_COLOR: always
