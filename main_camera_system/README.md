@@ -8,11 +8,11 @@ Usage: main-camera-system [OPTIONS]
 Options:
   -c, --camera-id <CAMERA_ID>        [default: 0]
   -z, --zenoh-prefix <ZENOH_PREFIX>  [default: ]
-  -r, --raw                          
-  -j, --jpg                          
-  -w, --websocket                    
+  -r, --raw
+  -j, --jpg
+  -w, --websocket
   -p, --port <PORT>                  [default: 8080]
-  -d, --debug                        
+  -d, --debug
   -h, --help                         Print help
 ```
 
