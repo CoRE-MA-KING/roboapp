@@ -47,12 +47,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/nodejs
         with:
-          workdir: ${{ env.WORKDIR }}
+          workdir: "$WORKDIR"
       - name: Typecheck
         run: |
-          cd ${{ env.workdir }}
+          cd "$workdir"
           pnpm check
       - name: Lint
         run: |
-          cd ${{ env.workdir }}
+          cd "$workdir"
           pnpm lint
