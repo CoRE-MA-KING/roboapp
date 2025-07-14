@@ -51,9 +51,9 @@ jobs:
           workdir: ${{ env.WORKDIR }}
       - name: Typecheck
         run: |
-          cd "$workdir"
+          cd "$WORKDIR"
           pnpm check
       - name: Lint
         run: |
-          cd "$workdir"
+          cd "$WORKDIR"
           pnpm lint
