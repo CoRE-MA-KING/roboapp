@@ -9,14 +9,13 @@
    - [Voltaの公式サイト](https://volta.sh/)からインストールします。
    - `curl https://get.volta.sh | bash`
    - `volta install node pnpm`
-3. 依存パッケージのインストール  
-    - `pnpm i`
-    - `sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev`
+3. 依存パッケージのインストール
+   - `pnpm i`
+   - `sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev`
 4. ビルド
-    - `pnpm tauri build`
-    - `./src-tauri/target/release/bundle/appimage/` に実行ファイルが生成されます
+   - `pnpm tauri build`
+   - `./src-tauri/target/release/bundle/appimage/` に実行ファイルが生成されます
 5. 実行
-    - `sudo apt install libfuse2`
-    - `/path/to/roboapp/ui_system/src-tauri/target/release/bundle/appimage/ui_system_{version}_amd64.AppImage`
-  
-    - 画像配信は、`main-camera-system` に `-w` オプションをつけて実行する必要があります
+   - `sudo apt install libfuse2`
+   - `/path/to/roboapp/ui_system/src-tauri/target/release/bundle/appimage/ui_system_{version}_amd64.AppImage`
+   - 画像配信は、`main-camera-system` に `-w` オプションをつけて実行する必要があります

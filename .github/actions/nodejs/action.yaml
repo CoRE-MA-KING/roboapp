@@ -1,0 +1,28 @@
+name: Setup
+description: "Setup pnpm, nodejs, dependencies"
+
+inputs:
+  workdir:
+    description: "Working directory"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - uses: pnpm/action-setup@v4
+      with:
+        run_install: false
+        package_json_file: ${{ inputs.workdir }}/package.json
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: "pnpm"
+        cache-dependency-path: ${{ inputs.workdir }}/pnpm-lock.yaml
+    - name: Install dependencies
+      shell: bash
+      run: |-
+        cd ${{ inputs.workdir }}
+        pnpm install
