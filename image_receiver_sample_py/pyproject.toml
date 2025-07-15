@@ -1,0 +1,23 @@
+[project]
+name = "image-receiver-sample-py"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "motty", email = "motty.mio2@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "eclipse-zenoh>=1.4.0",
+    "opencv-python>=4.12.0.88",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.17.0",
+    "ruff>=0.12.3",
+]
