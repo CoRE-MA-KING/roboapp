@@ -1,0 +1,25 @@
+[project]
+name = "uart-bridge"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "motty", email = "motty.mio2@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "eclipse-zenoh>=1.4.0",
+    "pydantic>=2.11.7",
+    "pyserial>=3.5",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.17.0",
+    "ruff>=0.12.3",
+    "types-pyserial>=3.5.0.20250326",
+]
