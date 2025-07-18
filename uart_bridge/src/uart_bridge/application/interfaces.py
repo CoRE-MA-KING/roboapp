@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Self
 
-from uart_bridge.domain.messages import RobotState
+from uart_bridge.domain.messages import RobotCommand, RobotState
 
 
 class ApplicationInterface(ABC):
@@ -26,6 +26,13 @@ class RobotDriver(ABC):
         pass
 
     @abstractmethod
+    def set_send_values(
+        self, target_x: int, target_y: int, target_distance: int, dummy: int
+    ) -> None:
+        """Set values to be sent to the robot."""
+        pass
+
+    @abstractmethod
     def close(self) -> None:
         pass
 
@@ -41,6 +48,11 @@ class Transmitter(ABC):
 
     @abstractmethod
     def publish(self, robot_state: RobotState) -> None:
+        pass
+
+    @abstractmethod
+    def subscribe(self) -> RobotCommand:
+        """Subscribe to receive commands or data."""
         pass
 
     @abstractmethod

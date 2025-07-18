@@ -47,3 +47,12 @@ class RobotState(BaseModel):
     record_video: bool = False
     ready_to_fire: bool = False
     reserved: int = 0  # 未使用
+
+
+class RobotCommand(BaseModel):
+    """ロボットに送信するコマンド"""
+
+    target_x: int = 640
+    target_y: int = 360
+    target_distance: int = 0
+    dummy: int = 0  # 未使用
