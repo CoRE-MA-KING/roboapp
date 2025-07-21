@@ -8,7 +8,8 @@
    - `sudo apt install build-essential cmake libopencv-dev`
 2. 依存パッケージのインストール
    - Zenoh をインストールします
-   - [公式ビルド済みバイナリ for Ubuntu](https://zenoh.io/docs/getting-started/installation/#ubuntu-or-any-debian)
+     - [公式ビルド済みバイナリ for Ubuntu](https://zenoh.io/docs/getting-started/installation/#ubuntu-or-any-debian)
+     - `sudo apt instlal libzenohcpp-dev libzenohc-dev`
 3. ビルド
    - `mkdir build && cd build`
    - `cmake ..`
