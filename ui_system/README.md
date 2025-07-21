@@ -11,7 +11,7 @@
    - `volta install node@lts pnpm`
 3. 依存パッケージのインストール
    - `pnpm i`
-   - `sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev`
+   - `sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev clang libclang-dev llvm llvm-dev`
 4. ビルド
    - `pnpm tauri build`
    - `./src-tauri/target/release/ui_system` に実行ファイルが生成されます
