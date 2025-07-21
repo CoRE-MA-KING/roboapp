@@ -1,6 +1,6 @@
 # Image Subscription Sample for C++
 
-- Python で zenoh を用いて画像を受信するサンプルです
+- C++ で zenoh を用いて画像を受信するサンプルです
 
 ## 環境構築
 
