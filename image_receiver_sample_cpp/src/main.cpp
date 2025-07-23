@@ -4,30 +4,40 @@
 #include <opencv2/opencv.hpp>
 #include <thread>
 
-void callback(const zenoh::Sample &sample) {
-  std::cout << std::chrono::steady_clock::now().time_since_epoch().count()
-            << "\t" << "Received sample: " << sample.get_payload().size()
-            << std::endl;
+class ZenohReceiver {
+ private:
+  std::unique_ptr<zenoh::Session> session;
 
-  // cv::Mat image;
-  // cv::imdecode(sample.get_payload().as_vector(), cv::IMREAD_COLOR, &image);
-  // cv::imshow("Received Image", image);
+ public:
+  cv::Mat image;
+  uint64_t timestamp;
 
-  // auto key = cv::waitKey(1);
-  // if (key == 'q') {
-  //   exit(0);
-  // }
-}
-
-int main() {
-  auto session = zenoh::Session::open(zenoh::Config::create_default());
-
-  session.declare_background_subscriber(zenoh::KeyExpr("cam/jpg"), &callback,
-                                        zenoh::closures::none);
-
-  while (true) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  ZenohReceiver() : image(), timestamp(0) {
+    session = std::make_unique<zenoh::Session>(zenoh::Config::create_default());
+    session->declare_background_subscriber(
+        zenoh::KeyExpr("cam/jpg"),
+        [this](const zenoh::Sample &sample) { this->callback(sample); },
+        zenoh::closures::none);
   }
 
-  return 0;
+  void callback(const zenoh::Sample &sample) {
+    cv::imdecode(sample.get_payload().as_vector(), cv::IMREAD_COLOR, &image);
+    timestamp = sample.get_timestamp()->get_time();
+  }
 };
+
+int main() {
+  ZenohReceiver z;
+
+  uint64_t timestamp = 0;
+
+  while (true) {
+    if (z.timestamp != timestamp) {
+      timestamp = z.timestamp;
+      cv::imshow("Image", z.image);
+      cv::waitKey(1);
+    } else {
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+  }
+}

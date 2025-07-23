@@ -63,11 +63,15 @@ async fn main() {
 
     // Initialize Zenoh client
 
-    let zenoh = zenoh::open(zenoh::config::Config::default()).await.unwrap();
+    let mut config = zenoh::config::Config::default();
+    config.insert_json5("timestamping/enabled", "true").unwrap();
+
+    let zenoh = zenoh::open(config).await.unwrap();
 
     let prefix: String = if !args.zenoh_prefix.is_empty() {
         format!("{}/{}", args.zenoh_prefix.clone(), "cam")
     } else {
+        // OpenCVのイベントループを更新する
         "cam".to_string()
     };
 
