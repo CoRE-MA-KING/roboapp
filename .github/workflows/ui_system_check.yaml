@@ -1,0 +1,59 @@
+name: UI System Check
+on:
+  pull_request:
+    branches:
+      - "main"
+    paths:
+      - "ui_system/src/**"
+      - "ui_system/src-tauri/**"
+      - ".github/workflows/ui_system_check.yaml"
+env:
+  CARGO_TERM_COLOR: always
+  WORKDIR: ui_system
+jobs:
+  UI_System_Check_Rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/rust
+        with:
+          workdir: ${{ env.WORKDIR }}/src-tauri
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
+      - name: Lint
+        run: |
+          cd "$WORKDIR/src-tauri"
+          cargo clippy --all-targets --all-features -- -D warnings
+      - name: Format
+        run: |
+          cd "$WORKDIR/src-tauri"
+          cargo fmt --all -- --check
+      - name: Run Tests
+        run: |
+          cd "$WORKDIR/src-tauri"
+          cargo test --all-features -- --nocapture
+  UI_System_Check_JS:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/nodejs
+        with:
+          workdir: ${{ env.WORKDIR }}
+      - name: Typecheck
+        run: |
+          cd "$WORKDIR"
+          pnpm check
+      - name: Lint
+        run: |
+          cd "$WORKDIR"
+          pnpm lint
