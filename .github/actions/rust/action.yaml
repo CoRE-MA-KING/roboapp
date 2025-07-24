@@ -1,0 +1,29 @@
+name: "Setup Rust Environment"
+description: "Setup Rust Environment"
+inputs:
+  workdir:
+    description: "Working directory for the Rust project"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v4
+    - name: Compute Cargo.lock hash
+      id: cargo-lock-hash
+      shell: bash
+      run: |
+        HASH=$(sha256sum ${{ inputs.workdir }}/Cargo.lock | awk '{print $1}')
+        echo "CARGO_LOCK_HASH=$HASH" >> $GITHUB_ENV
+    - name: Cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          ${{ inputs.workdir }}/target
+        key: ${{ runner.os }}-cargo-${{ env.CARGO_LOCK_HASH }}
+    - name: Install Dependencies
+      shell: bash
+      run: |
+        cd "${{ inputs.workdir }}"
+        cargo fetch
