@@ -15,14 +15,19 @@ class ZenohTransmitter(Transmitter):
         self.robot_command = RobotCommand()
         self.robot_state = RobotState()
 
-        for key in RobotState.__annotations__.keys():
+        for key in RobotState.model_fields.keys():
             self.publishers[key] = self.zenoh_session.declare_publisher(
                 f"robot/state/{key}"
             )
+        self.zenoh_session.declare_subscriber(
+            "robot/command",
+            self._subscriber,
+
+        )
 
     def publish(self, robot_state: RobotState) -> None:
         """Transmit data to the specified topic."""
-        for key in robot_state.__annotations__.keys():
+        for key in robot_state.model_fields.keys():
             value = getattr(robot_state, key)
 
             if value == getattr(self.robot_state, key):
@@ -38,6 +43,10 @@ class ZenohTransmitter(Transmitter):
                 value = value / 1000
             self.publishers[key].put(f"{value}")
             print(f"Published {key}: {value}")
+
+    def _subscriber(self, sample: zenoh.Sample) -> None:
+        self.robot_command = RobotCommand.model_validate_json(sample.payload.to_string())
+
 
     def subscribe(self) -> RobotCommand:
         return self.robot_command
