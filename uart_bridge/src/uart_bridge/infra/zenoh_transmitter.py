@@ -22,7 +22,6 @@ class ZenohTransmitter(Transmitter):
         self.zenoh_session.declare_subscriber(
             "robot/command",
             self._subscriber,
-
         )
 
     def publish(self, robot_state: RobotState) -> None:
@@ -45,8 +44,9 @@ class ZenohTransmitter(Transmitter):
             print(f"Published {key}: {value}")
 
     def _subscriber(self, sample: zenoh.Sample) -> None:
-        self.robot_command = RobotCommand.model_validate_json(sample.payload.to_string())
-
+        self.robot_command = RobotCommand.model_validate_json(
+            sample.payload.to_string()
+        )
 
     def subscribe(self) -> RobotCommand:
         return self.robot_command
