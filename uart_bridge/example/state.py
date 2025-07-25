@@ -1,8 +1,9 @@
 import time
+from functools import partial
 
 import zenoh
+
 from uart_bridge.domain.messages import RobotState
-from functools import partial
 
 
 class ImageReceiver:

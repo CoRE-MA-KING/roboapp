@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 authors = [
-    { name = "motty", email = "motty.mio2@gmail.com" }
+    { name = "motty", email = "motty.mio2@gmail.com" },
 ]
 requires-python = ">=3.12"
 dependencies = [
@@ -22,4 +22,12 @@ dev = [
     "mypy>=1.17.0",
     "ruff>=0.12.3",
     "types-pyserial>=3.5.0.20250326",
+]
+
+[tool.lint.ruff]
+select = [
+    "E",
+    "F",
+    "I",
+    "W",
 ]
