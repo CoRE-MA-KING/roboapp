@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/python/action.yaml
+      - uses: ./.github/actions/python
         with:
           workdir: ${{ env.WORKDIR }}
       - name: Lint
