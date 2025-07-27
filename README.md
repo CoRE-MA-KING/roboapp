@@ -13,14 +13,20 @@
 
 - データをUIに描画し、GUIで表示します
 
+### uart_bridge
+
+- マイコンとUART通信を行い、Zenoh queryでデータを配信します
+
 ## Zenoh Query
 
 ### 一覧
 
-| アプリ名           | トピック名 | データ形式 |
-| ------------------ | ---------- | ---------- |
-| main_camera_system | /cam/jpg   | JPEG       |
-| main_camera_system | /cam/raw   | RGB 24 bit |
+| アプリ名           | トピック名       | データ形式   |
+| ------------------ | ---------------- | ------------ |
+| main_camera_system | /cam/jpg         | JPEG         |
+| main_camera_system | /cam/raw         | RGB 24 bit   |
+| uart_bridge        | /robot/state/*   | RobotState   |
+| uart_bridge        | /robot/command/* | RobotCommand |
 
 ### ネットワーク
 
@@ -30,8 +36,12 @@
     A[main_camera_system]
     B[UI System]
     C[Sample Python / C++]
+    U[Uart Bridge]
+    E[Uart Bridge （example）]
 
     A -- （WebSocket）--> B
     A -- /cam/jpg --> C
-
+    U -- /robot/state --> E
+    E -- /robot/command --> U
+    U -- /robot/state --> B
 ```
