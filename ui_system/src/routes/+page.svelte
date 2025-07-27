@@ -23,8 +23,10 @@
 
 	import ImageViewer from "$lib/components/ImageViewer.svelte";
 	import { onMount } from "svelte";
+	import TextBox from "$lib/components/TextBox.svelte";
 </script>
 
 <main class="container">
 	<ImageViewer {host} {port} />
+	<TextBox pre="Video id is " task_name="video_id" post="!!" />
 </main>
