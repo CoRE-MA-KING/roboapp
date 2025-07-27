@@ -1,6 +1,7 @@
 import time
 
 import zenoh
+
 from uart_bridge.domain.messages import RobotState, RobotStateId
 
 
@@ -15,7 +16,7 @@ class StateReceiver:
             self.session.declare_subscriber(f"{self.key_expr}/{key}", self._on_received)
 
     def _on_received(self, sample: zenoh.Sample) -> None:
-        if sample.key_expr == f"{self.key_expr}/state_id":
+        if str(sample.key_expr) == f"{self.key_expr}/state_id":
             value: str | RobotStateId = RobotStateId(int(sample.payload.to_bytes()))
         else:
             value = sample.payload.to_string()

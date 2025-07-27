@@ -21,6 +21,7 @@ build-backend = "hatchling.build"
 dev = [
     "mypy>=1.17.0",
     "ruff>=0.12.3",
+    "taskipy>=1.14.1",
     "types-pyserial>=3.5.0.20250326",
 ]
 
@@ -31,3 +32,8 @@ select = [
     "I",
     "W",
 ]
+
+[tool.taskipy.tasks]
+check = "mypy . --strict"
+lint = "ruff check ."
+format = "ruff check . --fix && ruff format ."

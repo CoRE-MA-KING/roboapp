@@ -1,0 +1,27 @@
+name: UART Bridge Check
+on:
+  pull_request:
+    branches:
+      - "main"
+    paths:
+      - "uart_bridge/src/**"
+      - ".github/workflows/uart_bridge_check.yaml"
+env:
+    WORKDIR: uart_bridge
+jobs:
+  UART_Bridge_Check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/python/action.yaml
+        with:
+          workdir: ${{ env.WORKDIR }}
+      - name: Lint
+        run: |
+          cd "$WORKDIR"
+          uv run mypy . --strict
+          uv run ruff check .
+      - name: Format
+        run: |
+          cd "$WORKDIR"
+          uv run ruff format . --check --diff
