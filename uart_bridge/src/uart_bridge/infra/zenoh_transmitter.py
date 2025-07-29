@@ -23,13 +23,17 @@ class ZenohTransmitter(Transmitter):
             "robot/command",
             self._subscriber,
         )
+        self.zenoh_session.declare_subscriber(
+            "robot/state/request",
+            self._subscriber_callback_request,
+        )
 
-    def publish(self, robot_state: RobotState) -> None:
+    def publish(self, robot_state: RobotState, force: bool = False) -> None:
         """Transmit data to the specified topic."""
         for key in robot_state.model_fields.keys():
             value = getattr(robot_state, key)
 
-            if value == getattr(self.robot_state, key):
+            if not force and value == getattr(self.robot_state, key):
                 continue
 
             setattr(self.robot_state, key, value)
@@ -60,6 +64,9 @@ class ZenohTransmitter(Transmitter):
 
     def _subscriber_callback_target_distance(self) -> None:
         self.robot_command.target_distance = self.robot_command.target_distance
+
+    def _subscriber_callback_request(self, sample: zenoh.Sample) -> None:
+        self.publish(self.robot_state, force=True)
 
     def close(self) -> None:
         """Close the Zenoh session."""
