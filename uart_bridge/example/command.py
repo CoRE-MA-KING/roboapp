@@ -1,5 +1,6 @@
-import zenoh
+import random
 
+import zenoh
 from uart_bridge.domain.messages import RobotCommand
 
 
@@ -8,11 +9,14 @@ def main() -> None:
     key_expr = "robot/command"
 
     # Subscribe to the robot command topic
-    pub = session.declare_publisher(key_expr)
 
-    pub.put(
-        RobotCommand(target_x=100, target_y=100, target_distance=100).model_dump_json()
-    )
+    for key in RobotCommand.model_fields.keys():
+        pub = session.declare_publisher(f"{key_expr}/{key}")
+
+        value = random.randint(0, 100)
+
+        pub.put(str(value))
+        print(f"Published {key}: {value}")
 
 
 if __name__ == "__main__":

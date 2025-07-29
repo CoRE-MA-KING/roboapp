@@ -19,10 +19,16 @@ class ZenohTransmitter(Transmitter):
             self.publishers[key] = self.zenoh_session.declare_publisher(
                 f"robot/state/{key}"
             )
-        self.zenoh_session.declare_subscriber(
-            "robot/command",
-            self._subscriber,
-        )
+
+        for key in RobotCommand.model_fields.keys():
+            self.zenoh_session.declare_subscriber(
+                f"robot/command/{key}",
+                self._subscriber,
+            )
+        # self.zenoh_session.declare_subscriber(
+        #     "robot/command",
+        #     self._subscriber,
+        # )
         self.zenoh_session.declare_subscriber(
             "robot/state/request",
             self._subscriber_callback_request,
@@ -48,22 +54,14 @@ class ZenohTransmitter(Transmitter):
             print(f"Published {key}: {value}")
 
     def _subscriber(self, sample: zenoh.Sample) -> None:
-        self.robot_command = RobotCommand.model_validate_json(
-            sample.payload.to_string()
+        setattr(
+            self.robot_command,
+            str(sample.key_expr).split("/")[-1],
+            sample.payload.to_string(),
         )
 
     def subscribe(self) -> RobotCommand:
         return self.robot_command
-
-    def _subscriber_callback_target_x(self) -> None:
-        """Callback for subscriber to update target_x."""
-        self.robot_command.target_x = self.robot_command.target_x
-
-    def _subscriber_callback_target_y(self) -> None:
-        self.robot_command.target_y = self.robot_command.target_y
-
-    def _subscriber_callback_target_distance(self) -> None:
-        self.robot_command.target_distance = self.robot_command.target_distance
 
     def _subscriber_callback_request(self, sample: zenoh.Sample) -> None:
         self.publish(self.robot_state, force=True)
