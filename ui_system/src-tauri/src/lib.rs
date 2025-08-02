@@ -4,7 +4,6 @@ use std::sync::Arc;
 use tauri::AppHandle;
 use tauri::Emitter;
 use tauri::Manager;
-use zenoh::Wait;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -46,6 +45,15 @@ async fn declare_and_emit(
         .background()
         .await
         .unwrap();
+}
+
+#[tauri::command]
+async fn state_request() {
+    log::info!("Requesting robot state");
+    zenoh_client::create_zenoh_session().declare_publisher("robot/state/request").await.unwrap().put(
+        "",
+    ).await.unwrap();
+
 }
 
 async fn zenoh_sub(app: AppHandle) {

@@ -19,11 +19,14 @@
 		if (args.port?.value && typeof args.port?.value === "string" && args.port.value.trim() !== "") {
 			port = args.port.value;
 		}
+
+		invoke("state_request");
 	});
 
 	import ImageViewer from "$lib/components/ImageViewer.svelte";
 	import { onMount } from "svelte";
 	import TextBox from "$lib/components/TextBox.svelte";
+	import { invoke } from "@tauri-apps/api/core";
 </script>
 
 <main class="container">
