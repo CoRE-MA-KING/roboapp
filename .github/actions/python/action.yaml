@@ -1,0 +1,18 @@
+name: "Setup Python Environment"
+description: "Setup Python Environment"
+inputs:
+  workdir:
+    description: "Working directory for the Python project"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v4
+    - uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
+    - name: Install Dependencies
+      shell: bash
+      run: |
+        cd "${{ inputs.workdir }}"
+        uv sync
