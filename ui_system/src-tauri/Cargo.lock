@@ -5879,6 +5879,7 @@ name = "ui_system"
 version = "0.1.0"
 dependencies = [
  "clippy",
+ "log",
  "serde",
  "serde_json",
  "tauri",
