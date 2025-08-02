@@ -11,9 +11,7 @@ pub fn run() {
         .plugin(tauri_plugin_cli::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_log::Builder::new().build())
-        .invoke_handler(tauri::generate_handler![
-            state_request
-        ])
+        .invoke_handler(tauri::generate_handler![state_request])
         .setup(|app| {
             let app_handle = app.app_handle().clone();
 
@@ -54,10 +52,13 @@ async fn declare_and_emit(
 #[tauri::command]
 async fn state_request() {
     log::info!("Requesting robot state");
-    zenoh_client::create_zenoh_session().declare_publisher("robot/state/request").await.unwrap().put(
-        "",
-    ).await.unwrap();
-
+    zenoh_client::create_zenoh_session()
+        .declare_publisher("robot/state/request")
+        .await
+        .unwrap()
+        .put("")
+        .await
+        .unwrap();
 }
 
 async fn zenoh_sub(app: AppHandle) {
