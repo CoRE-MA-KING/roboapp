@@ -1,5 +1,5 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-
+mod zenoh_client;
 use std::sync::Arc;
 use tauri::AppHandle;
 use tauri::Emitter;
@@ -51,9 +51,7 @@ async fn declare_and_emit(
 async fn zenoh_sub(app: AppHandle) {
     zenoh::init_log_from_env_or("error");
 
-    let config = zenoh::Config::default();
-
-    let session = zenoh::open(config).wait().unwrap();
+    let session = zenoh_client::create_zenoh_session();
 
     let app = Arc::new(app);
     let robot_state_key = "robot/state";
