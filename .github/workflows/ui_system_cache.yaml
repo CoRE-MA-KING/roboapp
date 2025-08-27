@@ -16,4 +16,4 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/rust
         with:
-          workdir: ${{ env.WORKDIR }}
+          workdir: ${{ env.WORKDIR }}/src-tauri
