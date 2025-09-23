@@ -1,5 +1,6 @@
 use clap::Parser;
 
+use std::time;
 use v4l::Device;
 use v4l::FourCC;
 use v4l::buffer::Type;
@@ -143,17 +144,46 @@ async fn main() {
             meta.timestamp
         );
 
+        let now = time::Instant::now();
+        // --- ここからクロップ処理を追加 ---
+        // NOTE: x, y, w, h は外部から受け取るなどして動的に設定する必要があります。
+        // ここでは例として固定値を使います。
+        let (crop_x, crop_y, crop_w, crop_h) = (100, 100, 320, 240);
+
+        // 1. MJPGバッファをデコード
+        let img = match image::load_from_memory(buf) {
+            Ok(img) => img,
+            Err(e) => {
+                log::error!("Failed to decode image: {}", e);
+                continue; // このフレームはスキップ
+            }
+        };
+
+        // 2. 画像をクロップ (immutable)
+        let cropped_img = img.crop_imm(crop_x, crop_y, crop_w, crop_h);
+
+        // 3. クロップした画像を再度JPEGにエンコード
+        let mut cropped_buf = Vec::new();
+        if let Err(e) = cropped_img.write_to(
+            &mut std::io::Cursor::new(&mut cropped_buf),
+            image::ImageFormat::Jpeg,
+        ) {
+            log::error!("Failed to encode cropped image: {}", e);
+            continue; // このフレームはスキップ
+        }
+        // --- ここまでクロップ処理 ---
+        println!("{:?}", now.elapsed());
         // WebSocketクライアントに配信（有効時のみ）
         if let Some(ws_clients) = &ws_clients {
             let clients = ws_clients.lock().unwrap();
             clients.iter().for_each(|tx| {
-                let _ = tx.send(buf.to_vec());
+                let _ = tx.send(cropped_buf.to_vec());
             });
         }
 
         if let Some(jpg_publisher) = &jpg_publisher {
             jpg_publisher
-                .put(buf)
+                .put(cropped_buf)
                 .await
                 .expect("Failed to publish JPEG buffer");
         }

@@ -14,3 +14,4 @@ log = "0.4.27"
 tungstenite = "0.27.0"
 tokio-tungstenite = "0.27.0"
 futures-util = "0.3.31"
+image = { version = "0.25.1", features = ["jpeg"] }
