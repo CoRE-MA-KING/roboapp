@@ -2,17 +2,56 @@
 	export type ImageViewerProps = {
 		host: string | null;
 		port: string | null;
+		cropX?: number;
+		cropY?: number;
+		cropW?: number;
+		cropH?: number;
 	};
 </script>
 
 <script lang="ts">
 	import { onMount } from "svelte";
 
-	let { host, port }: ImageViewerProps = $props();
+	let {
+		host,
+		port,
+		cropX = 100,
+		cropY = 100,
+		cropW = 128,
+		cropH = 72
+	}: ImageViewerProps = $props();
 
 	let ws: WebSocket | null = $state(null);
-	let imageUrl: string | null = $state(null);
-	let imageView: HTMLImageElement;
+	let canvasEl: HTMLCanvasElement;
+	const width = 1280;
+	const height = 720;
+
+	function drawImageFromBlob(blob: Blob) {
+		const img = new window.Image();
+		img.onload = () => {
+			const ctx = canvasEl.getContext("2d");
+			if (ctx) {
+				console.time("func"); // 計測終了
+				ctx.clearRect(0, 0, width, height);
+				// cropX, cropY, cropW, cropH の範囲をトリミングしてcanvas全体に描画
+				ctx.drawImage(
+					img,
+					cropX,
+					cropY,
+					cropW,
+					cropH, // 元画像から切り出す範囲
+					0,
+					0,
+					width,
+					height // canvas上の描画範囲
+				);
+			}
+			console.timeEnd("func"); // 計測終了
+			URL.revokeObjectURL(img.src);
+		};
+
+		img.src = URL.createObjectURL(blob);
+	}
 
 	let reconnectTimer: number | null = null;
 
@@ -22,8 +61,7 @@
 
 		ws.onmessage = (event) => {
 			const blob = new Blob([event.data], { type: "image/jpeg" });
-			if (imageUrl) URL.revokeObjectURL(imageUrl);
-			imageUrl = URL.createObjectURL(blob);
+			drawImageFromBlob(blob);
 		};
 
 		ws.onclose = () => {
@@ -43,17 +81,12 @@
 		return () => {
 			if (reconnectTimer) clearTimeout(reconnectTimer);
 			ws?.close();
-			if (imageUrl) URL.revokeObjectURL(imageUrl);
 		};
 	});
 </script>
 
 <div>
-	<img
-		bind:this={imageView}
-		src={imageUrl}
-		width="1280"
-		height="720"
-		alt="受信した画像がここに表示されます"
-	/>
+	<canvas bind:this={canvasEl} {width} {height} style="background: #222;">
+		受信した画像がここに表示されます
+	</canvas>
 </div>
