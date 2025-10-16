@@ -7,3 +7,4 @@ runs:
       with:
         pixi-version: v0.56.0
         cache: true
+        activate-environment: true
