@@ -7,12 +7,13 @@ on:
       - "uart_bridge/src/**"
       - ".github/workflows/uart_bridge_check.yaml"
 env:
-    WORKDIR: uart_bridge
+  WORKDIR: uart_bridge
 jobs:
   UART_Bridge_Check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/actions/pixi
       - uses: ./.github/actions/python
         with:
           workdir: ${{ env.WORKDIR }}

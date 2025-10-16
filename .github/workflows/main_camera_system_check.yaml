@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/actions/pixi
       - uses: ./.github/actions/rust
         with:
           workdir: ${{ env.WORKDIR }}
