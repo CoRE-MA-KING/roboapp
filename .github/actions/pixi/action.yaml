@@ -1,0 +1,9 @@
+name: "SetUp Pixi Environment"
+description: "SetUp Pixi Environment"
+runs:
+  using: "composite"
+  steps:
+    - uses: prefix-dev/setup-pixi@v0.9.2
+      with:
+        pixi-version: v0.56.0
+        cache: true
