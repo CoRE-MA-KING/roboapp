@@ -80,6 +80,11 @@ async fn main() {
         None
     };
 
+    let subscriber = zenoh
+        .declare_subscriber(format!("{}/switch", prefix))
+        .await
+        .unwrap();
+
     // WebSocket配信を有効化する場合のみサーバーを起動
     type WsClients = Arc<Mutex<Vec<tokio::sync::mpsc::UnboundedSender<Vec<u8>>>>>;
 
@@ -124,6 +129,10 @@ async fn main() {
     };
 
     loop {
+        if subscriber.recv_async().await.is_ok() {
+            info!("Switch command received");
+        }
+
         let (buf, meta) = stream.next().unwrap();
         debug!(
             "Buffer size: {}, seq: {}, timestamp: {}",
