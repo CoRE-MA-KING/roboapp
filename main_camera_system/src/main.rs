@@ -23,9 +23,6 @@ struct Args {
     zenoh_prefix: String,
 
     #[arg(short, long, action)]
-    raw: bool,
-
-    #[arg(short, long, action)]
     jpg: bool,
 
     #[arg(short, long, action)]
@@ -78,14 +75,6 @@ async fn main() {
     let jpg_publisher: Option<zenoh::pubsub::Publisher> = if args.jpg {
         let topic_name = format!("{prefix}/jpg");
         info!("JPEG publishing enabled at {topic_name}");
-        Some(zenoh.declare_publisher(topic_name).await.unwrap())
-    } else {
-        None
-    };
-
-    let raw_publisher: Option<zenoh::pubsub::Publisher> = if args.raw {
-        let topic_name = format!("{prefix}/raw");
-        info!("Raw publishing enabled at {topic_name}");
         Some(zenoh.declare_publisher(topic_name).await.unwrap())
     } else {
         None
@@ -156,18 +145,6 @@ async fn main() {
                 .put(buf)
                 .await
                 .expect("Failed to publish JPEG buffer");
-        }
-
-        // Publish the buffer data to Zenoh
-        if let Some(raw_publisher) = &raw_publisher {
-            let result = match turbojpeg::decompress(buf, turbojpeg::PixelFormat::RGB).ok() {
-                Some(image) => image.pixels,
-                None => continue,
-            };
-            raw_publisher
-                .put(result)
-                .await
-                .expect("Failed to publish raw buffer");
         }
     }
 }
