@@ -13,6 +13,7 @@ use std::env;
 use std::sync::{Arc, Mutex};
 use std::time;
 use tokio::net::TcpListener;
+use tokio::sync::mpsc;
 use tokio_tungstenite::accept_async;
 use tokio_tungstenite::tungstenite::Message;
 
@@ -48,7 +49,7 @@ async fn main() {
     // Create a new capture device with a few extra parameters
     let devices = vec![
         Device::new(0).expect("Failed to open device"),
-        Device::new(2).expect("Failed to open device"),
+        Device::new(4).expect("Failed to open device"),
     ];
 
     for d in &devices {
@@ -138,29 +139,36 @@ async fn main() {
         None
     };
 
-    loop {
-        if subscriber.recv_async().await.is_ok() {
-            info!("Switch command received");
+    let (switch_tx, mut switch_rx) = mpsc::unbounded_channel();
 
-            let now = time::Instant::now();
-
-            device_index = (device_index + 1) % devices.len();
-
-            stream = None;
-            //
-            stream = Some(
-                Stream::with_buffers(&devices[device_index], Type::VideoCapture, 4)
-                    .expect("Failed to create buffer stream"),
-            );
-            println!("{:?}", now.elapsed());
-            println!("Switched to device index: {}", device_index);
-            // if let Some(stream) = &mut stream {
-            //     stream = None;
-            //     info!("Stream stopped");
-            // }
+    // スイッチ受信タスク
+    let subscriber = subscriber.clone();
+    tokio::spawn(async move {
+        loop {
+            if subscriber.recv_async().await.is_ok() {
+                let _ = switch_tx.send(());
+            }
         }
+    });
 
-        println!("Capturing from device index: {}", device_index);
+    loop {
+        // カメラ切り替え通知が来ていれば切り替え
+        if let Ok(()) = switch_rx.try_recv() {
+            info!("Switch command received");
+            let now = time::Instant::now();
+            device_index = (device_index + 1) % devices.len();
+            match Stream::with_buffers(&devices[device_index], Type::VideoCapture, 4) {
+                Ok(new_stream) => {
+                    stream = Some(new_stream);
+                    println!("Switched to device index: {}", device_index);
+                }
+                Err(e) => {
+                    stream = None;
+                    eprintln!("デバイス切り替え失敗: {:?}", e);
+                }
+            }
+            println!("{:?}", now.elapsed());
+        }
 
         if let Some(stream) = &mut stream {
             let (buf, meta) = stream.next().unwrap();
