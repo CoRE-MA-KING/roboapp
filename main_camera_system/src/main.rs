@@ -11,6 +11,7 @@ use futures_util::{SinkExt, StreamExt};
 use log::{debug, info};
 use std::env;
 use std::sync::{Arc, Mutex};
+use std::time;
 use tokio::net::TcpListener;
 use tokio_tungstenite::accept_async;
 use tokio_tungstenite::tungstenite::Message;
@@ -42,21 +43,30 @@ async fn main() {
     unsafe { env::set_var("RUST_LOG", if args.debug { "debug" } else { "info" }) };
     env_logger::init();
 
+    let mut device_index = 0;
+
     // Create a new capture device with a few extra parameters
-    let dev = Device::new(args.camera_id).expect("Failed to open device");
+    let devices = vec![
+        Device::new(0).expect("Failed to open device"),
+        Device::new(2).expect("Failed to open device"),
+    ];
+
+    for d in &devices {
+        let mut fmt = d.format().expect("Failed to read format");
+        fmt.width = 1280;
+        fmt.height = 720;
+        fmt.fourcc = FourCC::new(b"MJPG");
+        // fmt.fourcc = FourCC::new(b"YUYV");
+        let fmt = d.set_format(&fmt).expect("Failed to write format");
+        println!("Format in use:\n{fmt}");
+    }
 
     // Let's say we want to explicitly request another format
-    let mut fmt = dev.format().expect("Failed to read format");
-    fmt.width = 1280;
-    fmt.height = 720;
-    fmt.fourcc = FourCC::new(b"MJPG");
-    // fmt.fourcc = FourCC::new(b"YUYV");
-    let fmt = dev.set_format(&fmt).expect("Failed to write format");
 
-    println!("Format in use:\n{fmt}");
-
-    let mut stream =
-        Stream::with_buffers(&dev, Type::VideoCapture, 4).expect("Failed to create buffer stream");
+    let mut stream: Option<Stream<'_>> = Some(
+        Stream::with_buffers(&devices[device_index], Type::VideoCapture, 4)
+            .expect("Failed to create buffer stream"),
+    );
 
     // Initialize Zenoh client
 
@@ -131,29 +141,50 @@ async fn main() {
     loop {
         if subscriber.recv_async().await.is_ok() {
             info!("Switch command received");
+
+            let now = time::Instant::now();
+
+            device_index = (device_index + 1) % devices.len();
+
+            stream = None;
+            //
+            stream = Some(
+                Stream::with_buffers(&devices[device_index], Type::VideoCapture, 4)
+                    .expect("Failed to create buffer stream"),
+            );
+            println!("{:?}", now.elapsed());
+            println!("Switched to device index: {}", device_index);
+            // if let Some(stream) = &mut stream {
+            //     stream = None;
+            //     info!("Stream stopped");
+            // }
         }
 
-        let (buf, meta) = stream.next().unwrap();
-        debug!(
-            "Buffer size: {}, seq: {}, timestamp: {}",
-            buf.len(),
-            meta.sequence,
-            meta.timestamp
-        );
+        println!("Capturing from device index: {}", device_index);
 
-        // WebSocketクライアントに配信（有効時のみ）
-        if let Some(ws_clients) = &ws_clients {
-            let clients = ws_clients.lock().unwrap();
-            clients.iter().for_each(|tx| {
-                let _ = tx.send(buf.to_vec());
-            });
-        }
+        if let Some(stream) = &mut stream {
+            let (buf, meta) = stream.next().unwrap();
+            debug!(
+                "Buffer size: {}, seq: {}, timestamp: {}",
+                buf.len(),
+                meta.sequence,
+                meta.timestamp
+            );
 
-        if let Some(jpg_publisher) = &jpg_publisher {
-            jpg_publisher
-                .put(buf)
-                .await
-                .expect("Failed to publish JPEG buffer");
+            // WebSocketクライアントに配信（有効時のみ）
+            if let Some(ws_clients) = &ws_clients {
+                let clients = ws_clients.lock().unwrap();
+                clients.iter().for_each(|tx| {
+                    let _ = tx.send(buf.to_vec());
+                });
+            }
+
+            if let Some(jpg_publisher) = &jpg_publisher {
+                jpg_publisher
+                    .put(buf)
+                    .await
+                    .expect("Failed to publish JPEG buffer");
+            }
         }
     }
 }
