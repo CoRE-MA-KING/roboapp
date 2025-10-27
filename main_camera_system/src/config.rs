@@ -76,7 +76,7 @@ pub fn parse_config(path: Option<PathBuf>) -> CameraConfig {
 
     let db_table = value
         .get("camera")
-        .unwrap_or_else(|| panic!("'database' テーブルが見つかりません"));
+        .unwrap_or_else(|| panic!("'camera' テーブルが見つかりません"));
 
     // 3. その Value (テーブル) を目的の構造体にデシリアライズ
     db_table.clone().try_into().unwrap()
