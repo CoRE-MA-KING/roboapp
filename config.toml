@@ -1,0 +1,6 @@
+[camera]
+zenoh = true
+devices = [
+  { device = "/dev/video0", height = 720, width = 1280 },
+  { device = "/dev/video2", height = 720, width = 1280 }
+]
