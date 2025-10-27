@@ -28,7 +28,7 @@ struct Args {
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
-    print!("config file: {:?}", args.config_file);
+    println!("config file: {:?}", args.config_file);
 
     let config = parse_config(args.config_file);
 
