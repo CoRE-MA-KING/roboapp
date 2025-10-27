@@ -1,15 +1,29 @@
 use serde::{Deserialize, Serialize};
 use toml::Value;
 
+use dirs;
+use std::env;
+use std::path::PathBuf;
+
+fn get_config_file() -> PathBuf {
+    match env::var("XDG_CONFIG_HOME") {
+        Ok(path) => PathBuf::from(path).join("roboapp/config.toml"),
+        Err(_) => match dirs::home_dir() {
+            Some(home) => home.join(".config").join("roboapp/config.toml"),
+            None => panic!("ホームディレクトリが取得できませんでした"),
+        },
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 
 pub struct CameraDevice {
     #[serde(default)]
-    device: String,
+    pub device: String,
     #[serde(default)]
-    width: u32,
+    pub width: u32,
     #[serde(default)]
-    height: u32,
+    pub height: u32,
 }
 
 impl Default for CameraDevice {
@@ -26,19 +40,22 @@ impl Default for CameraDevice {
 
 pub struct CameraConfig {
     #[serde(default)]
-    websocket: bool,
+    pub websocket: bool,
     #[serde(default)]
-    zenoh: bool,
+    pub websocket_port: u16,
     #[serde(default)]
-    zenoh_prefix: String,
+    pub zenoh: bool,
     #[serde(default)]
-    devices: Vec<CameraDevice>,
+    pub zenoh_prefix: String,
+    #[serde(default)]
+    pub devices: Vec<CameraDevice>,
 }
 
 impl Default for CameraConfig {
     fn default() -> Self {
         CameraConfig {
             websocket: false,
+            websocket_port: 8080,
             zenoh: false,
             zenoh_prefix: "".to_string(),
             devices: vec![CameraDevice::default()],
@@ -46,7 +63,15 @@ impl Default for CameraConfig {
     }
 }
 
-pub fn parse_config(path: &str) -> CameraConfig {
+pub fn parse_config(path: Option<PathBuf>) -> CameraConfig {
+    let path = match path {
+        Some(p) => match p.canonicalize() {
+            Ok(abs) => abs,
+            Err(_) => p, // 解決できなければそのまま使う
+        },
+        None => get_config_file(),
+    };
+    println!("Using config file: {}", path.display());
     let value: Value = toml::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
 
     let db_table = value
@@ -63,7 +88,8 @@ mod tests {
 
     #[test]
     fn test_parse_config() {
-        let config = parse_config("../config.toml");
+        // let config = parse_config();
+        let config = parse_config(Some(PathBuf::from("../config.toml")));
         dbg!(config);
         // 必要ならassert_eq!なども追加可能
     }
