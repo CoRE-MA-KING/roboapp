@@ -35,7 +35,7 @@ async fn main() {
     unsafe { env::set_var("RUST_LOG", if args.debug { "debug" } else { "info" }) };
     env_logger::init();
 
-    let mut device_index = 0;
+    let mut device_index: usize = 0;
 
     let device = create_camera_device(&config.devices[device_index]);
 
@@ -124,17 +124,24 @@ async fn main() {
     let subscriber = subscriber.clone();
     tokio::spawn(async move {
         loop {
-            if subscriber.recv_async().await.is_ok() {
-                let _ = switch_tx.send(());
+            if let Ok(sample) = subscriber.recv_async().await {
+                let new_value: Option<usize> = sample
+                    .payload()
+                    .try_to_string()
+                    .ok()
+                    .and_then(|s| s.parse().ok());
+                let _ = switch_tx.send(new_value);
             }
         }
     });
 
     loop {
         // カメラ切り替え通知が来ていれば切り替え
-        if let Ok(()) = switch_rx.try_recv() {
-            info!("Switch command received");
-            let new_index = (device_index + 1) % config.devices.len();
+        if let Ok(new_value) = switch_rx.try_recv() {
+            let new_index = match new_value {
+                Some(n) => n,
+                None => device_index + 1,
+            } % config.devices.len();
 
             if new_index == device_index {
                 continue;
