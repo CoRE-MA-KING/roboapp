@@ -1,13 +1,8 @@
 use clap::Parser;
-use main_camera_system::camera_wrapper::create_camera_device;
-
-use main_camera_system::config::parse_config;
-use v4l::buffer::Type;
-use v4l::io::mmap::Stream;
-use v4l::io::traits::CaptureStream;
-
 use futures_util::{SinkExt, StreamExt};
-use log::{debug, info};
+use log::{debug, error, info};
+use main_camera_system::camera_wrapper::create_camera_stream;
+use main_camera_system::config::parse_config;
 use std::env;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
@@ -15,6 +10,8 @@ use tokio::net::TcpListener;
 use tokio::sync::mpsc;
 use tokio_tungstenite::accept_async;
 use tokio_tungstenite::tungstenite::Message;
+use v4l::io::mmap::Stream;
+use v4l::io::traits::CaptureStream;
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -37,12 +34,13 @@ async fn main() {
 
     let mut device_index: usize = 0;
 
-    let device = create_camera_device(&config.devices[device_index]);
-
-    let mut stream: Option<Stream<'_>> = Some(
-        Stream::with_buffers(&device, Type::VideoCapture, 4)
-            .expect("Failed to create buffer stream"),
-    );
+    let mut stream: Option<Stream<'_>> = match create_camera_stream(&config.devices[device_index]) {
+        Ok(stream) => Some(stream),
+        Err(e) => {
+            eprintln!("カメラデバイスの初期化失敗: {:?}", e);
+            None
+        }
+    };
 
     // Initialize Zenoh client
 
@@ -147,46 +145,47 @@ async fn main() {
                 continue;
             }
             device_index = new_index;
-
-            match Stream::with_buffers(
-                &create_camera_device(&config.devices[device_index]),
-                Type::VideoCapture,
-                4,
-            ) {
-                Ok(new_stream) => {
-                    stream = Some(new_stream);
-                    println!("Switched to device index: {}", device_index);
-                }
-                Err(e) => {
-                    stream = None;
-                    eprintln!("デバイス切り替え失敗: {:?}", e);
-                }
-            }
+            stream = None;
         }
 
-        if let Some(stream) = &mut stream {
-            let (buf, meta) = stream.next().unwrap();
-            debug!(
-                "Buffer size: {}, seq: {}, timestamp: {}",
-                buf.len(),
-                meta.sequence,
-                meta.timestamp
-            );
+        if let Some(local_stream) = &mut stream {
+            // let (buf, meta) = stream.next().unwrap();
+            if let Ok((buf, meta)) = local_stream.next() {
+                debug!(
+                    "Buffer size: {}, seq: {}, timestamp: {}",
+                    buf.len(),
+                    meta.sequence,
+                    meta.timestamp
+                );
 
-            // WebSocketクライアントに配信（有効時のみ）
-            if let Some(ws_clients) = &ws_clients {
-                let clients = ws_clients.lock().unwrap();
-                clients.iter().for_each(|tx| {
-                    let _ = tx.send(buf.to_vec());
-                });
-            }
+                // WebSocketクライアントに配信（有効時のみ）
+                if let Some(ws_clients) = &ws_clients {
+                    let clients = ws_clients.lock().unwrap();
+                    clients.iter().for_each(|tx| {
+                        let _ = tx.send(buf.to_vec());
+                    });
+                }
 
-            if let Some(jpg_publisher) = &jpg_publisher {
-                jpg_publisher
-                    .put(buf)
-                    .await
-                    .expect("Failed to publish JPEG buffer");
+                if let Some(jpg_publisher) = &jpg_publisher {
+                    jpg_publisher
+                        .put(buf)
+                        .await
+                        .expect("Failed to publish JPEG buffer");
+                }
+            } else {
+                stream = None;
             }
+        } else {
+            stream = match create_camera_stream(&config.devices[device_index]) {
+                Ok(new_stream) => {
+                    info!("Switched to device index: {}", device_index);
+                    Some(new_stream)
+                }
+                Err(e) => {
+                    error!("カメラデバイスの初期化失敗: {:?}", e);
+                    None
+                }
+            };
         }
     }
 }
