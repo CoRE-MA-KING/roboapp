@@ -35,6 +35,7 @@ include_directories(3rdparty/rplidar_sdk/sdk/src/arch/linux)
 
 # Third party libraries
 add_subdirectory(3rdparty/toml11)
+include_directories(3rdparty/toml11/include)
 find_package(gflags REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(OpenCV REQUIRED)
