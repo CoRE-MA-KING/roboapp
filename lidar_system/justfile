@@ -7,3 +7,10 @@ lint:
 
 format:
     find {{ target }} -exec clang-format -i {} +;
+
+dry-format:
+    find {{ target }} -exec clang-format --Werror --dry-run -i {} +;
+
+build:
+    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+    cmake --build build -j --config Release

@@ -1,0 +1,42 @@
+name: LiDAR System Check
+on:
+  pull_request:
+    branches:
+      - "main"
+    paths:
+      - "lidar_system/**"
+      - ".github/workflows/lidar_system_check.yaml"
+env:
+  CARGO_TERM_COLOR: always
+  WORKDIR: lidar_system
+jobs:
+  LiDAR_System_Check_Rust:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKDIR }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/cpp
+        with:
+          workdir: ${{ env.WORKDIR }}
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libwebkit2gtk-4.1-dev \
+            build-essential \
+            cmake \
+            libgflags-dev \
+            libopencv-dev \
+            nlohmann-json3-dev
+      - uses: extractions/setup-just@v3
+      - name: Build
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build -j --config Release
+      - name: Lint
+        run: |
+          just lint
+      - name: Format
+        run: |
+          just dry-format
