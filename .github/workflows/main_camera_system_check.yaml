@@ -12,6 +12,9 @@ env:
 jobs:
   MainCameraSystem_Check:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKDIR }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/mise
@@ -20,17 +23,13 @@ jobs:
           workdir: ${{ env.WORKDIR }}
       - name: Install Dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install nasm
+          MISE_EXPERIMENTAL=1 mise :deps
       - name: Lint
         run: |
-          cd "$WORKDIR"
           cargo clippy --all-targets --all-features -- -D warnings
       - name: Format
         run: |
-          cd "$WORKDIR"
           cargo fmt --all -- --check
       - name: Run Tests
         run: |
-          cd "$WORKDIR"
           cargo test --all-features -- --nocapture
