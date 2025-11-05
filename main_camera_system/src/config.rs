@@ -41,7 +41,7 @@ impl Default for CameraDevice {
 pub struct CameraConfig {
     #[serde(default)]
     pub websocket: bool,
-    #[serde(default)]
+    #[serde(default = "CameraConfig::default_websocket_port")]
     pub websocket_port: u16,
     #[serde(default)]
     pub zenoh: bool,
@@ -50,12 +50,17 @@ pub struct CameraConfig {
     #[serde(default)]
     pub devices: Vec<CameraDevice>,
 }
+impl CameraConfig {
+    fn default_websocket_port() -> u16 {
+        8080
+    }
+}
 
 impl Default for CameraConfig {
     fn default() -> Self {
         CameraConfig {
             websocket: false,
-            websocket_port: 8080,
+            websocket_port: Self::default_websocket_port(),
             zenoh: false,
             zenoh_prefix: "".to_string(),
             devices: vec![CameraDevice::default()],
@@ -88,9 +93,7 @@ mod tests {
 
     #[test]
     fn test_parse_config() {
-        // let config = parse_config();
         let config = parse_config(Some(PathBuf::from("../config.toml")));
         dbg!(config);
-        // 必要ならassert_eq!なども追加可能
     }
 }
