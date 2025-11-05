@@ -7,10 +7,9 @@ on:
       - "lidar_system/**"
       - ".github/workflows/lidar_system_check.yaml"
 env:
-  CARGO_TERM_COLOR: always
   WORKDIR: lidar_system
 jobs:
-  LiDAR_System_Check_Rust:
+  LiDAR_System_Check:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -23,12 +22,16 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libwebkit2gtk-4.1-dev \
+          sudo apt-get install -y \
             build-essential \
             cmake \
             libgflags-dev \
             libopencv-dev \
-            nlohmann-json3-dev
+            libzenohc-dev \
+            libzenohcpp-dev \
+            nlohmann-json3-dev \
+            clang-format \
+            clang-tidy
       - uses: extractions/setup-just@v3
       - name: Build
         run: |
