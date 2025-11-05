@@ -39,14 +39,9 @@
       "description": "UI System",
       "args": [
         {
-          "name": "address",
-          "short": "a",
-          "description": "WebSocket host address"
-        },
-        {
-          "name": "port",
-          "short": "p",
-          "description": "WebSocket port"
+          "name": "config",
+          "short": "c",
+          "description": "path/to/config.toml"
         }
       ]
     }
