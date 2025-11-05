@@ -1,0 +1,56 @@
+import os
+import tomllib
+from pathlib import Path
+from typing import Any
+
+from pydantic import BaseModel, Field, field_validator
+
+
+class Global(BaseModel):
+    prefix: str = Field("", description="Zenoh Prefix")
+
+
+class Config(BaseModel):
+    port: str = Field(..., description="UARTポートのパス")
+
+    @field_validator("port", mode="after")
+    @classmethod
+    def validate_port(cls, v: str) -> str:
+        # ここで加工
+        real_path = Path(v).resolve()
+        if not real_path.exists():
+            raise ValueError(
+                "invalid_port",
+                "{port} is not a valid UART port!",
+                {"port": v},
+            )
+        return str(real_path)
+
+
+def load_config(file_path: str | None = None) -> dict[str, Any]:
+    """設定ファイルを読み込む"""
+
+    file = (
+        Path(file_path)
+        if file_path
+        else (
+            Path(os.getenv("XDG_CONFIG_HOME", Path.home() / ".config"))
+            / "roboapp/config.yaml"
+        )
+    )
+
+    if not file.exists():
+        raise FileNotFoundError(f"設定ファイルが見つかりません: {file}")
+
+    with open(file, mode="rb") as f:
+        return tomllib.load(f)
+
+
+def get_global_config(file_path: str | None = None) -> Global:
+    """Global設定を取得する"""
+    return Global.model_validate(load_config(file_path).get("global", {}))
+
+
+def get_uart_config(file_path: str | None = None) -> Config:
+    """UART設定を取得する"""
+    return Config.model_validate(load_config(file_path).get("uart", {}))
