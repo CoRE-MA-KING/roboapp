@@ -69,7 +69,7 @@ set (LIDAR_DEVICE_FILES
 
 add_library(LidarDeviceLib ${LIDAR_DEVICE_FILES} ${RPLIDAR_SDK_SRC})
 target_include_directories(LidarDeviceLib PUBLIC include/lidar_device)
-target_include_directories(LidarDeviceLib PUBLIC include/lidar_device 3rdparty/rplidar_sdk/sdk/sdk)
+target_include_directories(LidarDeviceLib PUBLIC include/lidar_device 3rdparty/rplidar_sdk/sdk/include)
 target_link_libraries(LidarDeviceLib nlohmann_json::nlohmann_json LidarTypesLib zenohcxx::zenohc)
 
 add_executable(sender src/sender.cpp)
