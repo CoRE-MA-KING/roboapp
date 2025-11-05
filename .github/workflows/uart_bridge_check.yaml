@@ -11,11 +11,13 @@ env:
 jobs:
   UART_Bridge_Check:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ env.WORKDIR }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/python
-        with:
-          workdir: ${{ env.WORKDIR }}
       - name: Lint
         run: |
           uv run mypy . --strict
