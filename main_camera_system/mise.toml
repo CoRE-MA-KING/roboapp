@@ -1,0 +1,10 @@
+[tools]
+rust = "1.91"
+
+[tasks.deps]
+description = "Install Dependency"
+run = "sudo apt install build-essential cmake nasm"
+
+[tasks.build]
+description = "Build the CLI"
+run = "cargo build --release"

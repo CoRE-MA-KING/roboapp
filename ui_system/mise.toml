@@ -1,0 +1,12 @@
+[tools]
+node = "22"
+pnpm = "10"
+rust = "1.91"
+
+[tasks.deps]
+description = "Install Dependency"
+run = "sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev clang libclang-dev llvm llvm-dev"
+
+[tasks.build]
+description = "Build the CLI"
+run = "pnpm tauri build"

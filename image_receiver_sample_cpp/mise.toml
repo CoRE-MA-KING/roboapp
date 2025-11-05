@@ -1,0 +1,10 @@
+[tools]
+rust = "1.91"
+
+[tasks.deps]
+description = "Install Dependency"
+run = "sudo apt install build-essential libopencv-dev libzenohcpp-dev libzenohc-dev"
+
+[tasks.build]
+description = "Build the CLI"
+run = "cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j --config Release"

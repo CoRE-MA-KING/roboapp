@@ -1,0 +1,15 @@
+name: "SetUp mise Environment"
+description: "SetUp mise Environment"
+
+inputs:
+  workdir:
+    description: "Working directory"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: jdx/mise-action@v3
+      with:
+        experimental: true
+        working_directory: ${{ inputs.workdir }}

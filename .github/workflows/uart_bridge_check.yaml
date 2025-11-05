@@ -13,16 +13,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/pixi
       - uses: ./.github/actions/python
         with:
           workdir: ${{ env.WORKDIR }}
       - name: Lint
         run: |
-          cd "$WORKDIR"
           uv run mypy . --strict
           uv run ruff check .
       - name: Format
         run: |
-          cd "$WORKDIR"
           uv run ruff format . --check --diff
