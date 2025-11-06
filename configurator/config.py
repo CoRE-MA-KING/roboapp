@@ -1,7 +1,6 @@
 from typing import Literal
 
-from pydantic import BaseModel, Field, model_validator
-from typing_extensions import Self
+from pydantic import BaseModel, Field
 
 
 class GlobalConfig(BaseModel):
@@ -51,6 +50,12 @@ class GUIConfig(BaseModel):
     host: str = Field(default="localhost")
 
 
+class UARTConfig(BaseModel):
+    model_config = {"extra": "forbid"}
+
+    port: str
+
+
 class Config(BaseModel):
     model_config = {"extra": "forbid"}
 
@@ -58,3 +63,4 @@ class Config(BaseModel):
     lidar: LidarConfig = LidarConfig()
     camera: CameraConfig = CameraConfig()
     gui: GUIConfig = GUIConfig()
+    uart: UARTConfig = UARTConfig()

@@ -6,11 +6,11 @@ from typing import Any
 from pydantic import BaseModel, Field, field_validator
 
 
-class Global(BaseModel):
-    prefix: str = Field("", description="Zenoh Prefix")
+class GlobalConfig(BaseModel):
+    zenoh_prefix: str | None = Field(default=None, description="Zenoh Prefix")
 
 
-class Config(BaseModel):
+class UartConfig(BaseModel):
     port: str = Field(..., description="UARTポートのパス")
 
     @field_validator("port", mode="after")
@@ -46,11 +46,11 @@ def load_config(file_path: str | None = None) -> dict[str, Any]:
         return tomllib.load(f)
 
 
-def get_global_config(file_path: str | None = None) -> Global:
+def get_global_config(file_path: str | None = None) -> GlobalConfig:
     """Global設定を取得する"""
-    return Global.model_validate(load_config(file_path).get("global", {}))
+    return GlobalConfig.model_validate(load_config(file_path).get("global", {}))
 
 
-def get_uart_config(file_path: str | None = None) -> Config:
+def get_uart_config(file_path: str | None = None) -> UartConfig:
     """UART設定を取得する"""
-    return Config.model_validate(load_config(file_path).get("uart", {}))
+    return UartConfig.model_validate(load_config(file_path).get("uart", {}))
