@@ -5,20 +5,56 @@ use dirs;
 use std::env;
 use std::path::PathBuf;
 
-fn get_config_file() -> PathBuf {
-    match env::var("XDG_CONFIG_HOME") {
-        Ok(path) => PathBuf::from(path).join("roboapp/config.toml"),
-        Err(_) => match dirs::home_dir() {
-            Some(home) => home.join(".config").join("roboapp/config.toml"),
-            None => panic!("ホームディレクトリが取得できませんでした"),
+fn parse_configpath(path: Option<PathBuf>) -> PathBuf {
+    match path {
+        Some(p) => match p.canonicalize() {
+            Ok(abs) => abs,
+            Err(_) => p, // 解決できなければそのまま使う
+        },
+        None => match env::var("XDG_CONFIG_HOME") {
+            Ok(path) => PathBuf::from(path).join("roboapp/config.toml"),
+            Err(_) => match dirs::home_dir() {
+                Some(home) => home.join(".config").join("roboapp/config.toml"),
+                None => panic!("ホームディレクトリが取得できませんでした"),
+            },
         },
     }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-
-pub struct CameraDevice {
+pub struct GlobalConfig {
     #[serde(default)]
+    pub websocket_port: u16,
+    #[serde(default)]
+    pub zenoh_prefix: Option<String>,
+}
+
+impl Default for GlobalConfig {
+    fn default() -> Self {
+        GlobalConfig {
+            websocket_port: 8080,
+            zenoh_prefix: None,
+        }
+    }
+}
+
+impl GlobalConfig {
+    pub fn from_config_file(path: Option<PathBuf>) -> Self {
+        let value: Value =
+            toml::from_str(&std::fs::read_to_string(parse_configpath(path)).unwrap()).unwrap();
+
+        match value.get("global") {
+            Some(v) => match v.clone().try_into() {
+                Ok(cfg) => cfg,
+                Err(_) => panic!("'global' テーブルのパースに失敗しました"),
+            },
+            None => return GlobalConfig::default(),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CameraDevice {
     pub device: String,
     #[serde(default)]
     pub width: u32,
@@ -29,7 +65,7 @@ pub struct CameraDevice {
 impl Default for CameraDevice {
     fn default() -> Self {
         CameraDevice {
-            device: "/dev/video0".to_string(),
+            device: String::new(),
             width: 1280,
             height: 720,
         }
@@ -41,59 +77,86 @@ impl Default for CameraDevice {
 pub struct CameraConfig {
     #[serde(default)]
     pub websocket: bool,
-    #[serde(default = "CameraConfig::default_websocket_port")]
-    pub websocket_port: u16,
     #[serde(default)]
     pub zenoh: bool,
     #[serde(default)]
-    pub zenoh_prefix: String,
-    #[serde(default)]
     pub devices: Vec<CameraDevice>,
-}
-impl CameraConfig {
-    fn default_websocket_port() -> u16 {
-        8080
-    }
 }
 
 impl Default for CameraConfig {
     fn default() -> Self {
         CameraConfig {
             websocket: false,
-            websocket_port: Self::default_websocket_port(),
             zenoh: false,
-            zenoh_prefix: "".to_string(),
-            devices: vec![CameraDevice::default()],
+            devices: vec![],
         }
     }
 }
 
-pub fn parse_config(path: Option<PathBuf>) -> CameraConfig {
-    let path = match path {
-        Some(p) => match p.canonicalize() {
-            Ok(abs) => abs,
-            Err(_) => p, // 解決できなければそのまま使う
-        },
-        None => get_config_file(),
-    };
-    println!("Using config file: {}", path.display());
-    let value: Value = toml::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
+impl CameraConfig {
+    pub fn from_config_file(path: Option<PathBuf>) -> Self {
+        let value: Value =
+            toml::from_str(&std::fs::read_to_string(parse_configpath(path)).unwrap()).unwrap();
 
-    let db_table = value
-        .get("camera")
-        .unwrap_or_else(|| panic!("'camera' テーブルが見つかりません"));
-
-    // 3. その Value (テーブル) を目的の構造体にデシリアライズ
-    db_table.clone().try_into().unwrap()
+        match value.get("camera") {
+            Some(v) => match v.clone().try_into() {
+                Ok(cfg) => cfg,
+                Err(_) => panic!("'camera' テーブルのパースに失敗しました"),
+            },
+            None => return CameraConfig::default(),
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn test_raw_globalconfig() {
+        let config = GlobalConfig::default();
+        dbg!(&config);
+        assert_eq!(config.websocket_port, 8080);
+        assert_eq!(config.zenoh_prefix, None);
+    }
 
     #[test]
-    fn test_parse_config() {
-        let config = parse_config(Some(PathBuf::from("../config.toml")));
-        dbg!(config);
+    fn test_raw_cameraconfig() {
+        let config = CameraConfig::default();
+        dbg!(&config);
+        assert_eq!(config.websocket, false);
+        assert_eq!(config.zenoh, false);
+        assert_eq!(config.devices.len(), 0);
+    }
+
+    #[test]
+    fn test_raw_cameradevice() {
+        let config = CameraDevice::default();
+        dbg!(&config);
+        assert_eq!(config.device, "");
+        assert_eq!(config.width, 1280);
+        assert_eq!(config.height, 720);
+    }
+
+    #[test]
+    fn test_parse_globalconfig() {
+        let g = GlobalConfig::from_config_file(Some(PathBuf::from(
+            "tests/testdata/global_config_empty.toml",
+        )));
+
+        assert_eq!(g.websocket_port, 8080);
+        assert_eq!(g.zenoh_prefix, None);
+    }
+
+    #[test]
+    fn test_parse_cameraconfig() {
+        let result = std::panic::catch_unwind(|| {
+            CameraConfig::from_config_file(Some(PathBuf::from(
+                "tests/testdata/camera_config_no_dev.toml",
+            )))
+        });
+        assert!(
+            result.is_err(),
+            "deviceフィールドがない場合はパニックになるべき"
+        );
     }
 }

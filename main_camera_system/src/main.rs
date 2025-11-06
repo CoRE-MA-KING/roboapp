@@ -2,7 +2,7 @@ use clap::Parser;
 use futures_util::{SinkExt, StreamExt};
 use log::{debug, error, info};
 use main_camera_system::camera_wrapper::create_camera_stream;
-use main_camera_system::config::parse_config;
+use main_camera_system::config::{CameraConfig, GlobalConfig};
 use std::env;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
@@ -25,22 +25,26 @@ struct Args {
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
-    println!("config file: {:?}", args.config_file);
-
-    let config = parse_config(args.config_file);
 
     unsafe { env::set_var("RUST_LOG", if args.debug { "debug" } else { "info" }) };
     env_logger::init();
 
+    let camera_config = CameraConfig::from_config_file(args.config_file.clone());
+    let global_config = GlobalConfig::from_config_file(args.config_file.clone());
+
+    debug!("Global Config: {:?}", global_config);
+    debug!("Camera Config: {:?}", camera_config);
+
     let mut device_index: usize = 0;
 
-    let mut stream: Option<Stream<'_>> = match create_camera_stream(&config.devices[device_index]) {
-        Ok(stream) => Some(stream),
-        Err(e) => {
-            eprintln!("カメラデバイスの初期化失敗: {:?}", e);
-            None
-        }
-    };
+    let mut stream: Option<Stream<'_>> =
+        match create_camera_stream(&camera_config.devices[device_index]) {
+            Ok(stream) => Some(stream),
+            Err(e) => {
+                eprintln!("カメラデバイスの初期化失敗: {:?}", e);
+                None
+            }
+        };
 
     // Initialize Zenoh client
 
@@ -51,13 +55,12 @@ async fn main() {
 
     let zenoh = zenoh::open(zenoh_config).await.unwrap();
 
-    let prefix: String = if !config.zenoh_prefix.is_empty() {
-        format!("{}/{}", config.zenoh_prefix.clone(), "cam")
-    } else {
-        "cam".to_string()
+    let prefix: String = match global_config.zenoh_prefix {
+        Some(prefix) => format!("{}/{}", prefix, "cam"),
+        None => "cam".to_string(),
     };
 
-    let jpg_publisher: Option<zenoh::pubsub::Publisher> = if config.zenoh {
+    let jpg_publisher: Option<zenoh::pubsub::Publisher> = if camera_config.zenoh {
         let topic_name = format!("{prefix}/jpg");
         info!("JPEG publishing enabled at {topic_name}");
         Some(zenoh.declare_publisher(topic_name).await.unwrap())
@@ -73,16 +76,16 @@ async fn main() {
     // WebSocket配信を有効化する場合のみサーバーを起動
     type WsClients = Arc<Mutex<Vec<tokio::sync::mpsc::UnboundedSender<Vec<u8>>>>>;
 
-    let ws_clients: Option<WsClients> = if config.websocket {
+    let ws_clients: Option<WsClients> = if camera_config.websocket {
         let ws_clients: WsClients = Arc::new(Mutex::new(Vec::new()));
         let ws_clients_clone = ws_clients.clone();
         tokio::spawn(async move {
-            let listener = TcpListener::bind(format!("0.0.0.0:{}", config.websocket_port))
+            let listener = TcpListener::bind(format!("0.0.0.0:{}", global_config.websocket_port))
                 .await
                 .expect("Failed to bind WebSocket port");
             info!(
                 "WebSocket server listening on ws://0.0.0.0:{}",
-                config.websocket_port
+                global_config.websocket_port
             );
             while let Ok((stream, _)) = listener.accept().await {
                 let ws_clients_inner = ws_clients_clone.clone();
@@ -139,7 +142,7 @@ async fn main() {
             let new_index = match new_value {
                 Some(n) => n,
                 None => device_index + 1,
-            } % config.devices.len();
+            } % camera_config.devices.len();
 
             if new_index == device_index {
                 continue;
@@ -176,7 +179,7 @@ async fn main() {
                 stream = None;
             }
         } else {
-            stream = match create_camera_stream(&config.devices[device_index]) {
+            stream = match create_camera_stream(&camera_config.devices[device_index]) {
                 Ok(new_stream) => {
                     info!("Switched to device index: {}", device_index);
                     Some(new_stream)
