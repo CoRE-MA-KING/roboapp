@@ -17,4 +17,4 @@
    - `./src-tauri/target/release/ui_system` に実行ファイルが生成されます
 5. 実行
    - `./src-tauri/target/release/ui_system`
-   - 画像配信は、`main-camera-system` に `-w` オプションをつけて実行する必要があります
+   - 画像配信は、`config.toml` に `websocket = true` オプションをつけて実行する必要があります
