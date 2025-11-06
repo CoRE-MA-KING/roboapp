@@ -13,6 +13,9 @@ env:
 jobs:
   UI_System_Check_Rust:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKDIR }}/src-tauri
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/rust
@@ -32,18 +35,18 @@ jobs:
             librsvg2-dev
       - name: Lint
         run: |
-          cd "$WORKDIR/src-tauri"
           cargo clippy --all-targets --all-features -- -D warnings
       - name: Format
         run: |
-          cd "$WORKDIR/src-tauri"
           cargo fmt --all -- --check
       - name: Run Tests
         run: |
-          cd "$WORKDIR/src-tauri"
           cargo test --all-features -- --nocapture
   UI_System_Check_JS:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKDIR }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/nodejs
@@ -51,9 +54,7 @@ jobs:
           workdir: ${{ env.WORKDIR }}
       - name: Typecheck
         run: |
-          cd "$WORKDIR"
           pnpm check
       - name: Lint
         run: |
-          cd "$WORKDIR"
           pnpm lint
