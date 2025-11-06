@@ -36,12 +36,13 @@ pub fn run() {
                 None => None,
             };
 
-            println!("Using config file: {:?}", config_file);
-
             let gui_config = config::parse_guiconfig(config_file);
             let global_config = config::parse_globalconfig(config_file);
 
-            let state_global_config = app.state::<Arc<Mutex<GlobalConfig>>>();
+            println!("Using config file: {:?}", gui_config);
+            println!("Using config file: {:?}", global_config);
+
+            let state_global_config = app.state::<Mutex<GlobalConfig>>();
 
             let mut global_config_lock = state_global_config.lock().unwrap();
 
