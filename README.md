@@ -28,7 +28,7 @@
 | アプリ名           | トピック名      | データ形式   |
 | ------------------ | --------------- | ------------ |
 | main_camera_system | cam/jpg         | JPEG         |
-| main_camera_system | cam/raw         | RGB 24 bit   |
+| main_camera_system | cam/switch      | int or None  |
 | uart_bridge        | robot/state/*   | RobotState   |
 | uart_bridge        | robot/command/* | RobotCommand |
 

@@ -1,0 +1,7 @@
+[camera]
+zenoh = true
+websocket = true
+devices = [
+  { device = "/dev/video0", height = 720, width = 1280 },
+  { device = "/dev/video4", height = 720, width = 1280 }
+]
