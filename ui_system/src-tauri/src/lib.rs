@@ -21,15 +21,22 @@ pub fn run() {
         .setup(|app| {
             let args = match app.cli().matches() {
                 Ok(matches) => matches.args,
-                Err(_) => panic!("Failed to parse arguments"),
+                Err(_) => {
+                    // パース失敗時は何もせず正常終了
+                    return Ok(());
+                }
             };
 
-            println!("args: {:?}", args);
+            if args.contains_key("help") {
+                println!("{}", args["help"].value.as_str().unwrap());
+            }
 
             let config_file = match args.get("config") {
                 Some(v) => v.value.as_str(),
                 None => None,
             };
+
+            println!("Using config file: {:?}", config_file);
 
             let gui_config = config::parse_guiconfig(config_file);
             let global_config = config::parse_globalconfig(config_file);
