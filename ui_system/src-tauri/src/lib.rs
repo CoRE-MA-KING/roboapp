@@ -1,5 +1,6 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 mod zenoh_client;
+use crate::config::GUIConfig;
 use crate::config::GlobalConfig;
 use std::sync::Arc;
 use std::sync::Mutex;
@@ -36,8 +37,8 @@ pub fn run() {
                 None => None,
             };
 
-            let gui_config = config::parse_guiconfig(config_file);
-            let global_config = config::parse_globalconfig(config_file);
+            let gui_config = GUIConfig::from_config_file(config_file);
+            let global_config = GlobalConfig::from_config_file(config_file);
 
             println!("Using config file: {:?}", gui_config);
             println!("Using config file: {:?}", global_config);
@@ -49,7 +50,7 @@ pub fn run() {
             global_config_lock.zenoh_prefix = global_config.zenoh_prefix.clone();
 
             app.emit("host", gui_config.host).unwrap();
-            app.emit("port", gui_config.port).unwrap();
+            app.emit("port", global_config.websocket_port).unwrap();
 
             let app_handle = app.app_handle().clone();
 

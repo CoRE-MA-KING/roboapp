@@ -21,45 +21,118 @@ fn get_config_file(file_path: Option<&str>) -> PathBuf {
     }
 }
 
-#[derive(Default, Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct GlobalConfig {
-    #[serde(default)]
+    #[serde(default = "GlobalConfig::default_websocket_port")]
+    pub websocket_port: u16,
+    #[serde(default = "GlobalConfig::default_zenoh_prefix")]
     pub zenoh_prefix: Option<String>,
+}
+
+impl GlobalConfig {
+    fn default_websocket_port() -> u16 {
+        8080
+    }
+    fn default_zenoh_prefix() -> Option<String> {
+        None
+    }
+    pub fn from_config_file(path: Option<&str>) -> Self {
+        let value: Value =
+            toml::from_str(&std::fs::read_to_string(get_config_file(path)).unwrap()).unwrap();
+
+        match value.get("global") {
+            Some(v) => match v.clone().try_into() {
+                Ok(cfg) => cfg,
+                Err(_) => panic!("'global' テーブルのパースに失敗しました"),
+            },
+            None => return GlobalConfig::default(),
+        }
+    }
+}
+
+impl Default for GlobalConfig {
+    fn default() -> Self {
+        GlobalConfig {
+            websocket_port: 8080,
+            zenoh_prefix: None,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GUIConfig {
-    #[serde(default)]
+    #[serde(default = "GUIConfig::default_host")]
     pub host: String,
-    #[serde(default)]
-    pub port: String,
 }
 
 impl Default for GUIConfig {
     fn default() -> Self {
         GUIConfig {
             host: "localhost".to_string(),
-            port: "8080".to_string(),
         }
     }
 }
 
-pub fn parse_globalconfig(path: Option<&str>) -> GlobalConfig {
-    let p = get_config_file(path);
-    let value: Value = toml::from_str(&std::fs::read_to_string(p).unwrap()).unwrap();
+impl GUIConfig {
+    fn default_host() -> String {
+        "localhost".to_string()
+    }
+    pub fn from_config_file(path: Option<&str>) -> Self {
+        let value: Value =
+            toml::from_str(&std::fs::read_to_string(get_config_file(path)).unwrap()).unwrap();
 
-    match value.get("global") {
-        Some(v) => v.clone().try_into().unwrap(),
-        None => GlobalConfig::default(),
+        match value.get("gui") {
+            Some(v) => match v.clone().try_into() {
+                Ok(cfg) => cfg,
+                Err(_) => panic!("'gui' テーブルのパースに失敗しました"),
+            },
+            None => return GUIConfig::default(),
+        }
     }
 }
 
-pub fn parse_guiconfig(path: Option<&str>) -> GUIConfig {
-    let p = get_config_file(path);
-    let value: Value = toml::from_str(&std::fs::read_to_string(p).unwrap()).unwrap();
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    match value.get("gui") {
-        Some(v) => v.clone().try_into().unwrap(),
-        None => GUIConfig::default(),
+    #[test]
+    fn test_parse_globalconfig() {
+        let g = GlobalConfig::from_config_file(Some("test/resources/global_config_empty.toml"));
+
+        assert_eq!(g.websocket_port, 8080);
+        assert_eq!(g.zenoh_prefix, None);
+    }
+
+    #[test]
+    fn test_parse_globalconfig_zenoh_prefix() {
+        let g =
+            GlobalConfig::from_config_file(Some("test/resources/global_config_zenoh_prefix.toml"));
+
+        assert_eq!(g.websocket_port, 8080);
+        assert_eq!(g.zenoh_prefix, Some("roboapp".into()));
+    }
+
+    #[test]
+    fn test_parse_globalconfig_websocket_port() {
+        let g = GlobalConfig::from_config_file(Some(
+            "test/resources/global_config_websocket_port.toml",
+        ));
+
+        assert_eq!(g.websocket_port, 9090);
+        assert_eq!(g.zenoh_prefix, None);
+    }
+
+    #[test]
+    fn test_parse_guiconfig_empty() {
+        let g = GUIConfig::from_config_file(Some("test/resources/gui_config_empty.toml"));
+
+        assert_eq!(g.host, "localhost");
+    }
+
+    #[test]
+    fn test_parse_guiconfig_host() {
+        let g = GUIConfig::from_config_file(Some("test/resources/gui_config_host.toml"));
+
+        assert_eq!(g.host, "foo.local");
     }
 }
