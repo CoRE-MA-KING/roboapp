@@ -23,10 +23,19 @@ fn parse_configpath(path: Option<PathBuf>) -> PathBuf {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GlobalConfig {
-    #[serde(default)]
+    #[serde(default = "GlobalConfig::default_websocket_port")]
     pub websocket_port: u16,
-    #[serde(default)]
+    #[serde(default = "GlobalConfig::default_zenoh_prefix")]
     pub zenoh_prefix: Option<String>,
+}
+
+impl GlobalConfig {
+    fn default_websocket_port() -> u16 {
+        8080
+    }
+    fn default_zenoh_prefix() -> Option<String> {
+        None
+    }
 }
 
 impl Default for GlobalConfig {
@@ -56,9 +65,9 @@ impl GlobalConfig {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CameraDevice {
     pub device: String,
-    #[serde(default)]
+    #[serde(default = "CameraDevice::default_width")]
     pub width: u32,
-    #[serde(default)]
+    #[serde(default = "CameraDevice::default_height")]
     pub height: u32,
 }
 
@@ -69,6 +78,15 @@ impl Default for CameraDevice {
             width: 1280,
             height: 720,
         }
+    }
+}
+
+impl CameraDevice {
+    fn default_height() -> u32 {
+        720
+    }
+    fn default_width() -> u32 {
+        1280
     }
 }
 
@@ -111,31 +129,6 @@ impl CameraConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
-    #[test]
-    fn test_raw_globalconfig() {
-        let config = GlobalConfig::default();
-        dbg!(&config);
-        assert_eq!(config.websocket_port, 8080);
-        assert_eq!(config.zenoh_prefix, None);
-    }
-
-    #[test]
-    fn test_raw_cameraconfig() {
-        let config = CameraConfig::default();
-        dbg!(&config);
-        assert_eq!(config.websocket, false);
-        assert_eq!(config.zenoh, false);
-        assert_eq!(config.devices.len(), 0);
-    }
-
-    #[test]
-    fn test_raw_cameradevice() {
-        let config = CameraDevice::default();
-        dbg!(&config);
-        assert_eq!(config.device, "");
-        assert_eq!(config.width, 1280);
-        assert_eq!(config.height, 720);
-    }
 
     #[test]
     fn test_parse_globalconfig() {
@@ -148,7 +141,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_cameraconfig() {
+    fn test_parse_invalid_cameraconfig() {
         let result = std::panic::catch_unwind(|| {
             CameraConfig::from_config_file(Some(PathBuf::from(
                 "tests/testdata/camera_config_no_dev.toml",
@@ -158,5 +151,16 @@ mod tests {
             result.is_err(),
             "deviceフィールドがない場合はパニックになるべき"
         );
+    }
+
+    #[test]
+    fn test_parse_cameraconfig() {
+        let c = CameraConfig::from_config_file(Some(PathBuf::from(
+            "tests/testdata/camera_config.toml",
+        )));
+        assert_eq!(c.devices.len(), 1);
+        assert_eq!(c.devices[0].device, "/dev/video0");
+        assert_eq!(c.devices[0].width, 640);
+        assert_eq!(c.devices[0].height, 720);
     }
 }
