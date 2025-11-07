@@ -141,6 +141,26 @@ mod tests {
     }
 
     #[test]
+    fn test_parse_globalconfig_zenoh_prefix() {
+        let g = GlobalConfig::from_config_file(Some(PathBuf::from(
+            "tests/testdata/global_config_zenoh_prefix.toml",
+        )));
+
+        assert_eq!(g.websocket_port, 8080);
+        assert_eq!(g.zenoh_prefix, Some("roboapp".into()));
+    }
+
+    #[test]
+    fn test_parse_globalconfig_websocket_port() {
+        let g = GlobalConfig::from_config_file(Some(PathBuf::from(
+            "tests/testdata/global_config_websocket_port.toml",
+        )));
+
+        assert_eq!(g.websocket_port, 9090);
+        assert_eq!(g.zenoh_prefix, None);
+    }
+
+    #[test]
     fn test_parse_invalid_cameraconfig() {
         let result = std::panic::catch_unwind(|| {
             CameraConfig::from_config_file(Some(PathBuf::from(
