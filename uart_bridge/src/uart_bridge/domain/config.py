@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field, field_validator
 
 class GlobalConfig(BaseModel):
     zenoh_prefix: str | None = Field(default=None, description="Zenoh Prefix")
+    websocket_port: int | None = Field(default=8080, description="WebSocket Port")
 
 
 class UartConfig(BaseModel):
@@ -27,7 +28,7 @@ class UartConfig(BaseModel):
         return str(real_path)
 
 
-def load_config(file_path: str | None = None) -> dict[str, Any]:
+def load_config(file_path: Path | str | None = None) -> dict[str, Any]:
     """設定ファイルを読み込む"""
 
     file = (
@@ -46,11 +47,11 @@ def load_config(file_path: str | None = None) -> dict[str, Any]:
         return tomllib.load(f)
 
 
-def get_global_config(file_path: str | None = None) -> GlobalConfig:
+def get_global_config(file_path: Path | str | None = None) -> GlobalConfig:
     """Global設定を取得する"""
     return GlobalConfig.model_validate(load_config(file_path).get("global", {}))
 
 
-def get_uart_config(file_path: str | None = None) -> UartConfig:
+def get_uart_config(file_path: Path | str | None = None) -> UartConfig:
     """UART設定を取得する"""
     return UartConfig.model_validate(load_config(file_path).get("uart", {}))

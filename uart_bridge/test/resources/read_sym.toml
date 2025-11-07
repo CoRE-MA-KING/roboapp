@@ -1,0 +1,2 @@
+[uart]
+port = "/tmp/roboapp_test_uart"
