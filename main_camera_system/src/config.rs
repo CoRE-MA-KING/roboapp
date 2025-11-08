@@ -179,7 +179,7 @@ mod tests {
     #[test]
     fn test_parse_cameraconfig() {
         let c = CameraConfig::from_config_file(Some(PathBuf::from(
-            "test/resources/camera_config.toml",
+            "test/resources/camera_config_device_width.toml",
         )));
         assert_eq!(c.devices.len(), 1);
         assert_eq!(c.devices[0].device, "/dev/video0");
