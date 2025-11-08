@@ -36,18 +36,6 @@ impl GlobalConfig {
     fn default_zenoh_prefix() -> Option<String> {
         None
     }
-}
-
-impl Default for GlobalConfig {
-    fn default() -> Self {
-        GlobalConfig {
-            websocket_port: 8080,
-            zenoh_prefix: None,
-        }
-    }
-}
-
-impl GlobalConfig {
     pub fn from_config_file(path: Option<PathBuf>) -> Self {
         let value: Value =
             toml::from_str(&std::fs::read_to_string(parse_configpath(path)).unwrap()).unwrap();
@@ -58,6 +46,15 @@ impl GlobalConfig {
                 Err(_) => panic!("'global' テーブルのパースに失敗しました"),
             },
             None => return GlobalConfig::default(),
+        }
+    }
+}
+
+impl Default for GlobalConfig {
+    fn default() -> Self {
+        GlobalConfig {
+            websocket_port: 8080,
+            zenoh_prefix: None,
         }
     }
 }
@@ -93,9 +90,9 @@ impl CameraDevice {
 #[derive(Debug, Serialize, Deserialize)]
 
 pub struct CameraConfig {
-    #[serde(default)]
+    #[serde(default = "CameraConfig::default_websocket")]
     pub websocket: bool,
-    #[serde(default)]
+    #[serde(default = "CameraConfig::default_zenoh")]
     pub zenoh: bool,
     #[serde(default)]
     pub devices: Vec<CameraDevice>,
@@ -112,6 +109,12 @@ impl Default for CameraConfig {
 }
 
 impl CameraConfig {
+    fn default_websocket() -> bool {
+        false
+    }
+    fn default_zenoh() -> bool {
+        false
+    }
     pub fn from_config_file(path: Option<PathBuf>) -> Self {
         let value: Value =
             toml::from_str(&std::fs::read_to_string(parse_configpath(path)).unwrap()).unwrap();
@@ -133,7 +136,7 @@ mod tests {
     #[test]
     fn test_parse_globalconfig() {
         let g = GlobalConfig::from_config_file(Some(PathBuf::from(
-            "tests/testdata/global_config_empty.toml",
+            "test/resources/global_config_empty.toml",
         )));
 
         assert_eq!(g.websocket_port, 8080);
@@ -143,7 +146,7 @@ mod tests {
     #[test]
     fn test_parse_globalconfig_zenoh_prefix() {
         let g = GlobalConfig::from_config_file(Some(PathBuf::from(
-            "tests/testdata/global_config_zenoh_prefix.toml",
+            "test/resources/global_config_zenoh_prefix.toml",
         )));
 
         assert_eq!(g.websocket_port, 8080);
@@ -153,7 +156,7 @@ mod tests {
     #[test]
     fn test_parse_globalconfig_websocket_port() {
         let g = GlobalConfig::from_config_file(Some(PathBuf::from(
-            "tests/testdata/global_config_websocket_port.toml",
+            "test/resources/global_config_websocket_port.toml",
         )));
 
         assert_eq!(g.websocket_port, 9090);
@@ -164,7 +167,7 @@ mod tests {
     fn test_parse_invalid_cameraconfig() {
         let result = std::panic::catch_unwind(|| {
             CameraConfig::from_config_file(Some(PathBuf::from(
-                "tests/testdata/camera_config_no_dev.toml",
+                "test/resources/camera_config_no_dev.toml",
             )))
         });
         assert!(
@@ -176,7 +179,7 @@ mod tests {
     #[test]
     fn test_parse_cameraconfig() {
         let c = CameraConfig::from_config_file(Some(PathBuf::from(
-            "tests/testdata/camera_config.toml",
+            "test/resources/camera_config.toml",
         )));
         assert_eq!(c.devices.len(), 1);
         assert_eq!(c.devices[0].device, "/dev/video0");
