@@ -26,3 +26,6 @@ jobs:
       - name: Format
         run: |
           uv run ruff format . --check --diff
+      - name: Run Tests
+        run: |
+          uv run task test
