@@ -12,4 +12,18 @@ dependencies = [
 dev = [
     "mypy>=1.18.2",
     "ruff>=0.14.3",
+    "taskipy>=1.14.1",
 ]
+
+[tool.lint.ruff]
+select = [
+    "E",
+    "F",
+    "I",
+    "W",
+]
+
+[tool.taskipy.tasks]
+check = "mypy . --strict"
+lint = "ruff check ."
+format = "ruff check . --fix && ruff format ."

@@ -53,14 +53,14 @@ class GUIConfig(BaseModel):
 class UARTConfig(BaseModel):
     model_config = {"extra": "forbid"}
 
-    port: str
+    port: str = Field(...)
 
 
 class Config(BaseModel):
     model_config = {"extra": "forbid"}
 
-    global_: GlobalConfig = Field(default_factory=GlobalConfig, alias="global")
-    lidar: LidarConfig = LidarConfig()
-    camera: CameraConfig = CameraConfig()
-    gui: GUIConfig = GUIConfig()
-    uart: UARTConfig = UARTConfig()
+    global_: GlobalConfig = Field(..., alias="global")
+    lidar: LidarConfig = Field(...)
+    camera: CameraConfig = Field(...)
+    gui: GUIConfig = Field(...)
+    uart: UARTConfig = Field(...)

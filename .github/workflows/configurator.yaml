@@ -1,0 +1,31 @@
+name: UART Bridge Check
+on:
+  pull_request:
+    branches:
+      - "main"
+    paths:
+      - "configurator/src/**"
+      - ".github/workflows/configurator.yaml"
+env:
+  WORKDIR: configurator
+jobs:
+  Configurator_Check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKDIR }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/python
+        with:
+          workdir: ${{ env.WORKDIR }}
+      - name: Lint
+        run: |
+          uv run mypy . --strict
+          uv run ruff check .
+      - name: Format
+        run: |
+          uv run ruff format . --check --diff
+      - name: Run Tests
+        run: |
+          uv run task test
