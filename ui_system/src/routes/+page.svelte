@@ -1,15 +1,11 @@
 <script lang="ts">
-	import { get } from "svelte/store";
-
-	import Parameters, { host, port } from "$lib/components/Parameters.svelte";
 	import ImageViewer from "$lib/components/ImageViewer.svelte";
 	import TextBox from "$lib/components/TextBox.svelte";
 </script>
 
 <main class="container">
-	<Parameters />
 	<h2>Image</h2>
-	<ImageViewer host={get(host)} port={get(port)} />
+	<ImageViewer />
 
 	<h2>Robot State</h2>
 	<TextBox pre="video_id : " task_name="video_id" post="" />

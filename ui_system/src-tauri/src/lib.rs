@@ -15,10 +15,15 @@ pub mod config;
 pub fn run() {
     tauri::Builder::default()
         .manage(Mutex::new(GlobalConfig::default()))
+        .manage(Mutex::new(GUIConfig::default()))
         .plugin(tauri_plugin_cli::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_log::Builder::new().build())
-        .invoke_handler(tauri::generate_handler![state_request])
+        .invoke_handler(tauri::generate_handler![
+            state_request,
+            get_config_host,
+            get_config_port
+        ])
         .setup(|app| {
             let args = match app.cli().matches() {
                 Ok(matches) => matches.args,
@@ -37,20 +42,22 @@ pub fn run() {
                 None => None,
             };
 
-            let gui_config = GUIConfig::from_config_file(config_file);
             let global_config = GlobalConfig::from_config_file(config_file);
+            let gui_config = GUIConfig::from_config_file(config_file);
 
             println!("Using config file: {:?}", gui_config);
             println!("Using config file: {:?}", global_config);
 
             let state_global_config = app.state::<Mutex<GlobalConfig>>();
+            let state_gui_config = app.state::<Mutex<GUIConfig>>();
 
             let mut global_config_lock = state_global_config.lock().unwrap();
+            let mut gui_config_lock = state_gui_config.lock().unwrap();
 
             global_config_lock.zenoh_prefix = global_config.zenoh_prefix.clone();
+            global_config_lock.websocket_port = global_config.websocket_port;
 
-            app.emit("host", gui_config.host).unwrap();
-            app.emit("port", global_config.websocket_port).unwrap();
+            gui_config_lock.host = gui_config.host.clone();
 
             let app_handle = app.app_handle().clone();
 
@@ -107,6 +114,20 @@ async fn state_request(global_config: State<'_, Mutex<GlobalConfig>>) -> Result<
         .map_err(|e| e.to_string());
 
     Ok(())
+}
+
+#[tauri::command]
+fn get_config_host(gui_config: State<'_, Mutex<GUIConfig>>) -> Result<String, String> {
+    Ok(gui_config.lock().unwrap().host.clone())
+}
+
+#[tauri::command]
+fn get_config_port(global_config: State<'_, Mutex<GlobalConfig>>) -> Result<u16, String> {
+    println!(
+        "call port: {}",
+        global_config.lock().unwrap().websocket_port
+    );
+    Ok(global_config.lock().unwrap().websocket_port)
 }
 
 async fn zenoh_sub(app: AppHandle, prefix: Option<String>) {

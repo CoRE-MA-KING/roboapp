@@ -29,6 +29,15 @@ pub struct GlobalConfig {
     pub zenoh_prefix: Option<String>,
 }
 
+impl Default for GlobalConfig {
+    fn default() -> Self {
+        Self {
+            websocket_port: Self::default_websocket_port(),
+            zenoh_prefix: Self::default_zenoh_prefix(),
+        }
+    }
+}
+
 impl GlobalConfig {
     fn default_websocket_port() -> u16 {
         8080
@@ -50,15 +59,6 @@ impl GlobalConfig {
     }
 }
 
-impl Default for GlobalConfig {
-    fn default() -> Self {
-        GlobalConfig {
-            websocket_port: 8080,
-            zenoh_prefix: None,
-        }
-    }
-}
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GUIConfig {
     #[serde(default = "GUIConfig::default_host")]
@@ -68,7 +68,7 @@ pub struct GUIConfig {
 impl Default for GUIConfig {
     fn default() -> Self {
         GUIConfig {
-            host: "localhost".to_string(),
+            host: Self::default_host(),
         }
     }
 }
