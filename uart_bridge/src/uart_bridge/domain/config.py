@@ -20,11 +20,7 @@ class UartConfig(BaseModel):
         # ここで加工
         real_path = Path(v).resolve()
         if not real_path.exists():
-            raise ValueError(
-                "invalid_port",
-                "{port} is not a valid UART port!",
-                {"port": v},
-            )
+            raise ValueError(f"{v} is not a valid UART port!")
         return str(real_path)
 
 
