@@ -15,6 +15,8 @@ cd configurator
 uv run python3 check.py
 ```
 
+書式や設定内容は、[サンプルファイル](./configurator/test/resources/config_sample.toml)や、[設定の実装](./configurator/src/configurator/config.py)、各アプリケーションの実装・ドキュメントを参考にしてください。
+
 ## アプリ一覧
 
 ### main_camera_system
