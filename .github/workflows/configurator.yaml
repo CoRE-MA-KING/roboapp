@@ -1,4 +1,4 @@
-name: UART Bridge Check
+name: Configurator Check
 on:
   pull_request:
     branches:
