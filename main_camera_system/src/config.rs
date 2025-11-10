@@ -21,12 +21,21 @@ fn parse_configpath(path: Option<PathBuf>) -> PathBuf {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct GlobalConfig {
     #[serde(default = "GlobalConfig::default_websocket_port")]
     pub websocket_port: u16,
     #[serde(default = "GlobalConfig::default_zenoh_prefix")]
     pub zenoh_prefix: Option<String>,
+}
+
+impl Default for GlobalConfig {
+    fn default() -> Self {
+        Self {
+            websocket_port: Self::default_websocket_port(),
+            zenoh_prefix: Self::default_zenoh_prefix(),
+        }
+    }
 }
 
 impl GlobalConfig {
@@ -105,12 +114,30 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_parse_globalconfig() {
+    fn test_parse_globalconfig_empty() {
+        let g = GlobalConfig::from_config_file(Some(PathBuf::from(
+            "test/resources/global_config_empty.toml",
+        )));
+        assert_eq!(g.websocket_port, 8080);
+        assert_eq!(g.zenoh_prefix, None);
+    }
+
+    #[test]
+    fn test_parse_globalconfig_websocket_port() {
         let g = GlobalConfig::from_config_file(Some(PathBuf::from(
             "test/resources/global_config_websocket_port.toml",
         )));
         assert_eq!(g.websocket_port, 9090);
         assert_eq!(g.zenoh_prefix, None);
+    }
+
+    #[test]
+    fn test_parse_globalconfig_zenoh_prefix() {
+        let g = GlobalConfig::from_config_file(Some(PathBuf::from(
+            "test/resources/global_config_zenoh_prefix.toml",
+        )));
+        assert_eq!(g.websocket_port, 8080);
+        assert_eq!(g.zenoh_prefix, Some("roboapp".to_string()));
     }
 
     #[test]
