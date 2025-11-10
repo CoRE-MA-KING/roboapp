@@ -8,7 +8,7 @@ roboapp の設定ファイルを検査・生成するツールです。
 
 ### オプション
 
-`-c` or `--config` : 設定ファイルのパスを指定します。省略した場合、`$XDG_CONFIG_HOME/roboapp/config.yaml` or `$HOME/.config/roboapp/config.yaml` を使用します。
+`-c` or `--config` : 設定ファイルのパスを指定します。省略した場合、`$XDG_CONFIG_HOME/roboapp/config.toml` or `$HOME/.config/roboapp/config.toml` を使用します。
 
 正常実行できれば、設定ファイルは問題ありません。
 
