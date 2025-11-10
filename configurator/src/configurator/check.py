@@ -1,10 +1,11 @@
 import argparse
 import os
 import pprint
-import tomllib
 from pathlib import Path
 
-from config import Config
+import tomllib
+
+from configurator.config import Config
 
 
 def check(config_file: Path) -> None:

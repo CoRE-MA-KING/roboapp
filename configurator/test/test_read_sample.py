@@ -10,6 +10,6 @@ def get_resource_path() -> Path:
     return Path(__file__).parent / "resources/config_sample.toml"
 
 
-def test_read_sample(get_resource_path):
+def test_read_sample(get_resource_path: Path) -> None:
     with open(get_resource_path, "rb") as f:
         Config.model_validate(tomllib.load(f))
