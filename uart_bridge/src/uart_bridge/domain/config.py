@@ -32,7 +32,7 @@ def load_config(file_path: Path | str | None = None) -> dict[str, Any]:
         if file_path
         else (
             Path(os.getenv("XDG_CONFIG_HOME", Path.home() / ".config"))
-            / "roboapp/config.yaml"
+            / "roboapp/config.toml"
         )
     )
 
