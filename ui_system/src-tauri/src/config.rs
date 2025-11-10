@@ -45,7 +45,7 @@ impl GlobalConfig {
                 Ok(cfg) => cfg,
                 Err(_) => panic!("'global' テーブルのパースに失敗しました"),
             },
-            None => return GlobalConfig::default(),
+            None => GlobalConfig::default(),
         }
     }
 }
@@ -86,7 +86,7 @@ impl GUIConfig {
                 Ok(cfg) => cfg,
                 Err(_) => panic!("'gui' テーブルのパースに失敗しました"),
             },
-            None => return GUIConfig::default(),
+            None => GUIConfig::default(),
         }
     }
 }

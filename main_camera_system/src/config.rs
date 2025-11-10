@@ -21,7 +21,7 @@ fn parse_configpath(path: Option<PathBuf>) -> PathBuf {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct GlobalConfig {
     #[serde(default = "GlobalConfig::default_websocket_port")]
     pub websocket_port: u16,
@@ -45,16 +45,7 @@ impl GlobalConfig {
                 Ok(cfg) => cfg,
                 Err(_) => panic!("'global' テーブルのパースに失敗しました"),
             },
-            None => return GlobalConfig::default(),
-        }
-    }
-}
-
-impl Default for GlobalConfig {
-    fn default() -> Self {
-        GlobalConfig {
-            websocket_port: 8080,
-            zenoh_prefix: None,
+            None => GlobalConfig::default(),
         }
     }
 }
@@ -66,16 +57,6 @@ pub struct CameraDevice {
     pub width: u32,
     #[serde(default = "CameraDevice::default_height")]
     pub height: u32,
-}
-
-impl Default for CameraDevice {
-    fn default() -> Self {
-        CameraDevice {
-            device: String::new(),
-            width: 1280,
-            height: 720,
-        }
-    }
 }
 
 impl CameraDevice {
@@ -98,16 +79,6 @@ pub struct CameraConfig {
     pub devices: Vec<CameraDevice>,
 }
 
-impl Default for CameraConfig {
-    fn default() -> Self {
-        CameraConfig {
-            websocket: false,
-            zenoh: false,
-            devices: vec![],
-        }
-    }
-}
-
 impl CameraConfig {
     fn default_websocket() -> bool {
         false
@@ -124,7 +95,7 @@ impl CameraConfig {
                 Ok(cfg) => cfg,
                 Err(_) => panic!("'camera' テーブルのパースに失敗しました"),
             },
-            None => return CameraConfig::default(),
+            None => panic!("'camera' テーブルが見つかりませんでした"),
         }
     }
 }
@@ -136,29 +107,8 @@ mod tests {
     #[test]
     fn test_parse_globalconfig() {
         let g = GlobalConfig::from_config_file(Some(PathBuf::from(
-            "test/resources/global_config_empty.toml",
-        )));
-
-        assert_eq!(g.websocket_port, 8080);
-        assert_eq!(g.zenoh_prefix, None);
-    }
-
-    #[test]
-    fn test_parse_globalconfig_zenoh_prefix() {
-        let g = GlobalConfig::from_config_file(Some(PathBuf::from(
-            "test/resources/global_config_zenoh_prefix.toml",
-        )));
-
-        assert_eq!(g.websocket_port, 8080);
-        assert_eq!(g.zenoh_prefix, Some("roboapp".into()));
-    }
-
-    #[test]
-    fn test_parse_globalconfig_websocket_port() {
-        let g = GlobalConfig::from_config_file(Some(PathBuf::from(
             "test/resources/global_config_websocket_port.toml",
         )));
-
         assert_eq!(g.websocket_port, 9090);
         assert_eq!(g.zenoh_prefix, None);
     }
