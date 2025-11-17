@@ -1,0 +1,3 @@
+[lidar]
+devices = [{ backend = "dummy" }]
+influence_range = 1.2

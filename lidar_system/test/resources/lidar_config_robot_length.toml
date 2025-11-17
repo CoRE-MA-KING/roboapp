@@ -1,0 +1,3 @@
+[lidar]
+devices = [{ backend = "dummy" }]
+robot_length = 1.2

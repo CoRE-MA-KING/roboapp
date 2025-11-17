@@ -1,0 +1,3 @@
+[lidar]
+devices = [{ backend = "dummy" }]
+repulsive_gain = 1.2

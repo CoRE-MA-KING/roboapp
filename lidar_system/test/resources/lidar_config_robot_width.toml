@@ -1,0 +1,3 @@
+[lidar]
+devices = [{ backend = "dummy" }]
+robot_width = 1.2

@@ -24,20 +24,73 @@ class GlobalConfig {
   }
 };
 
-struct LiDARDeviceConfig {
-  std::string device_name;
-  std::string frame_id;
+class LiDARDeviceConfig {
+ public:
+  std::string backend;
+  std::optional<std::string> device = std::nullopt;
   uint32_t max_distance = 1000;
   uint32_t min_degree = 0;
   uint32_t max_degree = 360;
+
+  LiDARDeviceConfig(toml::value toml_config) {
+    if (toml_config.contains("backend")) {
+      backend = toml::get<std::string>(toml_config.at("backend"));
+      if (backend != "rplidar" && backend != "dummy") {
+        throw std::runtime_error("Unsupported LiDAR backend: " + backend);
+      }
+    } else {
+      throw std::runtime_error("LiDAR device config must contain 'backend'");
+    }
+
+    if (toml_config.contains("device")) {
+      device = toml::get<std::string>(toml_config.at("device"));
+    } else {
+      if (backend == "rplidar") {
+        throw std::runtime_error(
+            "LiDAR device config with 'rplidar' backend must contain 'device'");
+      }
+    }
+    if (toml_config.contains("max_distance")) {
+      max_distance = toml::get<uint32_t>(toml_config.at("max_distance"));
+    }
+    if (toml_config.contains("min_degree")) {
+      min_degree = toml::get<uint32_t>(toml_config.at("min_degree"));
+    };
+  };
 };
 
-struct LiDARConfig {
+class LiDARConfig {
+ public:
   double robot_width = 0.4;
   double robot_length = 2.0;
   double repulsive_gain = 0.7;
   double influence_range = 0.2;
   std::vector<LiDARDeviceConfig> devices;
+
+  LiDARConfig(toml::value toml_config) {
+    if (toml_config.contains("lidar")) {
+      auto lidar_config = toml_config.at("lidar");
+      if (lidar_config.contains("robot_width")) {
+        robot_width = toml::get<double>(lidar_config.at("robot_width"));
+      }
+      if (lidar_config.contains("robot_length")) {
+        robot_length = toml::get<double>(lidar_config.at("robot_length"));
+      }
+      if (lidar_config.contains("repulsive_gain")) {
+        repulsive_gain = toml::get<double>(lidar_config.at("repulsive_gain"));
+      }
+      if (lidar_config.contains("influence_range")) {
+        influence_range = toml::get<double>(lidar_config.at("influence_range"));
+      }
+
+      for (const auto& device_config :
+           toml::find<std::vector<toml::value>>(lidar_config, "devices")) {
+        devices.emplace_back(LiDARDeviceConfig(device_config));
+      }
+    } else {
+      throw std::runtime_error("LiDAR config must contain 'lidar' section");
+    }
+  };
 };
 
 toml::value get_config_file(
@@ -61,22 +114,3 @@ toml::value get_config_file(
   }
   return toml::parse(config_file);
 }
-
-// toml::value get_lidar_config(
-//     std::optional<std::string> config_path = std::nullopt) {
-//   auto lidar_config = get_config_file(config_path).at("lidar");
-
-//   auto robot_width = toml::get<double>(lidar_config, "robot_width");
-//   auto robot_length = toml::get<double>(lidar_config, "robot_length");
-//   auto repulsive_gain = toml::get<double>(lidar_config, "repulsive_gain");
-//   auto influence_range = toml::get<double>(lidar_config,
-//   "influence_range");
-
-//   LiDARConfig config{};
-// }
-
-// toml::value get_device_config(std::string name) {
-//   return get_lidar_config().at("devices").at(name);
-// }
-
-// toml::value get_params_config() { return get_lidar_config().at("params"); }
