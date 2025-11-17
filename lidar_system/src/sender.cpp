@@ -32,6 +32,8 @@ int main(int argc, char* argv[]) {
 
   std::map<std::string, std::string> config_map;
 
+  auto config_file = get_config_file(FLAGS_c);
+
   auto lidar_config = get_device_config(FLAGS_n);
 
   std::unique_ptr<MockLiDAR> lidar;

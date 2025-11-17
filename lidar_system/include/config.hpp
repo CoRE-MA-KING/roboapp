@@ -1,8 +1,6 @@
 #include "gflags/gflags.h"
 #include "toml.hpp"
 
-DECLARE_string(c);
-
 class GlobalConfig {
  public:
   std::optional<std::string> zenoh_prefix = std::nullopt;
@@ -65,7 +63,7 @@ class LiDARConfig {
   double robot_length = 2.0;
   double repulsive_gain = 0.7;
   double influence_range = 0.2;
-  std::vector<LiDARDeviceConfig> devices;
+  std::map<std::string, LiDARDeviceConfig> devices;
 
   LiDARConfig(toml::value toml_config) {
     if (toml_config.contains("lidar")) {
@@ -83,9 +81,9 @@ class LiDARConfig {
         influence_range = toml::get<double>(lidar_config.at("influence_range"));
       }
 
-      for (const auto& device_config :
-           toml::find<std::vector<toml::value>>(lidar_config, "devices")) {
-        devices.emplace_back(LiDARDeviceConfig(device_config));
+      for (const auto& [device_name, device_config] :
+           toml::find<toml::table>(lidar_config, "devices")) {
+        devices.emplace(device_name, LiDARDeviceConfig(device_config));
       }
     } else {
       throw std::runtime_error("LiDAR config must contain 'lidar' section");

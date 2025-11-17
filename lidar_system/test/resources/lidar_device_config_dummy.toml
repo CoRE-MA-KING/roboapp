@@ -1,2 +1,3 @@
 [lidar]
-devices = [{ backend = "dummy" }]
+[lidar.devices]
+dummy = { backend = "dummy" }

@@ -88,7 +88,7 @@ TEST(LiDARDeviceConfigTest, RPLidarWithDevice) {
   auto lidar_config = LiDARConfig(root);
 
   ASSERT_EQ(lidar_config.devices.size(), 1);
-  auto device_config = lidar_config.devices[0];
+  auto device_config = lidar_config.devices.at("rplidar");
   EXPECT_EQ(device_config.backend, "rplidar");
   ASSERT_TRUE(device_config.device.has_value());
   EXPECT_EQ(device_config.device.value(), "/dev/ttyUSB0");
@@ -110,7 +110,7 @@ TEST(LiDARDeviceConfigTest, DummyBackend) {
   auto lidar_config = LiDARConfig(root);
 
   ASSERT_EQ(lidar_config.devices.size(), 1);
-  auto device_config = lidar_config.devices[0];
+  auto device_config = lidar_config.devices.at("dummy");
   EXPECT_EQ(device_config.backend, "dummy");
   EXPECT_FALSE(device_config.device.has_value());
   EXPECT_EQ(device_config.max_distance, 1000);

@@ -1,2 +1,2 @@
 [lidar]
-devices = [{ backend = "rplidar", device = "/dev/ttyUSB0" }]
+devices = { rplidar = { backend = "rplidar", device = "/dev/ttyUSB0" } }

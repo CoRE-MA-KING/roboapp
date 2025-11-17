@@ -1,3 +1,3 @@
 [lidar]
-devices = [{ backend = "dummy" }]
+devices = { dummy = { backend = "dummy" } }
 repulsive_gain = 1.2
