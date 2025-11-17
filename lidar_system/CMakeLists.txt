@@ -73,6 +73,15 @@ target_include_directories(LidarDeviceLib PUBLIC include/lidar_device)
 target_include_directories(LidarDeviceLib PUBLIC include/lidar_device 3rdparty/rplidar_sdk/sdk/include)
 target_link_libraries(LidarDeviceLib nlohmann_json::nlohmann_json LidarTypesLib zenohcxx::zenohc)
 
+set (COLLISION_AVOIDANCE_FILES
+    src/collision_avoidance/collision_avoidance.cpp
+)
+
+add_library(CollisionAvoidanceLib ${COLLISION_AVOIDANCE_FILES})
+target_include_directories(CollisionAvoidanceLib PUBLIC include/collision_avoidance)
+target_link_libraries(CollisionAvoidanceLib gtest_main gtest pthread)
+
+
 add_executable(sender src/sender.cpp)
 target_link_libraries(sender gflags toml11::toml11 zenohcxx::zenohc)
 target_link_libraries(sender LidarDeviceLib)
