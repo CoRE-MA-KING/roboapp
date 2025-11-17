@@ -19,7 +19,7 @@ class CollisionAvoidance {
 public:
     CollisionAvoidance(
         double robot_width = 0.4,
-        double robot_height = 2.0,
+        double robot_length = 2.0,
         double repulsive_gain = 0.7,
         double influence_range = 0.2
     );
@@ -30,7 +30,7 @@ public:
 private:
     // パラメータ
     const double robot_width_;
-    const double robot_height_;
+    const double robot_length_;
     const double repulsive_gain_;
     const double influence_range_;
     std::array<cv::Point2d, 4> corners_;  // ロボットの4隅の位置

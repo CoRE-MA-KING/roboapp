@@ -4,19 +4,19 @@
 
 CollisionAvoidance::CollisionAvoidance(
     double robot_width,
-    double robot_height,
+    double robot_length,
     double repulsive_gain,
     double influence_range
 ) : robot_width_(robot_width),
-    robot_height_(robot_height),
+    robot_length_(robot_length),
     repulsive_gain_(repulsive_gain),
     influence_range_(influence_range)
 {
     corners_ = {
-        cv::Point2d(-robot_width_ / 2.0, -robot_height_ / 2.0),
-        cv::Point2d( robot_width_ / 2.0, -robot_height_ / 2.0),
-        cv::Point2d( robot_width_ / 2.0,  robot_height_ / 2.0),
-        cv::Point2d(-robot_width_ / 2.0,  robot_height_ / 2.0)
+        cv::Point2d(-robot_width_ / 2.0, -robot_length_ / 2.0),
+        cv::Point2d( robot_width_ / 2.0, -robot_length_ / 2.0),
+        cv::Point2d( robot_width_ / 2.0,  robot_length_ / 2.0),
+        cv::Point2d(-robot_width_ / 2.0,  robot_length_ / 2.0)
     };
 }
 
