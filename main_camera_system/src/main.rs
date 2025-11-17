@@ -1,38 +1,22 @@
 use clap::Parser;
-
-use v4l::Device;
-use v4l::FourCC;
-use v4l::buffer::Type;
-use v4l::io::mmap::Stream;
-use v4l::io::traits::CaptureStream;
-use v4l::video::Capture;
-
 use futures_util::{SinkExt, StreamExt};
-use log::{debug, info};
+use log::{debug, error, info};
+use main_camera_system::camera_wrapper::create_camera_stream;
+use main_camera_system::config::parse_config;
 use std::env;
+use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener;
+use tokio::sync::mpsc;
 use tokio_tungstenite::accept_async;
 use tokio_tungstenite::tungstenite::Message;
+use v4l::io::mmap::Stream;
+use v4l::io::traits::CaptureStream;
 
 #[derive(Parser, Debug)]
 struct Args {
-    #[arg(short, long, default_value = "0")]
-    camera_id: usize,
-    #[arg(short, long, default_value = "")]
-    zenoh_prefix: String,
-
-    #[arg(short, long, action)]
-    raw: bool,
-
-    #[arg(short, long, action)]
-    jpg: bool,
-
-    #[arg(short, long, action)]
-    websocket: bool,
-
-    #[arg(short, long, default_value = "8080")]
-    port: u16,
+    #[arg(short, long)]
+    config_file: Option<PathBuf>,
 
     #[arg(short, long, action)]
     debug: bool,
@@ -41,41 +25,39 @@ struct Args {
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
+    println!("config file: {:?}", args.config_file);
+
+    let config = parse_config(args.config_file);
 
     unsafe { env::set_var("RUST_LOG", if args.debug { "debug" } else { "info" }) };
     env_logger::init();
 
-    // Create a new capture device with a few extra parameters
-    let dev = Device::new(args.camera_id).expect("Failed to open device");
+    let mut device_index: usize = 0;
 
-    // Let's say we want to explicitly request another format
-    let mut fmt = dev.format().expect("Failed to read format");
-    fmt.width = 1280;
-    fmt.height = 720;
-    fmt.fourcc = FourCC::new(b"MJPG");
-    // fmt.fourcc = FourCC::new(b"YUYV");
-    let fmt = dev.set_format(&fmt).expect("Failed to write format");
-
-    println!("Format in use:\n{fmt}");
-
-    let mut stream =
-        Stream::with_buffers(&dev, Type::VideoCapture, 4).expect("Failed to create buffer stream");
+    let mut stream: Option<Stream<'_>> = match create_camera_stream(&config.devices[device_index]) {
+        Ok(stream) => Some(stream),
+        Err(e) => {
+            eprintln!("カメラデバイスの初期化失敗: {:?}", e);
+            None
+        }
+    };
 
     // Initialize Zenoh client
 
-    let mut config = zenoh::config::Config::default();
-    config.insert_json5("timestamping/enabled", "true").unwrap();
+    let mut zenoh_config = zenoh::config::Config::default();
+    zenoh_config
+        .insert_json5("timestamping/enabled", "true")
+        .unwrap();
 
-    let zenoh = zenoh::open(config).await.unwrap();
+    let zenoh = zenoh::open(zenoh_config).await.unwrap();
 
-    let prefix: String = if !args.zenoh_prefix.is_empty() {
-        format!("{}/{}", args.zenoh_prefix.clone(), "cam")
+    let prefix: String = if !config.zenoh_prefix.is_empty() {
+        format!("{}/{}", config.zenoh_prefix.clone(), "cam")
     } else {
-        // OpenCVのイベントループを更新する
         "cam".to_string()
     };
 
-    let jpg_publisher: Option<zenoh::pubsub::Publisher> = if args.jpg {
+    let jpg_publisher: Option<zenoh::pubsub::Publisher> = if config.zenoh {
         let topic_name = format!("{prefix}/jpg");
         info!("JPEG publishing enabled at {topic_name}");
         Some(zenoh.declare_publisher(topic_name).await.unwrap())
@@ -83,25 +65,25 @@ async fn main() {
         None
     };
 
-    let raw_publisher: Option<zenoh::pubsub::Publisher> = if args.raw {
-        let topic_name = format!("{prefix}/raw");
-        info!("Raw publishing enabled at {topic_name}");
-        Some(zenoh.declare_publisher(topic_name).await.unwrap())
-    } else {
-        None
-    };
+    let subscriber = zenoh
+        .declare_subscriber(format!("{}/switch", prefix))
+        .await
+        .unwrap();
 
     // WebSocket配信を有効化する場合のみサーバーを起動
     type WsClients = Arc<Mutex<Vec<tokio::sync::mpsc::UnboundedSender<Vec<u8>>>>>;
 
-    let ws_clients: Option<WsClients> = if args.websocket {
+    let ws_clients: Option<WsClients> = if config.websocket {
         let ws_clients: WsClients = Arc::new(Mutex::new(Vec::new()));
         let ws_clients_clone = ws_clients.clone();
         tokio::spawn(async move {
-            let listener = TcpListener::bind(format!("0.0.0.0:{}", args.port))
+            let listener = TcpListener::bind(format!("0.0.0.0:{}", config.websocket_port))
                 .await
                 .expect("Failed to bind WebSocket port");
-            info!("WebSocket server listening on ws://0.0.0.0:{}", args.port);
+            info!(
+                "WebSocket server listening on ws://0.0.0.0:{}",
+                config.websocket_port
+            );
             while let Ok((stream, _)) = listener.accept().await {
                 let ws_clients_inner = ws_clients_clone.clone();
                 tokio::spawn(async move {
@@ -134,40 +116,76 @@ async fn main() {
         None
     };
 
+    let (switch_tx, mut switch_rx) = mpsc::unbounded_channel();
+
+    // スイッチ受信タスク
+    let subscriber = subscriber.clone();
+    tokio::spawn(async move {
+        loop {
+            if let Ok(sample) = subscriber.recv_async().await {
+                let new_value: Option<usize> = sample
+                    .payload()
+                    .try_to_string()
+                    .ok()
+                    .and_then(|s| s.parse().ok());
+                let _ = switch_tx.send(new_value);
+            }
+        }
+    });
+
     loop {
-        let (buf, meta) = stream.next().unwrap();
-        debug!(
-            "Buffer size: {}, seq: {}, timestamp: {}",
-            buf.len(),
-            meta.sequence,
-            meta.timestamp
-        );
+        // カメラ切り替え通知が来ていれば切り替え
+        if let Ok(new_value) = switch_rx.try_recv() {
+            let new_index = match new_value {
+                Some(n) => n,
+                None => device_index + 1,
+            } % config.devices.len();
 
-        // WebSocketクライアントに配信（有効時のみ）
-        if let Some(ws_clients) = &ws_clients {
-            let clients = ws_clients.lock().unwrap();
-            clients.iter().for_each(|tx| {
-                let _ = tx.send(buf.to_vec());
-            });
+            if new_index == device_index {
+                continue;
+            }
+            device_index = new_index;
+            stream = None;
         }
 
-        if let Some(jpg_publisher) = &jpg_publisher {
-            jpg_publisher
-                .put(buf)
-                .await
-                .expect("Failed to publish JPEG buffer");
-        }
+        if let Some(local_stream) = &mut stream {
+            // let (buf, meta) = stream.next().unwrap();
+            if let Ok((buf, meta)) = local_stream.next() {
+                debug!(
+                    "Buffer size: {}, seq: {}, timestamp: {}",
+                    buf.len(),
+                    meta.sequence,
+                    meta.timestamp
+                );
 
-        // Publish the buffer data to Zenoh
-        if let Some(raw_publisher) = &raw_publisher {
-            let result = match turbojpeg::decompress(buf, turbojpeg::PixelFormat::RGB).ok() {
-                Some(image) => image.pixels,
-                None => continue,
+                // WebSocketクライアントに配信（有効時のみ）
+                if let Some(ws_clients) = &ws_clients {
+                    let clients = ws_clients.lock().unwrap();
+                    clients.iter().for_each(|tx| {
+                        let _ = tx.send(buf.to_vec());
+                    });
+                }
+
+                if let Some(jpg_publisher) = &jpg_publisher {
+                    jpg_publisher
+                        .put(buf)
+                        .await
+                        .expect("Failed to publish JPEG buffer");
+                }
+            } else {
+                stream = None;
+            }
+        } else {
+            stream = match create_camera_stream(&config.devices[device_index]) {
+                Ok(new_stream) => {
+                    info!("Switched to device index: {}", device_index);
+                    Some(new_stream)
+                }
+                Err(e) => {
+                    error!("カメラデバイスの初期化失敗: {:?}", e);
+                    None
+                }
             };
-            raw_publisher
-                .put(result)
-                .await
-                .expect("Failed to publish raw buffer");
         }
     }
 }
