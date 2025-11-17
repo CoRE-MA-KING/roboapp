@@ -1,0 +1,2 @@
+[lidar]
+devices = [{ backend = "rplidar", device = "/dev/ttyUSB0" }]

@@ -80,3 +80,40 @@ TEST(LiDARConfigTest, LoadInfluenceRangeFromToml) {
   EXPECT_DOUBLE_EQ(config.influence_range, 1.2);
   EXPECT_DOUBLE_EQ(config.repulsive_gain, 0.7);
 }
+
+// LiDAR Device Config
+TEST(LiDARDeviceConfigTest, RPLidarWithDevice) {
+  auto root = get_config_file(
+      "../test/resources/lidar_device_config_rplidar_with_device.toml");
+  auto lidar_config = LiDARConfig(root);
+
+  ASSERT_EQ(lidar_config.devices.size(), 1);
+  auto device_config = lidar_config.devices[0];
+  EXPECT_EQ(device_config.backend, "rplidar");
+  ASSERT_TRUE(device_config.device.has_value());
+  EXPECT_EQ(device_config.device.value(), "/dev/ttyUSB0");
+  EXPECT_EQ(device_config.max_distance, 1000);
+  EXPECT_EQ(device_config.min_degree, 0);
+  EXPECT_EQ(device_config.max_degree, 360);
+}
+
+TEST(LiDARDeviceConfigTest, RPLidarWithNoDevice) {
+  EXPECT_THROW(
+      LiDARConfig(get_config_file(
+          "../test/resources/lidar_device_config_rplidar_with_no_device.toml")),
+      std::runtime_error);
+}
+
+TEST(LiDARDeviceConfigTest, DummyBackend) {
+  auto root =
+      get_config_file("../test/resources/lidar_device_config_dummy.toml");
+  auto lidar_config = LiDARConfig(root);
+
+  ASSERT_EQ(lidar_config.devices.size(), 1);
+  auto device_config = lidar_config.devices[0];
+  EXPECT_EQ(device_config.backend, "dummy");
+  EXPECT_FALSE(device_config.device.has_value());
+  EXPECT_EQ(device_config.max_distance, 1000);
+  EXPECT_EQ(device_config.min_degree, 0);
+  EXPECT_EQ(device_config.max_degree, 360);
+}
