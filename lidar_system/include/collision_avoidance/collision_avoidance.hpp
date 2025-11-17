@@ -6,12 +6,7 @@
 #include <array>
 #include <memory>
 
-struct Point2D {
-    double x;
-    double y;
-    
-    Point2D(double x = 0.0, double y = 0.0) : x(x), y(y) {}
-};
+#include <opencv2/core.hpp>
 
 struct RepulsiveForceVector {
     double linear;
@@ -30,7 +25,7 @@ public:
     );
 
     // LiDARからの点群を入力として受け取り、回避命令を計算
-    RepulsiveForceVector calcRepulsiveForce(const std::vector<Point2D>& lidar_points);
+    RepulsiveForceVector calcRepulsiveForce(const std::vector<cv::Point2d>& lidar_points);
 
 private:
     // パラメータ
@@ -38,7 +33,7 @@ private:
     const double robot_height_;
     const double repulsive_gain_;
     const double influence_range_;
-    std::array<Point2D, 4> corners_;  // ロボットの4隅の位置
+    std::array<cv::Point2d, 4> corners_;  // ロボットの4隅の位置
 };
 
 

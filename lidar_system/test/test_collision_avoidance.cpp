@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 #include <cmath>
+#include <opencv2/core.hpp>
 
 // TEST(CollisionAvoidanceTest, NoObstacle)
 // {
@@ -16,7 +17,7 @@ TEST(CollisionAvoidanceTest, ObstacleFront)
 {
     CollisionAvoidance ca(0.4, 0.4, 0.7, 0.3);
     // 前方に障害物
-    std::vector<Point2D> lidar_points = { {0.22, 0.0} };
+    std::vector<cv::Point2d> lidar_points = { {0.22, 0.0} };
     auto result = ca.calcRepulsiveForce(lidar_points);
     // 後方に斥力が発生する
     EXPECT_GT(result.linear, 0.0);
@@ -29,7 +30,7 @@ TEST(CollisionAvoidanceTest, ObstacleSide)
 {
     CollisionAvoidance ca(0.4, 0.4, 0.7, 0.3);
     // 側方に障害物
-    std::vector<Point2D> lidar_points = { {0.0, 0.22} };
+    std::vector<cv::Point2d> lidar_points = { {0.0, 0.22} };
     auto result = ca.calcRepulsiveForce(lidar_points);
     // 側方に斥力が発生する
     EXPECT_GT(result.linear, 0.0);
@@ -40,7 +41,7 @@ TEST(CollisionAvoidanceTest, ObstacleDiagonalFrontRight)
 {
     CollisionAvoidance ca(0.4, 0.4, 0.7, 0.3);
     // 左前方斜め45度付近に障害物
-    std::vector<Point2D> lidar_points = { {0.22, 0.22} };
+    std::vector<cv::Point2d> lidar_points = { {0.22, 0.22} };
     auto result = ca.calcRepulsiveForce(lidar_points);
     // 右後方方向に斥力が発生する
     EXPECT_GT(result.linear, 0.0);
@@ -53,15 +54,15 @@ TEST(CollisionAvoidanceTest, ObstacleNearFrontRightCorner)
 {
     CollisionAvoidance ca(0.4, 0.4, 0.7, 0.3);
     // 右前コーナー内部付近に障害物
-    std::vector<Point2D> lidar_points = { {0.15, 0.15} };
+    std::vector<cv::Point2d> lidar_points = { {0.15, 0.15} };
     auto result = ca.calcRepulsiveForce(lidar_points);
     // 斥力発生しない
     EXPECT_NEAR(result.linear, 0.0, 1e-6);
 }
 
-std::vector<Point2D> generateRectanglePoints(double x_min, double x_max, double y_min, double y_max, double spacing = 0.05)
+std::vector<cv::Point2d> generateRectanglePoints(double x_min, double x_max, double y_min, double y_max, double spacing = 0.05)
 {
-    std::vector<Point2D> points;
+    std::vector<cv::Point2d> points;
     // 上辺
     for (double x = x_min; x <= x_max; x += spacing) {
         points.push_back({x, y_max});

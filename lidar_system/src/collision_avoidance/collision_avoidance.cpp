@@ -13,20 +13,20 @@ CollisionAvoidance::CollisionAvoidance(
     influence_range_(influence_range)
 {
     corners_ = {
-        Point2D{-robot_width_ / 2.0, -robot_height_ / 2.0},
-        Point2D{ robot_width_ / 2.0, -robot_height_ / 2.0},
-        Point2D{ robot_width_ / 2.0,  robot_height_ / 2.0},
-        Point2D{-robot_width_ / 2.0,  robot_height_ / 2.0}
+        cv::Point2d(-robot_width_ / 2.0, -robot_height_ / 2.0),
+        cv::Point2d( robot_width_ / 2.0, -robot_height_ / 2.0),
+        cv::Point2d( robot_width_ / 2.0,  robot_height_ / 2.0),
+        cv::Point2d(-robot_width_ / 2.0,  robot_height_ / 2.0)
     };
 }
 
 RepulsiveForceVector CollisionAvoidance::calcRepulsiveForce(
-    const std::vector<Point2D>& lidar_points
+    const std::vector<cv::Point2d>& lidar_points
 ) {
     // 合成斥力
-    Point2D total_force{0.0, 0.0};
+    cv::Point2d total_force{0.0, 0.0};
     // 各コーナーの斥力
-    Point2D corner_force[4]{{0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
+    cv::Point2d corner_force[4]{{0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
 
     const double eps = 1e-6;
     for (int i = 0; i < 4; ++i) {

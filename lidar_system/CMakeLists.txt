@@ -82,7 +82,7 @@ set (COLLISION_AVOIDANCE_FILES
 
 add_library(CollisionAvoidanceLib ${COLLISION_AVOIDANCE_FILES})
 target_include_directories(CollisionAvoidanceLib PUBLIC include/collision_avoidance)
-target_link_libraries(CollisionAvoidanceLib gtest_main gtest pthread)
+target_link_libraries(CollisionAvoidanceLib gtest_main gtest ${OpenCV_LIBS} pthread)
 
 
 add_executable(sender src/sender.cpp)
