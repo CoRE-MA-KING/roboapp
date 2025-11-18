@@ -29,6 +29,8 @@ class LiDARDeviceConfig {
   uint32_t max_distance = 1000;
   uint32_t min_degree = 0;
   uint32_t max_degree = 360;
+  int32_t x = 0;
+  int32_t y = 0;
 
   LiDARDeviceConfig(toml::value toml_config) {
     if (toml_config.contains("backend")) {
@@ -54,6 +56,15 @@ class LiDARDeviceConfig {
     if (toml_config.contains("min_degree")) {
       min_degree = toml::get<uint32_t>(toml_config.at("min_degree"));
     };
+    if (toml_config.contains("max_degree")) {
+      max_degree = toml::get<uint32_t>(toml_config.at("max_degree"));
+    };
+    if (toml_config.contains("x")) {
+      x = toml::get<int32_t>(toml_config.at("x"));
+    }
+    if (toml_config.contains("y")) {
+      y = toml::get<int32_t>(toml_config.at("y"));
+    }
   };
 };
 

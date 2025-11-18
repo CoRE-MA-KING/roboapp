@@ -33,39 +33,41 @@ int main(int argc, char* argv[]) {
   std::map<std::string, std::string> config_map;
 
   auto config_file = get_config_file(FLAGS_c);
+  auto global_config = GlobalConfig(config_file);
+  auto lidar_config_all = LiDARConfig(config_file);
 
-  auto lidar_config = get_device_config(FLAGS_n);
+  auto lidar_config = lidar_config_all.devices.at(FLAGS_n);
 
   std::unique_ptr<MockLiDAR> lidar;
 
-  if (lidar_config.at("backend").as_string() == "rplidar") {
+  if (lidar_config.backend == "rplidar") {
     std::cout << "RPLIDAR selected" << std::endl;
     lidar = std::make_unique<RplidarWrapper>(
-        lidar_config.at("device").as_string(),
-        toml::find_or(lidar_config, "max_distance", 1000),
-        toml::find_or(lidar_config, "min_degree", 0),
-        toml::find_or(lidar_config, "max_degree", 360));
-  } else if (lidar_config.at("backend").as_string() == "random") {
+        lidar_config.device.value(), lidar_config.max_distance,
+        lidar_config.min_degree, lidar_config.max_degree);
+  } else if (lidar_config.backend == "random") {
     std::cout << "RandomLiDAR selected" << std::endl;
-    lidar = std::make_unique<RandomLiDAR>(
-        toml::find_or(lidar_config, "max_distance", 1000),
-        toml::find_or(lidar_config, "min_degree", 0),
-        toml::find_or(lidar_config, "max_degree", 360));
+    lidar = std::make_unique<RandomLiDAR>(lidar_config.max_distance,
+                                          lidar_config.min_degree,
+                                          lidar_config.max_degree);
   } else {
-    std::cerr << "Unknown backend: " << lidar_config.at("backend").as_string()
-              << std::endl;
+    std::cerr << "Unknown backend: " << lidar_config.backend << std::endl;
     return 1;
   }
 
   // Zenoh Setup
+  auto zenoh_key = std::string("lidar/data");
+  if (global_config.zenoh_prefix.has_value()) {
+    zenoh_key = global_config.zenoh_prefix.value() + "/" + zenoh_key;
+  }
+
   auto config = zenoh::Config::create_default();
   config.insert_json5(Z_CONFIG_ADD_TIMESTAMP_KEY, "true");
 
   auto session = zenoh::Session(std::move(config));
-  auto publisher = session.declare_publisher(zenoh::KeyExpr("lidar/data"));
+  auto publisher = session.declare_publisher(zenoh::KeyExpr(zenoh_key));
 
-  auto data = LiDARDataWrapper(toml::find_or(lidar_config, "x", 0),
-                               toml::find_or(lidar_config, "y", 0));
+  auto data = LiDARDataWrapper(lidar_config.x, lidar_config.y);
 
   while (!ctrl_c_pressed) {
     data.clear();
