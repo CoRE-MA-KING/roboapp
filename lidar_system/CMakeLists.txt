@@ -14,6 +14,7 @@ FetchContent_Declare(
   URL https://github.com/google/googletest/archive/refs/heads/main.zip
 )
 FetchContent_MakeAvailable(googletest)
+include(GoogleTest)
 
 enable_testing()
 
@@ -28,6 +29,7 @@ foreach(test_src ${TEST_SOURCES})
     target_link_libraries(${test_name} CollisionAvoidanceLib)
   endif()
   add_test(NAME ${test_name} COMMAND ${test_name})
+  gtest_discover_tests(${test_name})
 endforeach()
 
 # rplidar SDK include

@@ -42,3 +42,6 @@ jobs:
       - name: Format
         run: |
           just dry-format
+      - name: Test
+        run: |
+          just test

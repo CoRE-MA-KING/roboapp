@@ -8,6 +8,5 @@
 
 ## Build
 
-- `mkdir build && cd build`
-- `cmake ..`
-- `make -j4`
+- `cmake -S . -B build -G Ninja`
+- `cmake --build build`
