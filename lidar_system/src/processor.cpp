@@ -34,12 +34,14 @@ int main(int argc, char **argv) {
 
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
-  std::map<std::string, std::tuple<std::chrono::system_clock::time_point,
-                                   cv::Mat, LiDARDataWrapper>>
+  std::map<std::string,
+           std::tuple<std::chrono::system_clock::time_point, LiDARDataWrapper>>
       timestamps;
   std::map<std::string, LidarMetadata> metadata_map;
 
-  auto config = get_params_config();
+  auto config_file = get_config_file(FLAGS_c);
+  auto global_config = GlobalConfig(config_file);
+  auto lidar_config_all = LiDARConfig(config_file);
 
   bool updated = false;
 
@@ -50,7 +52,7 @@ int main(int argc, char **argv) {
   auto session = zenoh::Session(std::move(zenoh_config));
   session.declare_background_subscriber(  //
       zenoh::KeyExpr("lidar/data"),       //
-      [&timestamps, &updated, &config](const zenoh::Sample &sample) {
+      [&timestamps, &updated](const zenoh::Sample &sample) {
         auto timestamp = ntp64_to_timepoint(sample.get_timestamp()->get_time());
 
         auto id = sample.get_timestamp()->get_id().to_string();
@@ -59,9 +61,6 @@ int main(int argc, char **argv) {
 
         timestamps[id] = {
             timestamp,
-            singleVisualize(z.get(), id, toml::find_or(config, "number", 4),
-                            toml::find_or(config, "image_size", 600),
-                            toml::find_or(config, "max_distance", 1000.0)),
             z,
         };
 
@@ -85,12 +84,11 @@ int main(int argc, char **argv) {
     if (updated) {
       std::vector<cv::Point2f> data;
       for (auto &[id, pair] : timestamps) {
-        auto &[timestamp, img, lidar_data] = pair;
+        auto &[timestamp, lidar_data] = pair;
         for (auto &z : lidar_data.get()) {
           data.push_back(
               degree2position(lidar_data.x, lidar_data.y, z.first, z.second));
         }
-        cv::imshow(id, img);
       }
       cv::imshow("multiple", multipleVisualize(data, 600));
       cv::waitKey(1);

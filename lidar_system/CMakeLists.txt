@@ -92,4 +92,3 @@ target_link_libraries(sender LidarDeviceLib)
 add_executable(processor src/processor.cpp )
 target_link_libraries(processor gflags ${OpenCV_LIBS} pthread toml11::toml11 zenohcxx::zenohc)
 target_link_libraries(processor LidarTypesLib)
-
