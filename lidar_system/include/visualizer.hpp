@@ -47,7 +47,7 @@ cv::Mat singleVisualize(const LiDARDataWrapper &data,
   return img;
 }
 
-cv::Mat multipleVisualize(const std::vector<cv::Point2f> &data,
+cv::Mat multipleVisualize(const std::vector<cv::Point2d> &data,
                           const uint32_t image_size = 600) {
   cv::Mat img = cv::Mat::zeros(image_size, image_size, CV_8UC3);
   for (const auto p : data) {

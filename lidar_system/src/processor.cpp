@@ -7,6 +7,7 @@
 #include <opencv2/opencv.hpp>
 #include <thread>
 
+#include "collision_avoidance/collision_avoidance.hpp"
 #include "config.hpp"
 #include "degree2position.hpp"
 #include "lidar_metadata.hpp"
@@ -45,6 +46,11 @@ int main(int argc, char **argv) {
 
   bool updated = false;
 
+  // Collision Avoidance
+  auto collision_avoidance = CollisionAvoidance(
+      lidar_config_all.robot_width, lidar_config_all.robot_length,
+      lidar_config_all.repulsive_gain, lidar_config_all.influence_range);
+
   // Zenoh Setup
   auto zenoh_config = zenoh::Config::create_default();
   zenoh_config.insert_json5(Z_CONFIG_ADD_TIMESTAMP_KEY, "true");
@@ -82,7 +88,7 @@ int main(int argc, char **argv) {
     }
 
     if (updated) {
-      std::vector<cv::Point2f> data;
+      std::vector<cv::Point2d> data;
       for (auto &[id, pair] : timestamps) {
         auto &[timestamp, lidar_data] = pair;
         for (auto &z : lidar_data.get()) {
@@ -90,6 +96,8 @@ int main(int argc, char **argv) {
               degree2position(lidar_data.x, lidar_data.y, z.first, z.second));
         }
       }
+      auto vec = collision_avoidance.calcRepulsiveForce(data);
+
       cv::imshow("multiple", multipleVisualize(data, 600));
       cv::waitKey(1);
     }
