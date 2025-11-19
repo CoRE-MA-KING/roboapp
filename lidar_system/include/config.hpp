@@ -37,7 +37,7 @@ class LiDARDeviceConfig {
   LiDARDeviceConfig(toml::value toml_config) {
     if (toml_config.contains("backend")) {
       backend = toml::get<std::string>(toml_config.at("backend"));
-      if (backend != "rplidar" && backend != "dummy") {
+      if (backend != "rplidar" && backend != "random") {
         throw std::runtime_error("Unsupported LiDAR backend: " + backend);
       }
     } else {
@@ -104,20 +104,17 @@ class LiDARConfig {
   };
 };
 
-toml::value get_config_file(
-    std::optional<std::string> config_path = std::nullopt) {
+toml::value get_config_file(std::string config_path = "") {
   std::filesystem::path config_file;
 
-  if (config_path.has_value()) {
-    config_file = std::filesystem::path(config_path.value());
+  if (!config_path.empty()) {
+    config_file = std::filesystem::path(config_path);
+  } else if (const char* home = std::getenv("XDG_CONFIG_HOME")) {
+    config_file = std::filesystem::path(home) / "roboapp/config.toml";
+  } else if (const char* home = std::getenv("HOME")) {
+    config_file = std::filesystem::path(home) / ".config/roboapp/config.toml";
   } else {
-    if (const char* home = std::getenv("XDG_CONFIG_HOME")) {
-      config_file = std::filesystem::path(home) / "roboapp/config.toml";
-    } else if (const char* home = std::getenv("HOME")) {
-      config_file = std::filesystem::path(home) / ".config/roboapp/config.toml";
-    } else {
-      throw std::runtime_error("Cannot determine config file path");
-    }
+    throw std::runtime_error("Cannot determine config file path");
   }
 
   if (!std::filesystem::exists(config_file)) {
