@@ -104,14 +104,14 @@ TEST(LiDARDeviceConfigTest, RPLidarWithNoDevice) {
       std::runtime_error);
 }
 
-TEST(LiDARDeviceConfigTest, DummyBackend) {
+TEST(LiDARDeviceConfigTest, RandomBackend) {
   auto root =
-      get_config_file("../test/resources/lidar_device_config_dummy.toml");
+      get_config_file("../test/resources/lidar_device_config_random.toml");
   auto lidar_config = LiDARConfig(root);
 
   ASSERT_EQ(lidar_config.devices.size(), 1);
-  auto device_config = lidar_config.devices.at("dummy");
-  EXPECT_EQ(device_config.backend, "dummy");
+  auto device_config = lidar_config.devices.at("random");
+  EXPECT_EQ(device_config.backend, "random");
   EXPECT_FALSE(device_config.device.has_value());
   EXPECT_EQ(device_config.max_distance, 1000);
   EXPECT_EQ(device_config.min_degree, 0);

@@ -1,2 +1,2 @@
 [lidar]
-devices = { dummy = { backend = "dummy" } }
+devices = { random = { backend = "random" } }
