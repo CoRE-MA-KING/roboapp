@@ -16,6 +16,9 @@
 
 DEFINE_string(
     c, "", "config file path: Default `$XDG_CONFIG_DIR/roboapp/config.toml`");
+DEFINE_bool(
+    s, false,
+    "show mode: If true, print debug information to the standard output.");
 
 std::chrono::system_clock::time_point ntp64_to_timepoint(uint64_t ntp64) {
   uint32_t seconds = (ntp64 >> 32);  // NTPエポックからの秒数
@@ -109,8 +112,10 @@ int main(int argc, char **argv) {
       vec_publisher.put("{\"linear\":" + std::to_string(vec.linear) +
                         ",\"angular\":" + std::to_string(vec.angular) + "}");
 
-      cv::imshow("multiple", multipleVisualize(data, 600));
-      cv::waitKey(1);
+      if (FLAGS_s) {
+        cv::imshow("multiple", multipleVisualize(data, 600));
+        cv::waitKey(1);
+      }
     }
 
     updated = false;
