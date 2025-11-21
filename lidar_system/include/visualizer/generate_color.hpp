@@ -3,7 +3,7 @@
 
 #include <opencv2/opencv.hpp>
 
-cv::Scalar generate_color(int index, int num) {
+inline cv::Scalar generate_color(int index, int num) {
   // 色相を0-180の範囲で分割
   float hue = 180.0f * index / num;  // OpenCVのHSVは0-180
   cv::Mat hsv(1, 1, CV_8UC3, cv::Scalar(hue, 255, 255));

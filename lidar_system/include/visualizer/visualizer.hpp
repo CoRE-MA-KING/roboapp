@@ -5,13 +5,15 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
+#include "config.hpp"
 #include "generate_color.hpp"
 #include "lidar_types/lidar_data.hpp"
 
-cv::Mat singleVisualize(const LiDARDataWrapper &data,
-                        const std::string window_name, const uint32_t num = 4,
-                        const uint32_t image_size = 600,
-                        const float max_distance = 1000.0) {
+inline cv::Mat singleVisualize(const LiDARDataWrapper &data,
+                               const std::string window_name,
+                               const uint32_t num = 4,
+                               const uint32_t image_size = 600,
+                               const float max_distance = 1000.0) {
   float angle_step = 360.0f / num;
 
   float max_visual_distance = image_size / 2.0f;
@@ -47,15 +49,22 @@ cv::Mat singleVisualize(const LiDARDataWrapper &data,
   return img;
 }
 
-cv::Mat multipleVisualize(const std::vector<cv::Point2d> &data,
-                          const uint32_t image_size = 600) {
-  cv::Mat img = cv::Mat::zeros(image_size, image_size, CV_8UC3);
-  for (const auto p : data) {
-    cv::circle(img, cv::Point2d(p.x + image_size / 2, p.y + image_size / 2), 2,
-               cv::Scalar(255, 255, 255), -1);
+class Visualizer {
+ private:
+  uint32_t image_size;
+  LiDARConfig lidar_config;
+  uint32_t require_length;
+
+ public:
+  Visualizer(const LiDARConfig &lidar_config, uint32_t image_size);
+  cv::Mat multipleVisualize(const std::vector<cv::Point2d> &data) {
+    cv::Mat img = cv::Mat::zeros(image_size, image_size, CV_8UC3);
+    for (const auto p : data) {
+      cv::circle(img, cv::Point2d(p.x + image_size / 2, p.y + image_size / 2),
+                 2, cv::Scalar(255, 255, 255), -1);
+    }
+
+    return img;
   }
-
-  return img;
-}
-
+};
 #endif  // VISUALIZER_HPP_

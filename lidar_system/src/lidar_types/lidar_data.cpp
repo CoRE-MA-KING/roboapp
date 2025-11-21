@@ -37,3 +37,14 @@ void LiDARDataWrapper::get(LiDARData &s) { s = data; }
 std::vector<uint8_t> LiDARDataWrapper::dump() {
   return nlohmann::json::to_msgpack(*this);
 }
+
+const std::vector<cv::Point2d> LiDARDataWrapper::getPoint() {
+  std::vector<cv::Point2d> points;
+  for (const auto &item : data) {
+    float distance = item.second;
+    float radian = item.first * CV_PI / 180.0f;
+    points.push_back(cv::Point2d((x + distance * std::cos(radian)),
+                                 (y + distance * std::sin(radian))));
+  }
+  return points;
+}
