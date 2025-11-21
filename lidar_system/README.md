@@ -10,6 +10,36 @@
 
 - `just build`
 
+## 設定ファイル
+
+```toml
+[lidar]
+# ロボットの幅（左右）
+robot_width = 800
+# ロボットの長さ（前後）
+robot_length = 800
+# 斥力計算のゲイン
+repulsive_gain = 0.7
+# 斥力計算の範囲
+influence_range = 200
+
+[lidar.devices.foo]
+# LiDARデバイスの種類（random / rplidar）
+backend = "random"
+# LiDARの接続先（rplidarのみ）
+device = "/dev/ttyUSB0"
+# LiDARの最大距離（この距離に丸める）
+max_distance = 1000
+# LiDARの検出角度（下限）
+min_degree = 0
+# LiDARの検出角度（上限）
+max_degree = 360
+# 取り付け位置（左右）
+x = 0
+# 取り付け位置（前後）
+y = 0
+```
+
 ## 座標系
 
 ### 描画
@@ -32,4 +62,3 @@
   - 角度は時計回りに増加
 
 ![左側にケーブルを出したRPLiDAR A2M8](./docs/image/rplidar.avif)
-  

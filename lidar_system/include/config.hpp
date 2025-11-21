@@ -1,3 +1,6 @@
+#ifndef CONFIG_HPP_
+#define CONFIG_HPP_
+
 #include <map>
 
 #include "gflags/gflags.h"
@@ -104,7 +107,7 @@ class LiDARConfig {
   };
 };
 
-toml::value get_config_file(std::string config_path = "") {
+inline toml::value get_config_file(std::string config_path = "") {
   std::filesystem::path config_file;
 
   if (!config_path.empty()) {
@@ -122,3 +125,5 @@ toml::value get_config_file(std::string config_path = "") {
   }
   return toml::parse(config_file);
 }
+
+#endif  // CONFIG_HPP_

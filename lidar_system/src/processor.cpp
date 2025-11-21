@@ -9,9 +9,8 @@
 
 #include "collision_avoidance/collision_avoidance.hpp"
 #include "config.hpp"
-#include "degree2position.hpp"
 #include "lidar_metadata.hpp"
-#include "visualizer.hpp"
+#include "visualizer/visualizer.hpp"
 #include "zenoh.hxx"
 
 DEFINE_string(
@@ -48,6 +47,8 @@ int main(int argc, char **argv) {
   auto lidar_config_all = LiDARConfig(config_file);
 
   bool updated = false;
+
+  auto visualizer = Visualizer(lidar_config_all, 600);
 
   // Collision Avoidance
   auto collision_avoidance = CollisionAvoidance(
@@ -102,18 +103,17 @@ int main(int argc, char **argv) {
       std::vector<cv::Point2d> data;
       for (auto &[id, pair] : timestamps) {
         auto &[timestamp, lidar_data] = pair;
-        for (auto &z : lidar_data.get()) {
-          data.push_back(
-              degree2position(lidar_data.x, lidar_data.y, z.first, z.second));
-        }
+        auto p = lidar_data.getPoint();
+        data.insert(data.end(), p.begin(), p.end());
       }
+
       auto vec = collision_avoidance.calcRepulsiveForce(data);
 
       vec_publisher.put("{\"linear\":" + std::to_string(vec.linear) +
                         ",\"angular\":" + std::to_string(vec.angular) + "}");
 
       if (FLAGS_s) {
-        cv::imshow("multiple", multipleVisualize(data, 600));
+        cv::imshow("multiple", visualizer.multipleVisualize(data));
         cv::waitKey(1);
       }
     }
