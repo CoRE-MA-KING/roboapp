@@ -72,10 +72,10 @@ class LiDARDeviceConfig {
 
 class LiDARConfig {
  public:
-  double robot_width = 0.4;
-  double robot_length = 2.0;
+  double robot_width = 800;
+  double robot_length = 800;
   double repulsive_gain = 0.7;
-  double influence_range = 0.2;
+  double influence_range = 200;
   std::map<std::string, LiDARDeviceConfig> devices;
 
   LiDARConfig(toml::value toml_config) {
