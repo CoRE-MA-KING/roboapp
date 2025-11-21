@@ -75,26 +75,27 @@ class LiDARDeviceConfig {
 
 class LiDARConfig {
  public:
-  double robot_width = 800;
-  double robot_length = 800;
+  uint32_t robot_width = 800;
+  uint32_t robot_length = 800;
   double repulsive_gain = 0.7;
-  double influence_range = 200;
+  uint32_t influence_range = 200;
   std::map<std::string, LiDARDeviceConfig> devices;
 
   LiDARConfig(toml::value toml_config) {
     if (toml_config.contains("lidar")) {
       auto lidar_config = toml_config.at("lidar");
       if (lidar_config.contains("robot_width")) {
-        robot_width = toml::get<double>(lidar_config.at("robot_width"));
+        robot_width = toml::get<uint32_t>(lidar_config.at("robot_width"));
       }
       if (lidar_config.contains("robot_length")) {
-        robot_length = toml::get<double>(lidar_config.at("robot_length"));
+        robot_length = toml::get<uint32_t>(lidar_config.at("robot_length"));
       }
       if (lidar_config.contains("repulsive_gain")) {
         repulsive_gain = toml::get<double>(lidar_config.at("repulsive_gain"));
       }
       if (lidar_config.contains("influence_range")) {
-        influence_range = toml::get<double>(lidar_config.at("influence_range"));
+        influence_range =
+            toml::get<uint32_t>(lidar_config.at("influence_range"));
       }
 
       for (const auto& [device_name, device_config] :
