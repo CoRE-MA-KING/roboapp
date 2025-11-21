@@ -53,18 +53,10 @@ class Visualizer {
  private:
   uint32_t image_size;
   LiDARConfig lidar_config;
-  uint32_t require_length;
+  double zoom;
 
  public:
   Visualizer(const LiDARConfig &lidar_config, uint32_t image_size);
-  cv::Mat multipleVisualize(const std::vector<cv::Point2d> &data) {
-    cv::Mat img = cv::Mat::zeros(image_size, image_size, CV_8UC3);
-    for (const auto p : data) {
-      cv::circle(img, cv::Point2d(p.x + image_size / 2, p.y + image_size / 2),
-                 2, cv::Scalar(255, 255, 255), -1);
-    }
-
-    return img;
-  }
+  cv::Mat multipleVisualize(const std::vector<cv::Point2d> &data);
 };
 #endif  // VISUALIZER_HPP_
