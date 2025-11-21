@@ -36,6 +36,7 @@ class LiDARDeviceConfig {
   uint32_t max_degree = 360;
   int32_t x = 0;
   int32_t y = 0;
+  int32_t rotation = 0;
 
   LiDARDeviceConfig(toml::value toml_config) {
     if (toml_config.contains("backend")) {
@@ -69,6 +70,9 @@ class LiDARDeviceConfig {
     }
     if (toml_config.contains("y")) {
       y = toml::get<int32_t>(toml_config.at("y"));
+    }
+    if (toml_config.contains("rotation")) {
+      rotation = toml::get<int32_t>(toml_config.at("rotation"));
     }
   };
 };

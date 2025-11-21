@@ -15,9 +15,9 @@ class RandomLiDAR : public MockLiDAR {
   std::unique_ptr<std::uniform_real_distribution<float>> random_skip;
 
  public:
-  inline RandomLiDAR(float max_distance = 1000.0, int min_degree = 0,
-                     int max_degree = 360)
-      : MockLiDAR(max_distance, min_degree, max_degree) {
+  inline RandomLiDAR(float max_distance = 1000.0, int32_t min_degree = 0,
+                     int32_t max_degree = 360, int32_t rotation = 0)
+      : MockLiDAR(max_distance, min_degree, max_degree, rotation) {
     random_engine = std::make_unique<std::mt19937>(std::random_device{}());
     random_distance = std::make_unique<std::uniform_int_distribution<int>>(
         max_distance * 0.01, max_distance * 0.2);
@@ -31,16 +31,16 @@ class RandomLiDAR : public MockLiDAR {
     if (min_degree <= max_degree) {
       for (int degree = min_degree; degree < max_degree; degree++) {
         int dist = base * (*random_rate)(*random_engine);
-        data.insert(degree, dist);
+        data.insert((degree + rotation) % 360, dist);
       }
     } else {
       for (int degree = min_degree; degree < 360; degree++) {
         int dist = base * (*random_rate)(*random_engine);
-        data.insert(degree, dist);
+        data.insert((degree + rotation) % 360, dist);
       }
       for (int degree = 0; degree < max_degree; degree++) {
         int dist = base * (*random_rate)(*random_engine);
-        data.insert(degree, dist);
+        data.insert((degree + rotation) % 360, dist);
       }
     }
 
