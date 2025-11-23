@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "jinja2>=3.1.6",
     "pydantic>=2.12.4",
 ]
 authors = [
@@ -33,8 +34,11 @@ select = [
     "W",
 ]
 
+[tool.taskipy.variables]
+targets = "src test"
+
 [tool.taskipy.tasks]
-check = "mypy . --strict"
-lint = "ruff check ."
-format = "ruff check . --fix && ruff format ."
+check = {cmd = "mypy {targets} --strict", use_vars = true}
+lint = {cmd = "ruff check {targets}", use_vars = true}
+format = {cmd = "ruff check {targets} --fix && ruff format {targets}", use_vars = true}
 test = "pytest --cov --cov-report=html test/"
