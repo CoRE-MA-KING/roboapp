@@ -1,0 +1,10 @@
+[Unit]
+Description=Roboapp UI System
+
+[Service]
+ExecStart={{APP_FOLDER}}/ui_system/src-tauri/target/release/ui_system
+ExecStop=/bin/kill ${MAINPID}
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
