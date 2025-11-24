@@ -8,8 +8,8 @@ from prompt_toolkit.shortcuts import (
 from configurator.check import check, get_default_config_path
 from configurator.systemd import (
     enable_systemd_service,
-    run_systemd_services,
     place_systemd,
+    run_systemd_services,
 )
 
 if __name__ == "__main__":
@@ -46,7 +46,7 @@ if __name__ == "__main__":
                 values=[(True, "起動"), (False, "停止")],
                 default=True,
             ).run()
-            if res_start is None:
+            if res_start is None:  # type:ignore
                 exit(0)
 
             run_systemd_services(res_start)
@@ -57,7 +57,9 @@ if __name__ == "__main__":
                 values=[(True, "設定"), (False, "解除")],
                 default=True,
             ).run()
-            if res_setup is None:
+            if res_setup is None:  # type:ignore
                 exit(0)
 
             enable_systemd_service(res_setup)
+        case _:
+            pass
