@@ -6,7 +6,11 @@ from prompt_toolkit.shortcuts import (
 )
 
 from configurator.check import check, get_default_config_path
-from configurator.systemd import enable_systemd_service, run_systemd_services,place_systemd
+from configurator.systemd import (
+    enable_systemd_service,
+    run_systemd_services,
+    place_systemd,
+)
 
 if __name__ == "__main__":
     tasks = (
