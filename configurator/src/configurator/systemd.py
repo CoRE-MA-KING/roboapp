@@ -64,12 +64,12 @@ def place_systemd() -> None:
 def run_systemd_services(start: bool = True) -> None:
     for service in get_service():
         cmd = ["systemctl", "--user", ("stop", "start")[start], "--now", service]
-        print(f"Starting service: {service}, {cmd}")
+        print(f"{'Starting' if start else 'Stopping'} service: {service}, {cmd}")
         subprocess.run(cmd, check=True)
 
 
 def enable_systemd_service(enable: bool) -> None:
     for service in get_service():
         cmd = ["systemctl", "--user", ("disable", "enable")[enable], "--now", service]
-        print(f"Running command: {cmd}")
+        print(f"{'Enabling' if enable else 'Disabling'} service: {service}, {cmd}")
         subprocess.run(cmd, check=True)

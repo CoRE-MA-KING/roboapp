@@ -1,11 +1,18 @@
 import argparse
 import os
 import pprint
+import tomllib
 from pathlib import Path
 
-import tomllib
-
 from configurator.config import Config
+
+
+def get_default_config_path() -> Path:
+    return (
+        Path(os.getenv("XDG_CONFIG_HOME", Path.home() / ".config"))
+        / "roboapp"
+        / "config.toml"
+    )
 
 
 def check(config_file: Path) -> None:
@@ -20,9 +27,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-c",
         "--config-file",
-        default=Path(os.getenv("XDG_CONFIG_HOME", Path.home() / ".config"))
-        / "roboapp"
-        / "config.toml",
+        default=get_default_config_path(),
         type=Path,
         help="Path to the configuration file",
     )
