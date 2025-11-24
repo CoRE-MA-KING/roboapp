@@ -46,7 +46,7 @@ if __name__ == "__main__":
                 values=[(True, "起動"), (False, "停止")],
                 default=True,
             ).run()
-            if res_start is None:  # type:ignore
+            if res_start is None:
                 exit(0)
 
             run_systemd_services(res_start)
@@ -57,7 +57,7 @@ if __name__ == "__main__":
                 values=[(True, "設定"), (False, "解除")],
                 default=True,
             ).run()
-            if res_setup is None:  # type:ignore
+            if res_setup is None:
                 exit(0)
 
             enable_systemd_service(res_setup)
