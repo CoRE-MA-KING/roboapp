@@ -1,5 +1,6 @@
 [Unit]
 Description=Roboapp UI System
+After=graphical-session.target
 
 [Service]
 ExecStart={{APP_FOLDER}}/ui_system/src-tauri/target/release/ui_system
@@ -7,4 +8,4 @@ ExecStop=/bin/kill ${MAINPID}
 Restart=always
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
