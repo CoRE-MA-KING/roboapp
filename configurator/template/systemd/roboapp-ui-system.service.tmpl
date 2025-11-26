@@ -2,8 +2,7 @@
 Description=Roboapp UI System
 
 [Service]
-WorkingDirectory={{APP_FOLDER}}/ui_system
-ExecStart=src-tauri/target/release/ui_system
+ExecStart={{APP_FOLDER}}/ui_system/src-tauri/target/release/ui_system
 ExecStop=/bin/kill ${MAINPID}
 Restart=always
 

@@ -2,8 +2,7 @@
 Description=Roboapp Main Camera System
 
 [Service]
-WorkingDirectory={{APP_FOLDER}}/main_camera_system
-ExecStart=target/release/main-camera-system
+ExecStart={{APP_FOLDER}}/main_camera_system/target/release/main-camera-system
 ExecStop=/bin/kill ${MAINPID}
 Restart=always
 
