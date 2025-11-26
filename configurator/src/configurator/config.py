@@ -63,8 +63,8 @@ class UARTConfig(BaseModel):
 class Config(BaseModel):
     model_config = {"extra": "forbid"}
 
-    global_: GlobalConfig = Field(..., alias="global")
-    # lidar: LidarConfig = Field(...)
-    camera: CameraConfig = Field(...)
-    gui: GUIConfig = Field(...)
-    uart: UARTConfig = Field(...)
+    global_: GlobalConfig | None = Field(None, alias="global")
+    # lidar: LidarConfig | None = Field(..., alias="lidar")
+    camera: CameraConfig | None = Field(None, alias="camera")
+    gui: GUIConfig | None = Field(None, alias="gui")
+    uart: UARTConfig | None = Field(None, alias="uart")
