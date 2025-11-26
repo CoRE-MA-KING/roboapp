@@ -1,0 +1,4 @@
+experimental_monorepo_root = true
+
+[settings]
+experimental = true

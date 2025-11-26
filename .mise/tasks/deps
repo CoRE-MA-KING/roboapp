@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+sudo echo "Install Dependencies"
+
+if [ ! -f "/etc/apt/keyrings/zenoh-public-key.gpg" ]; then
+    curl -L https://download.eclipse.org/zenoh/debian-repo/zenoh-public-key | sudo gpg --dearmor --yes --output /etc/apt/keyrings/zenoh-public-key.gpg
+fi
+
+if [ ! -f "/etc/apt/sources.list.d/zenoh.list" ]; then
+    echo "deb [signed-by=/etc/apt/keyrings/zenoh-public-key.gpg] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee /etc/apt/sources.list.d/zenoh.list > /dev/null
+fi
+
+sudo apt-get update
+
+sudo apt-get install -y \
+  libwebkit2gtk-4.1-dev build-essential file libxdo-dev libssl-dev \
+  libayatana-appindicator3-dev librsvg2-dev clang libclang-dev llvm llvm-dev \
+  zenohd libzenohc-dev libzenohcpp-dev
+
