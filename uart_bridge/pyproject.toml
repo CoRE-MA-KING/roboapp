@@ -20,6 +20,8 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
     "mypy>=1.17.0",
+    "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
     "ruff>=0.12.3",
     "taskipy>=1.14.1",
     "types-pyserial>=3.5.0.20250326",
@@ -37,3 +39,4 @@ select = [
 check = "mypy . --strict"
 lint = "ruff check ."
 format = "ruff check . --fix && ruff format ."
+test = "pytest --cov --cov-report=html test/"

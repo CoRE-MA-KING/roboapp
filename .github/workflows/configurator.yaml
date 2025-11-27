@@ -1,15 +1,15 @@
-name: UART Bridge Check
+name: Configurator Check
 on:
   pull_request:
     branches:
       - "main"
     paths:
-      - "uart_bridge/src/**"
-      - ".github/workflows/uart_bridge_check.yaml"
+      - "configurator/src/**"
+      - ".github/workflows/configurator.yaml"
 env:
-  WORKDIR: uart_bridge
+  WORKDIR: configurator
 jobs:
-  UART_Bridge_Check:
+  Configurator_Check:
     runs-on: ubuntu-latest
     defaults:
       run:

@@ -3,6 +3,20 @@
 - 本アプリケーションはLinuxを対象としています
   - Ubuntu 24.04 LTSで動作を確認しています
 
+## 設定ファイル
+
+本アプリケーション群は、`$XDG_CONFIG_HOME/` または `~/.config/` 以下 `roboapp/config.toml` に設定ファイルを配置します。
+
+設定ファイルの書式があっているかは、`configurator` アプリで確認できます。
+正常終了したら、書式はあっています。
+
+```bash
+cd configurator
+uv run python3 check.py
+```
+
+書式や設定内容は、[サンプルファイル](./configurator/test/resources/config_sample.toml)や、[設定の実装](./configurator/src/configurator/config.py)、各アプリケーションの実装・ドキュメントを参考にしてください。
+
 ## アプリ一覧
 
 ### main_camera_system
