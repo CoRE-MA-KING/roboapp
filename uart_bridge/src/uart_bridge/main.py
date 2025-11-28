@@ -37,7 +37,7 @@ def main() -> None:
     uart_config = get_uart_config(file_path=args.config_file)
 
     run_application(
-        robot_port=uart_config.port,
+        robot_port=uart_config.device,
     )
 
 

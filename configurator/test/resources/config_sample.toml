@@ -9,8 +9,8 @@ zenoh_prefix = ""
 host = "localhost"
 
 [uart]
-# シリアルポート
-port = "/dev/ttyUSB0"
+# シリアルデバイスのパス
+device = "/dev/ttyUSB0"
 
 [camera]
 # zenohによる送信を有効化

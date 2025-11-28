@@ -1,8 +1,8 @@
 import os
-import tomllib
 from pathlib import Path
 from typing import Any
 
+import tomllib
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -12,9 +12,9 @@ class GlobalConfig(BaseModel):
 
 
 class UartConfig(BaseModel):
-    port: str = Field(..., description="UARTポートのパス")
+    device: str = Field(..., description="UARTポートのパス")
 
-    @field_validator("port", mode="after")
+    @field_validator("device", mode="after")
     @classmethod
     def validate_port(cls, v: str) -> str:
         # ここで加工

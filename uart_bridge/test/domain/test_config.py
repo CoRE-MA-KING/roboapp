@@ -64,7 +64,7 @@ def test_read_uart_config(get_resource_path: Path) -> None:
     # with pytest.raises(ValidationError):
     c = get_uart_config(config_file)
 
-    assert c.port == "/dev/tty0"
+    assert c.device == "/dev/tty0"
 
     if p.exists():
         p.unlink()

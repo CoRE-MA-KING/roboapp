@@ -57,7 +57,7 @@ class GUIConfig(BaseModel):
 class UARTConfig(BaseModel):
     model_config = {"extra": "forbid"}
 
-    port: str = Field(..., description="UARTのデバイスパス")
+    device: str = Field(..., description="UARTのデバイスパス")
 
 
 class Config(BaseModel):
