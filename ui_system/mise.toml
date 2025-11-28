@@ -1,4 +1,4 @@
 [tools]
 node = "22"
-"npm:pnpm"="10"
-rust = "latest"
+"npm:pnpm" = "10"
+rust = "1.91"
