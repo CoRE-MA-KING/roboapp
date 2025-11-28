@@ -12,11 +12,17 @@ fi
 
 sudo apt-get update
 
+# Common
 sudo apt-get install -y \
-  # UI System  
+  build-essential cmake \
+  zenohd libzenohc-dev libzenohcpp-dev
+
+# UI System
+sudo apt-get install -y \
   libwebkit2gtk-4.1-dev build-essential file libxdo-dev libssl-dev \
   libayatana-appindicator3-dev librsvg2-dev clang libclang-dev llvm llvm-dev \
-  # Main Camera System
-  build-essential cmake nasm \
-  zenohd libzenohc-dev libzenohcpp-dev
+
+# Main Camera System
+sudo apt-get install -y \
+  nasm
 
