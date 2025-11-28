@@ -13,7 +13,10 @@ fi
 sudo apt-get update
 
 sudo apt-get install -y \
+  # UI System  
   libwebkit2gtk-4.1-dev build-essential file libxdo-dev libssl-dev \
   libayatana-appindicator3-dev librsvg2-dev clang libclang-dev llvm llvm-dev \
+  # Main Camera System
+  build-essential cmake nasm \
   zenohd libzenohc-dev libzenohcpp-dev
 
