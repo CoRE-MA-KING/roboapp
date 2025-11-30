@@ -29,8 +29,7 @@
 	import { invoke } from "@tauri-apps/api/core";
 </script>
 
-<main class="container">
-	<h2>Image</h2>
+<main>
 	<ImageViewer {host} {port} />
 
 	<h2>Robot State</h2>
