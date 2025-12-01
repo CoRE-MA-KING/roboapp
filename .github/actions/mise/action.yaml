@@ -14,3 +14,7 @@ runs:
     - uses: jdx/mise-action@v3
       with:
         working_directory: ${{ inputs.workdir }}
+    - name: Install Dependencies
+      shell: bash
+      run: |
+        mise deps
