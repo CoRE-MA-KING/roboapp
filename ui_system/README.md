@@ -3,15 +3,13 @@
 ## 環境構築
 
 1. 依存関係のインストール
-
-      - ```bash
-         eval "$(mise activate)"
-         mise i
-         ```
+   - ```bash
+      eval "$(mise activate)"
+      mise i
+     ```
 
 1. NodeJS依存関係の更新
-
-      - `mise deps`
+   - `mise deps`
 
 ## 実行方法
 
