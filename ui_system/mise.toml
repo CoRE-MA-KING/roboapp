@@ -3,11 +3,19 @@ node = "22"
 "npm:pnpm" = "10"
 rust = "1.91"
 
-[tasks.deps]
-description = "Install dependency"
+[tasks.deps_node]
+description = "Install Node.js dependencies"
 run = "pnpm i"
+
+[tasks.deps_rust]
+description = "Install Rust dependencies"
+dir = "src-tauri"
+run = ["cargo fetch", "rustup component add clippy"]
+
+[tasks.deps]
+description = "Install dependencies"
+depends = ["deps_node", "deps_rust"]
 
 [tasks.build]
 description = "Build Application"
 run = "pnpm tauri build"
-

@@ -3,10 +3,9 @@ rust = "1.91"
 
 [tasks.deps]
 description = "Install dependency"
-run = "cargo fetch"
+run = ["cargo fetch", "rustup component add clippy"]
 
 [tasks.build]
-depends=["deps"]
+depends = ["deps"]
 description = "Build Application"
 run = "cargo build --release"
-
