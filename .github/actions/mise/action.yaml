@@ -15,6 +15,7 @@ runs:
       with:
         working_directory: ${{ inputs.workdir }}
     - name: Install Dependencies
-      shell: bash
+      shell: "bash"
       run: |
+        cd "${{ inputs.workdir }}"
         mise deps
