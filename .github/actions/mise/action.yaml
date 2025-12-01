@@ -1,5 +1,5 @@
 name: Setup
-description: "Setup pnpm, nodejs, dependencies"
+description: "Setup mise dependencies"
 
 inputs:
   workdir:
@@ -11,8 +11,5 @@ runs:
   steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    - name: Install dependencies
-      shell: bash
-      run: |-
-        cd ${{ inputs.workdir }}
-        pnpm install
+    - uses: jdx/mise-action@v3
+
