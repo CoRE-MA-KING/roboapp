@@ -1,13 +1,12 @@
 [tools]
-node = "22"
-"npm:pnpm" = "10"
 rust = "1.91"
 
 [tasks.deps]
 description = "Install dependency"
-run = "pnpm i"
+run = "cargo fetch"
 
 [tasks.build]
+depends=["deps"]
 description = "Build Application"
-run = "pnpm tauri build"
+run = "cargo build --release"
 

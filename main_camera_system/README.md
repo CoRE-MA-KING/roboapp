@@ -4,16 +4,22 @@
 
 1. 依存関係のインストール
 
-   - ```bash
-     eval "$(mise activate)"
-     mise i
-     ```
+    - ```bash
+      eval "$(mise activate)"
+      mise i
+      ```
 
-2. ビルド
-   - `cargo build --release`
+2. 依存関係のインストール
+
+   - `mise deps`
+
+## 実行方法
+
+1. ビルド
+   - `mise build`
    - `./target/release/main-camera-system` に実行ファイルが生成されます
 
-## コマンドラインオプション
+### コマンドラインオプション
 
 ```txt
 Usage: main-camera-system [OPTIONS]

@@ -4,19 +4,19 @@
 
 1. 依存関係のインストール
 
-   - ```bash
-     eval "$(mise activate)"
-     mise i
-     ```
+      - ```bash
+         eval "$(mise activate)"
+         mise i
+         ```
 
-2. NodeJS依存関係の更新
+1. NodeJS依存関係の更新
 
-- `pnpm i`
+      - `mise deps`
 
 ## 実行方法
 
 1. ビルド
-   - `pnpm tauri build`
+   - `mise build`
    - `./src-tauri/target/release/ui_system` に実行ファイルが生成されます
 2. 実行
    - `./src-tauri/target/release/ui_system`
