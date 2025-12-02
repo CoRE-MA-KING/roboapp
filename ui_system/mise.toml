@@ -10,7 +10,7 @@ run = "pnpm i"
 [tasks.deps_rust]
 description = "Install Rust dependencies"
 dir = "src-tauri"
-run = ["cargo fetch", "rustup component add clippy"]
+run = ["cargo fetch", "rustup component add clippy rustfmt"]
 
 [tasks.deps]
 description = "Install dependencies"

@@ -3,7 +3,7 @@ rust = "1.91"
 
 [tasks.deps]
 description = "Install dependency"
-run = ["cargo fetch", "rustup component add clippy"]
+run = ["cargo fetch", "rustup component add clippy rustfmt"]
 
 [tasks.build]
 depends = ["deps"]
