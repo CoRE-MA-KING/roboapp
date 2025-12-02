@@ -24,6 +24,7 @@ jobs:
       - name: Install Dependencies
         run: |
           mise //:deps
+          mise //ui_system:deps
       - name: Lint
         run: |
           cd "$WORKDIR/src-tauri"

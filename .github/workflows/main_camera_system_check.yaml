@@ -23,6 +23,7 @@ jobs:
       - name: Install Dependencies
         run: |
           mise //:deps
+          mise //main_camera_system:deps
       - name: Lint
         run: |
           cd "$WORKDIR"
