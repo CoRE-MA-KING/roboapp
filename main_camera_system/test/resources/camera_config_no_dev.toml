@@ -1,2 +1,1 @@
-[camera]
-devices = [{ width = 640 }]
+../../../configurator/test/resources/camera_config_no_dev.toml

@@ -1,2 +1,1 @@
-[gui]
-host = "foo.local"
+../../../../configurator/test/resources/gui_config_host.toml

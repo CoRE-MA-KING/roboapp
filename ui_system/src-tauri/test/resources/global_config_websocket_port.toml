@@ -1,2 +1,1 @@
-[global]
-websocket_port = 9090
+../../../../configurator/test/resources/global_config_websocket_port.toml

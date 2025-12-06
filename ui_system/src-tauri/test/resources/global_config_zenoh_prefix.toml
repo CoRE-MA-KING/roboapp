@@ -1,2 +1,1 @@
-[global]
-zenoh_prefix = "roboapp"
+../../../../configurator/test/resources/global_config_zenoh_prefix.toml

@@ -47,7 +47,7 @@ def test_global_config_zenoh_prefix(get_resource_path: Path) -> None:
 
 
 def test_read_uart_config_with_not_exist(get_resource_path: Path) -> None:
-    config_file = get_resource_path / "read_sym.toml"
+    config_file = get_resource_path / "uart_device.toml"
 
     with pytest.raises(ValidationError):
         get_uart_config(config_file)
@@ -59,7 +59,7 @@ def test_read_uart_config(get_resource_path: Path) -> None:
     if not p.exists():
         p.symlink_to("/dev/tty0")
 
-    config_file = get_resource_path / "read_sym.toml"
+    config_file = get_resource_path / "uart_device.toml"
 
     # with pytest.raises(ValidationError):
     c = get_uart_config(config_file)

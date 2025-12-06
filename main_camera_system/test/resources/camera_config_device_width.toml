@@ -1,2 +1,1 @@
-[camera]
-devices = [{ device = "/dev/video0", width = 640 }]
+../../../configurator/test/resources/camera_config_device_width.toml
