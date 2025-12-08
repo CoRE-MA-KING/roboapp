@@ -17,5 +17,6 @@ description = "Install dependencies"
 depends = ["deps_node", "deps_rust"]
 
 [tasks.build]
+depends = ["deps"]
 description = "Build Application"
 run = "pnpm tauri build"

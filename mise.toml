@@ -5,4 +5,4 @@ experimental = true
 task.monorepo_depth = 2
 
 [tasks.build]
-run = ["mise //main_camera_system:build", "mise //uart_bridge:build", "mise //ui_system:build"]
+depends = ["//main_camera_system:build", "//uart_bridge:build", "//ui_system:build"]
