@@ -1,8 +1,9 @@
+/** @type {import("prettier").Config} */
 export default {
 	useTabs: true,
 	trailingComma: "none",
 	printWidth: 100,
-	plugins: ["prettier-plugin-svelte"],
+	plugins: ["prettier-plugin-svelte", "prettier-plugin-tailwindcss"],
 	overrides: [
 		{
 			files: "*.svelte",
@@ -10,5 +11,6 @@ export default {
 				parser: "svelte"
 			}
 		}
-	]
+	],
+	tailwindStylesheet: "./src/routes/layout.css"
 };
