@@ -170,6 +170,6 @@ async fn zenoh_sub(app: AppHandle) {
         .unwrap();
 
     loop {
-        tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
+        tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
     }
 }
