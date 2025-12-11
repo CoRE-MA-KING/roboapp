@@ -25,12 +25,12 @@
 
 ### 一覧
 
-| アプリ名           | トピック名      | データ形式   |
-| ------------------ | --------------- | ------------ |
-| main_camera_system | cam/jpg         | JPEG         |
-| main_camera_system | cam/switch      | int or None  |
-| uart_bridge        | robot/state/*   | RobotState   |
-| uart_bridge        | robot/command/* | RobotCommand |
+| アプリ名           | トピック名    | データ形式             |
+| ------------------ | ------------- | ---------------------- |
+| main_camera_system | cam/jpg       | JPEG                   |
+| main_camera_system | cam/switch    | int or None            |
+| uart_bridge        | robot/state/* | RobotState             |
+| uart_bridge        | damagepanel   | DamagePanelRecognition |
 
 ### ネットワーク
 
@@ -41,15 +41,14 @@
     B[UI System]
     C[画像処理 or Image Reciever]
     U[Uart Bridge]
-    E(UART Bridge （example）)
     M{{STM32}}
+    D[Damage Panel Recognition]
 
     A -- （WebSocket）--> B
     A -- cam/jpg --> C
     U -- robot/state --> B
-    U -- robot/state --> E
-    E -- robot/command --> U
-    E -- robot/command --> B
-    U -- （UART） --> M
-    M -- （UART） --> U
+    U -- （UART：RobotCommand） --> M
+    M -- （UART：RobotState） --> U
+    D -- damagepanel --> U
+    D -- damagepanel --> B
 ```
