@@ -19,6 +19,8 @@ def main() -> None:
         target_distance=random.randint(0, 100),
     )
 
+    print(type(d.model_dump_json()))
+
     pub.put(d.model_dump_json())
     print(f"Published DamagePanelRecognition: {d.model_dump()}")
 
