@@ -1,4 +1,5 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
+mod msg;
 mod zenoh_client;
 use std::sync::Arc;
 use tauri::AppHandle;
@@ -68,7 +69,7 @@ async fn zenoh_sub(app: AppHandle) {
 
     let app = Arc::new(app);
     let robot_state_key = "robot/state";
-    let robot_command_key = "robot/command";
+    let damage_panel_key = "damagepanel";
 
     // Robot State
     declare_and_emit(
@@ -148,38 +149,27 @@ async fn zenoh_sub(app: AppHandle) {
         "reserved",
     )
     .await;
-    // Robot Command
-    declare_and_emit(
-        &session,
-        Arc::clone(&app),
-        &format!("{robot_command_key}/target_x"),
-        "target_x",
-    )
-    .await;
-    declare_and_emit(
-        &session,
-        Arc::clone(&app),
-        &format!("{robot_command_key}/target_y"),
-        "target_y",
-    )
-    .await;
-    declare_and_emit(
-        &session,
-        Arc::clone(&app),
-        &format!("{robot_command_key}/target_distance"),
-        "target_distance",
-    )
-    .await;
-    declare_and_emit(
-        &session,
-        Arc::clone(&app),
-        &format!("{robot_command_key}/dummy"),
-        "dummy",
-    )
-    .await;
 
-    // session.declare_publisher(&format!("{robot_state_key}/request")).await.unwrap().put("request").await.unwrap();
+    // Damage Panel Recognition
+    session
+        .declare_subscriber(damage_panel_key)
+        .callback_mut(move |sample| {
+            if let Ok(v) = sample.payload().try_to_string() {
+                if let Ok(dp) = serde_json::from_str::<msg::DamagePanelRecognition>(&v) {
+                    let app = Arc::clone(&app);
+                    tauri::async_runtime::spawn(async move {
+                        app.emit("target_x", dp.target_x).unwrap();
+                        app.emit("target_y", dp.target_y).unwrap();
+                        app.emit("target_distance", dp.target_distance).unwrap();
+                    });
+                }
+            }
+        })
+        .background()
+        .await
+        .unwrap();
+
     loop {
-        tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
+        tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
     }
 }
