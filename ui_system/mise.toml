@@ -20,3 +20,38 @@ depends = ["deps_node", "deps_rust"]
 depends = ["deps"]
 description = "Build Application"
 run = "pnpm tauri build"
+
+[tasks.lint_node]
+depends = ["deps_node"]
+description = "Run Node.js linter"
+run = ["pnpm lint", "pnpm check"]
+
+[tasks.lint_rust]
+depends = ["deps_rust"]
+description = "Run Rust linter"
+dir = "src-tauri"
+run = "cargo clippy --all-targets --all-features -- -D warnings"
+
+[tasks.lint]
+description = "Run linters"
+depends = ["lint_node", "lint_rust"]
+
+[tasks.format_node]
+depends = ["deps_node"]
+description = "Run Node.js Formatter"
+run = "pnpm format"
+
+[tasks.format_rust]
+depends = ["deps_rust"]
+description = "Run Formatter"
+dir = "src-tauri"
+run = "cargo fmt --all"
+
+[tasks.format]
+description = "Run formatters"
+depends = ["format_node", "format_rust"]
+
+[tasks.start]
+depends = ["build"]
+description = "Start Application"
+run = "./src-tauri/target/release/ui_system"
