@@ -17,7 +17,7 @@
 ## 実行方法
 
 - 本番用ボードもしくは、ダミーのマイコンを接続します
-- `uv run python3 src/uart_bridge/main.py` でアプリケーションを起動します
+- `mise start` でアプリケーションを起動します
 
 ### マイコンにデータ（RobotCommand）を送信する
 

@@ -17,5 +17,5 @@
    - `mise build`
    - `./src-tauri/target/release/ui_system` に実行ファイルが生成されます
 2. 実行
-   - `./src-tauri/target/release/ui_system`
+   - `./src-tauri/target/release/ui_system` or `mise start` でアプリケーションを起動します
    - 画像配信は、`config.toml` に `websocket = true` オプションをつけて実行する必要があります
