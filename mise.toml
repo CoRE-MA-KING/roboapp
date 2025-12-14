@@ -5,4 +5,25 @@ experimental = true
 task.monorepo_depth = 2
 
 [tasks.build]
-depends = ["//main_camera_system:build", "//uart_bridge:build", "//ui_system:build"]
+description = "Build all projects"
+depends = [
+  "//main_camera_system:build",
+  "//uart_bridge:build",
+  "//ui_system:build"
+]
+
+[tasks.lint]
+description = "Run linters for all projects"
+depends = [
+  "//main_camera_system:lint",
+  "//uart_bridge:lint",
+  "//ui_system:lint"
+]
+
+[tasks.format]
+description = "Run formatters for all projects"
+depends = [
+  "//main_camera_system:format",
+  "//uart_bridge:format",
+  "//ui_system:format"
+]

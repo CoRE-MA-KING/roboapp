@@ -4,11 +4,12 @@
 
 1. 依存関係のインストール
    - ```bash
+
       eval "$(mise activate)"
       mise i
      ```
 
-1. NodeJS依存関係の更新
+2. NodeJS依存関係の更新
    - `mise deps`
 
 ## 実行方法
