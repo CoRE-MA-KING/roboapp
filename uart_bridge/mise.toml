@@ -6,3 +6,22 @@ description = "Install dependency"
 run = "uv sync"
 alias = "build"
 
+[tasks.lint]
+depends = ["deps"]
+description = "Run linter"
+run = "uv run task lint"
+
+[tasks.format]
+depends = ["deps"]
+description = "Run Formatter"
+run = "uv run task format"
+
+[tasks.check]
+depends = ["deps"]
+description = "Check Types"
+run = "uv run task check"
+
+[tasks.start]
+depends = ["deps"]
+description = "Start Application"
+run = "uv run python3 src/uart_bridge/main.py"
