@@ -20,11 +20,6 @@ depends = ["deps"]
 description = "Run Formatter"
 run = "cargo fmt --all"
 
-[tasks.format_check]
-depends = ["deps"]
-description = "Check code formatting"
-run = "cargo fmt --all -- --check"
-
 [tasks.start]
 depends = ["build"]
 description = "Start Application"
