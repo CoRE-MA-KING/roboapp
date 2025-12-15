@@ -9,8 +9,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
     - uses: jdx/mise-action@v3
       with:
         working_directory: ${{ inputs.workdir }}
