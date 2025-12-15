@@ -3,9 +3,14 @@ use futures_util::{SinkExt, StreamExt};
 use log::{debug, error, info};
 use main_camera_system::camera_wrapper::create_camera_stream;
 use main_camera_system::config::parse_config;
+use metrics::{describe_gauge, gauge};
+use metrics_exporter_prometheus::PrometheusBuilder;
+use metrics_util::MetricKindMask;
+use std::collections::VecDeque;
 use std::env;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
 use tokio::net::TcpListener;
 use tokio::sync::mpsc;
 use tokio_tungstenite::accept_async;
@@ -41,6 +46,17 @@ async fn main() {
             None
         }
     };
+
+    // FPS計測用
+    let mut timestamps: VecDeque<Instant> = VecDeque::new();
+
+    PrometheusBuilder::new()
+        .with_http_listener(([127, 0, 0, 1], 9901))
+        .idle_timeout(MetricKindMask::GAUGE, Some(Duration::from_secs(10)))
+        .install()
+        .expect("failed to install recorder");
+
+    describe_gauge!("main_camera_fps", "Frames per second of the main camera");
 
     // Initialize Zenoh client
 
@@ -148,8 +164,23 @@ async fn main() {
             stream = None;
         }
 
+        let now = Instant::now();
+
+        // 1秒より前のものを削除
+        while let Some(&front) = timestamps.front() {
+            if now.duration_since(front).as_secs_f32() > 1.0 {
+                timestamps.pop_front();
+            } else {
+                break;
+            }
+        }
+
         if let Some(local_stream) = &mut stream {
             // let (buf, meta) = stream.next().unwrap();
+            timestamps.push_back(now);
+
+            gauge!("main_camera_fps").set(timestamps.len() as f64);
+
             if let Ok((buf, meta)) = local_stream.next() {
                 debug!(
                     "Buffer size: {}, seq: {}, timestamp: {}",
