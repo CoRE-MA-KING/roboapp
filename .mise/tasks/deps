@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-
+set -euo pipefail
 sudo echo "Install Dependencies"
-
+sudo mkdir -p /etc/apt/keyrings
 if [ ! -f "/etc/apt/keyrings/zenoh-public-key.gpg" ]; then
 	curl -L https://download.eclipse.org/zenoh/debian-repo/zenoh-public-key | sudo gpg --dearmor --yes --output /etc/apt/keyrings/zenoh-public-key.gpg
 fi
