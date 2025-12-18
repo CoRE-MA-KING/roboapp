@@ -3,6 +3,24 @@
 - 本アプリケーションはLinuxを対象としています
   - Ubuntu 24.04 LTSで動作を確認しています
 
+## 初期設定
+
+1. miseのインストール
+
+- 本アプリケーションの設定には、[mise](https://mise.jdx.dev)を用いています
+  - [インストールドキュメント](https://mise.jdx.dev/getting-started.html)を基に、miseをインストールしてください
+  - Activate miseを行うと、いくつかのパスを上書きするため、必要に応じて選択してください。
+  - 都度Activateする運用で問題ありません
+
+1. 依存関係のインストール
+
+- 以下のコマンドを実行します
+
+- ```bash
+    mise i
+    mise deps
+    ```
+
 ## アプリ一覧
 
 ### main_camera_system

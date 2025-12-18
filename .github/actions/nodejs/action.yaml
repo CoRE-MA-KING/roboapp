@@ -9,8 +9,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
     - uses: pnpm/action-setup@v4
       with:
         run_install: false
@@ -24,6 +22,6 @@ runs:
         cache-dependency-path: ${{ inputs.workdir }}/pnpm-lock.yaml
     - name: Install dependencies
       shell: bash
-      run: |-
+      run: |
         cd ${{ inputs.workdir }}
         pnpm install

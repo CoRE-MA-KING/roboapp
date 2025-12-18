@@ -15,21 +15,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/actions/mise
+        with:
+          workdir: ${{ env.WORKDIR }}
       - uses: ./.github/actions/rust
         with:
           workdir: ${{ env.WORKDIR }}/src-tauri
       - name: Install Dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install libwebkit2gtk-4.1-dev \
-            build-essential \
-            curl \
-            wget \
-            file \
-            libxdo-dev \
-            libssl-dev \
-            libayatana-appindicator3-dev \
-            librsvg2-dev
+          mise //:deps
+          mise //ui_system:deps
       - name: Lint
         run: |
           cd "$WORKDIR/src-tauri"
@@ -46,6 +41,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/actions/mise
+        with:
+          workdir: ${{ env.WORKDIR }}
       - uses: ./.github/actions/nodejs
         with:
           workdir: ${{ env.WORKDIR }}

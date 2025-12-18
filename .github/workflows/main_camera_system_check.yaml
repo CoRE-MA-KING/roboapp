@@ -14,13 +14,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/actions/mise
+        with:
+          workdir: ${{ env.WORKDIR }}
       - uses: ./.github/actions/rust
         with:
           workdir: ${{ env.WORKDIR }}
       - name: Install Dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install nasm
+          mise //:deps
+          mise //main_camera_system:deps
       - name: Lint
         run: |
           cd "$WORKDIR"
