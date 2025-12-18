@@ -1,14 +1,21 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { invoke } from "@tauri-apps/api/core";
+
+	export type ImageViewerProps = {
+		host: string | null;
+		port: string | null;
+	};
+
+	let { host, port }: ImageViewerProps = $props();
 
 	let ws: WebSocket | null = $state(null);
 	let imageUrl: string | null = $state(null);
 	let imageView: HTMLImageElement;
+
 	let reconnectTimer: number | null = null;
 
-	function connect(host: string = "localhost", port: string = "8080") {
-		ws = new WebSocket(`ws://${host}:${port}`);
+	function connect() {
+		ws = new WebSocket(`ws://${host ? host : "localhost"}:${port ? port : "8080"}`);
 		ws.binaryType = "arraybuffer";
 
 		ws.onmessage = (event) => {
@@ -29,11 +36,7 @@
 	}
 
 	onMount(() => {
-		invoke("get_config_host").then((h) => {
-			invoke("get_config_port").then((p) => {
-				connect(h as string, p as string);
-			});
-		});
+		connect();
 
 		return () => {
 			if (reconnectTimer) clearTimeout(reconnectTimer);
