@@ -19,6 +19,9 @@
    - `mise build`
    - `./target/release/main-camera-system` に実行ファイルが生成されます
 
+2. 実行
+  - `mise build` or `./target/release/main-camera-system`
+
 ### コマンドラインオプション
 
 ```txt
