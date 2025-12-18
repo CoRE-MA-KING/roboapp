@@ -4,18 +4,20 @@
 
 ## 環境構築
 
-1. Pythonのインストール
-   - Python 3.8以上をインストールしてください
-   - [uv](https://docs.astral.sh/uv/) のインストール
-     - `curl -LsSf https://astral.sh/uv/install.sh | sh`
+1. 依存関係のインストール
 
-2. 依存パッケージのインストール
-   - `uv sync`
+   - ```bash
+     eval "$(mise activate)"
+     mise i
+     ```
+
+2. Python 依存パッケージのインストール
+   - `mise deps`
 
 ## 実行方法
 
 - 本番用ボードもしくは、ダミーのマイコンを接続します
-- `uv run python3 src/uart_bridge/main.py` でアプリケーションを起動します
+- `mise start` でアプリケーションを起動します
 
 ### マイコンにデータ（RobotCommand）を送信する
 

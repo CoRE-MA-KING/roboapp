@@ -2,16 +2,27 @@
 
 ## 環境構築
 
-1. Rustのインストール
-   - [Rustの公式サイト](https://www.rust-lang.org/tools/install)からインストールします。
-   - `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
-2. 依存パッケージのインストール
-   - `sudo apt install build-essential cmake nasm`
-3. ビルド
-   - `cargo build --release`
+1. 依存関係のインストール
+
+    - ```bash
+      eval "$(mise activate)"
+      mise i
+      ```
+
+2. 依存関係のインストール
+
+   - `mise deps`
+
+## 実行方法
+
+1. ビルド
+   - `mise build`
    - `./target/release/main-camera-system` に実行ファイルが生成されます
 
-## コマンドラインオプション
+2. 実行
+  - `mise start` or `./target/release/main-camera-system`
+
+### コマンドラインオプション
 
 ```txt
 Usage: main-camera-system [OPTIONS]

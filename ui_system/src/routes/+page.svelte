@@ -1,11 +1,36 @@
 <script lang="ts">
+	import { getMatches } from "@tauri-apps/plugin-cli";
+
+	let host = "localhost";
+	let port = "8080";
+
+	onMount(async () => {
+		const matches = await getMatches();
+		const args = matches.args;
+
+		if (
+			args.address?.value &&
+			typeof args.address?.value === "string" &&
+			args.address.value.trim() !== ""
+		) {
+			host = args.address.value;
+		}
+
+		if (args.port?.value && typeof args.port?.value === "string" && args.port.value.trim() !== "") {
+			port = args.port.value;
+		}
+
+		invoke("state_request");
+	});
+
 	import ImageViewer from "$lib/components/ImageViewer.svelte";
+	import { onMount } from "svelte";
 	import TextBox from "$lib/components/TextBox.svelte";
+	import { invoke } from "@tauri-apps/api/core";
 </script>
 
-<main class="container">
-	<h2>Image</h2>
-	<ImageViewer />
+<main>
+	<ImageViewer {host} {port} />
 
 	<h2>Robot State</h2>
 	<TextBox pre="video_id : " task_name="video_id" post="" />

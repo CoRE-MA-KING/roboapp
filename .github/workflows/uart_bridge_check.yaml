@@ -16,6 +16,9 @@ jobs:
         working-directory: ${{ env.WORKDIR }}
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/actions/mise
+        with:
+          workdir: ${{ env.WORKDIR }}
       - uses: ./.github/actions/python
         with:
           workdir: ${{ env.WORKDIR }}
@@ -29,3 +32,4 @@ jobs:
       - name: Run Tests
         run: |
           uv run task test
+
