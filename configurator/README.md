@@ -2,9 +2,21 @@
 
 - roboapp の各種設定を実行するツールです
 
-## 使い方
+## 環境構築
 
-- `uv run python3 src/configurator/main.py` で実行します。
+1. 依存関係のインストール
+
+   - ```bash
+     eval "$(mise activate)"
+     mise i
+     ```
+
+2. Python 依存パッケージのインストール
+   - `mise deps`
+
+## 実行方法
+
+- `mise start` or `uv run python3 src/configurator/main.py` で実行します。
 
 ### 設定ファイルの検証
 
@@ -29,3 +41,4 @@
 
 - systemd サービスとして登録されているアプリケーションの自動起動を設定・解除します。
 - PC起動時に自動的にアプリケーションを起動したい場合、有効化してください。
+
