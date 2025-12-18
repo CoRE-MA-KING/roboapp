@@ -16,7 +16,7 @@ depends = ["deps"]
 description = "Run Formatter"
 run = "uv run task format"
 
-[tasks.start]
+[tasks.configurator]
 depends = ["deps"]
 description = "Start Application"
 run = "uv run python3 src/configurator/main.py"

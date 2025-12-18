@@ -7,7 +7,7 @@ task.monorepo_depth = 2
 [tasks.configurator]
 description = "Run roboapp configurator"
 depends = [
-  "//configurator:start",
+  "//configurator:configurator",
 ]
 
 [tasks.build]
