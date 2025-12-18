@@ -5,6 +5,11 @@ uv = "0.9"
 description = "Install dependency"
 run = "uv sync"
 alias = "build"
+sources = [
+    "pyproject.toml",
+    "uv.lock",
+]
+outputs = { auto = true }
 
 [tasks.lint]
 depends = ["deps"]
