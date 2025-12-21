@@ -52,8 +52,7 @@
 	<img
 		bind:this={imageView}
 		src={imageUrl}
-		width="1280"
-		height="720"
+		class="aspect-video w-full"
 		alt="受信した画像がここに表示されます"
 	/>
 </div>

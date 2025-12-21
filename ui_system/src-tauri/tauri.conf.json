@@ -12,9 +12,9 @@
   "app": {
     "windows": [
       {
-        "title": "ui_system",
-        "width": 800,
-        "height": 600
+        "decorations": false,
+        "fullscreen": true,
+        "title": "ui_system"
       }
     ],
     "security": {

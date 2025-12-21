@@ -7,7 +7,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v4
     - name: Compute Cargo.lock hash
       id: cargo-lock-hash
       shell: bash
