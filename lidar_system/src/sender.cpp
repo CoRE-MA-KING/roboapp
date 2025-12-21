@@ -44,12 +44,13 @@ int main(int argc, char* argv[]) {
     std::cout << "RPLIDAR selected" << std::endl;
     lidar = std::make_unique<RplidarWrapper>(
         lidar_config.device.value(), lidar_config.max_distance,
-        lidar_config.min_degree, lidar_config.max_degree);
+        lidar_config.min_degree, lidar_config.max_degree,
+        lidar_config.rotation);
   } else if (lidar_config.backend == "random") {
     std::cout << "RandomLiDAR selected" << std::endl;
-    lidar = std::make_unique<RandomLiDAR>(lidar_config.max_distance,
-                                          lidar_config.min_degree,
-                                          lidar_config.max_degree);
+    lidar = std::make_unique<RandomLiDAR>(
+        lidar_config.max_distance, lidar_config.min_degree,
+        lidar_config.max_degree, lidar_config.rotation);
   } else {
     std::cerr << "Unknown backend: " << lidar_config.backend << std::endl;
     return 1;
