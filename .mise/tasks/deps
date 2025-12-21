@@ -27,3 +27,7 @@ sudo apt-get install -y \
 # Main Camera System
 sudo apt-get install -y \
 	nasm
+
+# Lidar System
+sudo apt-get install -y \
+	libgflags-dev libopencv-dev nlohmann-json3-dev
