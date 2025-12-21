@@ -1,14 +1,34 @@
 # LiDAR System
 
-## Install
+## 環境構築
 
-- `git clone`
-- `git submodule init --recursive`
-- `sudo apt install build-essential cmake libgflags-dev libopencv-dev nlohmann-json3-dev`
+1. 依存関係のインストール
 
-## Build
+    - ```bash
+      eval "$(mise activate)"
+      mise i
+      ```
 
-- `just build`
+2. 依存関係のインストール
+
+   - `mise deps`
+
+## 実行方法
+
+1. ビルド
+
+   - `mise build`
+   - `build/processor` と `build/sender` に実行ファイルが生成されます
+
+2. 実行
+
+   - `sender`
+     - lidarデータを送信するソフトです
+     - `./build/sender -n foo` のように、`-n` オプションでデバイス名を指定して実行します
+   - `processor`
+     - 障害物回避の計算と可視化を行うソフトです
+     - `./build/processor` で実行します
+     - `-s` オプションをつけると点群情報を描画します
 
 ## 設定ファイル
 
