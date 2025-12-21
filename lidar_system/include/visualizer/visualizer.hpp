@@ -54,6 +54,7 @@ class Visualizer {
   uint32_t image_size;
   LiDARConfig lidar_config;
   double zoom;
+  cv::Mat baseImage;
 
  public:
   Visualizer(const LiDARConfig &lidar_config, uint32_t image_size);
