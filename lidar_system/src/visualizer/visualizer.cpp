@@ -122,5 +122,7 @@ cv::Mat Visualizer::multipleVisualize(const std::vector<cv::Point2d> &data) {
                cv::Scalar(255, 255, 255), -1);
   }
 
+  cv::rotate(img, img, cv::ROTATE_180);
+
   return img;
 }
