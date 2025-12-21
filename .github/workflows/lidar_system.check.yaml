@@ -24,16 +24,13 @@ jobs:
       - name: Install Dependencies
         run: |
           mise //:deps
-          mise //main_camera_system:deps
+          mise //lidar_system:deps
       - name: Build
         run: |
-          mise //:build
+          mise //:${env.WORKDIR}:build
       - name: Lint
         run: |
-          mise //:lint
-      - name: Format
-        run: |
-          mise //:format
+          mise //:${env.WORKDIR}:lint
       - name: Test
         run: |
-          mise //:test
+          mise //:${env.WORKDIR}:test

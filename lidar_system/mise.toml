@@ -33,3 +33,8 @@ run = "find {{ vars.target }} -exec clang-format -i {} +;"
 depends = ["build"]
 description = "Start Application"
 run = "./target/release/main-camera-system"
+
+[tasks.test]
+depends = ["build"]
+description = "Run Tests"
+run = "ctest --test-dir build --output-on-failure"
