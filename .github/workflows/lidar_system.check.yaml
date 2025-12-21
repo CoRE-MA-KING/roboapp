@@ -18,33 +18,22 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - uses: ./.github/actions/cpp
+      - uses: ./.github/actions/mise
         with:
           workdir: ${{ env.WORKDIR }}
       - name: Install Dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            cmake \
-            ninja-build \
-            libgflags-dev \
-            libopencv-dev \
-            libzenohc-dev \
-            libzenohcpp-dev \
-            nlohmann-json3-dev \
-            clang-format \
-            clang-tidy
-      - uses: extractions/setup-just@v3
+          mise //:deps
+          mise //main_camera_system:deps
       - name: Build
         run: |
-          just build
+          mise //:build
       - name: Lint
         run: |
-          just lint
+          mise //:lint
       - name: Format
         run: |
-          just dry-format
+          mise //:format
       - name: Test
         run: |
-          just test
+          mise //:test

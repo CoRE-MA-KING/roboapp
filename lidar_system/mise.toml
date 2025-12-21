@@ -1,7 +1,6 @@
 [vars]
 target = './include ./src -regex ".*\.\(c\|h\|cpp\|hpp\)"'
 
-
 [tasks.deps]
 description = "Install dependency"
 run = ["git submodule update --init --recursive"]
@@ -12,9 +11,18 @@ description = "Build Application"
 run = "cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release"
 
 [tasks.lint]
-depends = ["deps"]
 description = "Run linter"
+run = [{ tasks = ["clang_tidy", "format_check"] }]
+
+[tasks.clang_tidy]
+depends = ["deps"]
+description = "Run clang-tidy"
 run = "find {{ vars.target }} -exec clang-tidy -p ./build {} +"
+
+[tasks.format_check]
+depends = ["deps"]
+description = "Check Formatter"
+run = "find {{ vars.target }} -exec clang-format --Werror --dry-run {} +;"
 
 [tasks.format]
 depends = ["deps"]
@@ -25,4 +33,3 @@ run = "find {{ vars.target }} -exec clang-format -i {} +;"
 depends = ["build"]
 description = "Start Application"
 run = "./target/release/main-camera-system"
-
