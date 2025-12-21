@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
   auto global_config = GlobalConfig(config_file);
   auto lidar_config_all = LiDARConfig(config_file);
 
-  bool updated = false;
+  bool updated = true;
 
   auto visualizer = Visualizer(lidar_config_all, 600);
 
@@ -88,6 +88,7 @@ int main(int argc, char **argv) {
 
   while (true) {
     auto now = std::chrono::system_clock::now();
+    std::vector<cv::Point2d> data;
 
     for (auto it = timestamps.begin(); it != timestamps.end();) {
       if (now - std::get<0>(it->second) > std::chrono::seconds(5)) {
@@ -100,7 +101,6 @@ int main(int argc, char **argv) {
     }
 
     if (updated) {
-      std::vector<cv::Point2d> data;
       for (auto &[id, pair] : timestamps) {
         auto &[timestamp, lidar_data] = pair;
         auto p = lidar_data.getPoint();
@@ -115,16 +115,13 @@ int main(int argc, char **argv) {
       std::cout << ("{\"linear\":" + std::to_string(vec.linear) +
                     ",\"angular\":" + std::to_string(vec.angular) + "}")
                 << std::endl;
-
-      if (FLAGS_s) {
-        cv::imshow("multiple", visualizer.multipleVisualize(data));
-        cv::waitKey(1);
-      }
+    }
+    if (FLAGS_s) {
+      cv::imshow("multiple", visualizer.multipleVisualize(data));
+      cv::waitKey(1);
     }
 
     updated = false;
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 
   return 0;
