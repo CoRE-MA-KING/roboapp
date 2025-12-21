@@ -109,6 +109,9 @@ int main(int argc, char **argv) {
 
       auto vec = collision_avoidance.calcRepulsiveForce(data);
 
+      // ロボット用に回転方向を反転
+      vec.angular = 360.f - vec.angular;
+
       vec_publisher.put("{\"linear\":" + std::to_string(vec.linear) +
                         ",\"angular\":" + std::to_string(vec.angular) + "}");
 
