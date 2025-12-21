@@ -112,6 +112,10 @@ int main(int argc, char **argv) {
       vec_publisher.put("{\"linear\":" + std::to_string(vec.linear) +
                         ",\"angular\":" + std::to_string(vec.angular) + "}");
 
+      std::cout << ("{\"linear\":" + std::to_string(vec.linear) +
+                    ",\"angular\":" + std::to_string(vec.angular) + "}")
+                << std::endl;
+
       if (FLAGS_s) {
         cv::imshow("multiple", visualizer.multipleVisualize(data));
         cv::waitKey(1);
