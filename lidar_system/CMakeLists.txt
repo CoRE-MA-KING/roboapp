@@ -91,7 +91,7 @@ set (VISUALIZER_FILES
 
 add_library(VisualizerLib ${VISUALIZER_FILES})
 target_include_directories(VisualizerLib PUBLIC include/visualizer)
-target_link_libraries(VisualizerLib gtest_main gtest ${OpenCV_LIBS})
+target_link_libraries(VisualizerLib CollisionAvoidanceLib gtest_main gtest ${OpenCV_LIBS})
 
 
 add_executable(sender src/sender.cpp)

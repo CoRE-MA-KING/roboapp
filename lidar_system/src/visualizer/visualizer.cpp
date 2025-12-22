@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+#include "collision_avoidance/collision_avoidance.hpp"
+
 Visualizer::Visualizer(const LiDARConfig &lidar_config, uint32_t image_size)
     : lidar_config(lidar_config), image_size(image_size) {
   baseImage = cv::Mat::zeros(image_size, image_size, CV_8UC3);
@@ -113,7 +115,8 @@ Visualizer::Visualizer(const LiDARConfig &lidar_config, uint32_t image_size)
            cv::Scalar(255, 0, 0), 1);
 }
 
-cv::Mat Visualizer::multipleVisualize(const std::vector<cv::Point2d> &data) {
+cv::Mat Visualizer::multipleVisualize(const std::vector<cv::Point2d> &data,
+                                      const RepulsiveForceVector &vec) {
   cv::Mat img = baseImage.clone();
   auto center = image_size / 2;
 
@@ -121,6 +124,14 @@ cv::Mat Visualizer::multipleVisualize(const std::vector<cv::Point2d> &data) {
     cv::circle(img, cv::Point2d(center + p.x * zoom, center + p.y * zoom), 2,
                cv::Scalar(255, 255, 255), -1);
   }
+
+  cv::arrowedLine(
+      img, cv::Point2d(center, center),
+      cv::Point2d(center + vec.linear * 100 * zoom *
+                               std::cos(vec.angular * CV_PI / 180.0),
+                  center - vec.linear * 100 * zoom *
+                               std::sin(vec.angular * CV_PI / 180.0)),
+      cv::Scalar(0, 255, 255), 2);
 
   cv::flip(img, img, 0);
 

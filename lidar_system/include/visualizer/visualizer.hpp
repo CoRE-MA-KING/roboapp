@@ -5,6 +5,7 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
+#include "collision_avoidance/collision_avoidance.hpp"
 #include "config.hpp"
 #include "generate_color.hpp"
 #include "lidar_types/lidar_data.hpp"
@@ -58,6 +59,7 @@ class Visualizer {
 
  public:
   Visualizer(const LiDARConfig &lidar_config, uint32_t image_size);
-  cv::Mat multipleVisualize(const std::vector<cv::Point2d> &data);
+  cv::Mat multipleVisualize(const std::vector<cv::Point2d> &data,
+                            const RepulsiveForceVector &vec);
 };
 #endif  // VISUALIZER_HPP_
