@@ -23,7 +23,7 @@ class LidarMetadata {
         y(y),
         min_degree(min_degree),
         max_degree(max_degree),
-        max_distance(max_distance){};
+        max_distance(max_distance) {};
   std::vector<uint8_t> dump();
 };
 

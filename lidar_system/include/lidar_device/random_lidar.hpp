@@ -48,7 +48,7 @@ class RandomLiDAR : public MockLiDAR {
     return true;
   }
 
-  inline ~RandomLiDAR(){};
+  inline ~RandomLiDAR() {};
 };
 
 #endif  // RANDOM_LIDAR_HPP
