@@ -74,7 +74,7 @@ class LiDARDeviceConfig {
       y = -1 * toml::get<int32_t>(toml_config.at("y"));
     }
     if (toml_config.contains("rotation")) {
-      rotation = (360 + toml::get<int32_t>(toml_config.at("rotation")) % 360);
+      rotation = (360 - toml::get<int32_t>(toml_config.at("rotation")));
     }
   };
 };
