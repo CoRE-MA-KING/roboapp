@@ -113,6 +113,8 @@ Visualizer::Visualizer(const LiDARConfig &lidar_config, uint32_t image_size)
                                     zoom,
                        center + lidar_config.robot_length / 2 * zoom),
            cv::Scalar(255, 0, 0), 1);
+
+  // cv::rotate(baseImage, baseImage, cv::ROTATE_180);
 }
 
 cv::Mat Visualizer::multipleVisualize(const std::vector<cv::Point2d> &data,
@@ -133,7 +135,7 @@ cv::Mat Visualizer::multipleVisualize(const std::vector<cv::Point2d> &data,
                                std::sin(vec.angular * CV_PI / 180.0)),
       cv::Scalar(0, 255, 255), 2);
 
-  cv::flip(img, img, 0);
-
+  //  cv::flip(img, img, 0);
+  // cv::rotate(img, img, cv::ROTATE_180);
   return img;
 }
