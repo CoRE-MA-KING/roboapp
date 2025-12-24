@@ -9,15 +9,10 @@
 
 #include "collision_avoidance/collision_avoidance.hpp"
 #include "config.hpp"
-#include "lidar_metadata.hpp"
-#include "visualizer/visualizer.hpp"
 #include "zenoh.hxx"
 
 DEFINE_string(
     c, "", "config file path: Default `$XDG_CONFIG_DIR/roboapp/config.toml`");
-DEFINE_bool(
-    s, false,
-    "show mode: If true, print debug information to the standard output.");
 
 std::chrono::system_clock::time_point ntp64_to_timepoint(uint64_t ntp64) {
   uint32_t seconds = (ntp64 >> 32);  // NTPエポックからの秒数
@@ -40,15 +35,12 @@ int main(int argc, char **argv) {
   std::map<std::string,
            std::tuple<std::chrono::system_clock::time_point, LiDARDataWrapper>>
       timestamps;
-  std::map<std::string, LidarMetadata> metadata_map;
 
   auto config_file = get_config_file(FLAGS_c);
   auto global_config = GlobalConfig(config_file);
   auto lidar_config_all = LiDARConfig(config_file);
 
   bool updated = true;
-
-  auto visualizer = Visualizer(lidar_config_all, 600);
 
   // Collision Avoidance
   auto collision_avoidance = CollisionAvoidance(
@@ -91,10 +83,10 @@ int main(int argc, char **argv) {
     std::vector<cv::Point2d> data;
 
     for (auto it = timestamps.begin(); it != timestamps.end();) {
-      if (now - std::get<0>(it->second) > std::chrono::seconds(5)) {
-        cv::destroyWindow(it->first);
+      if (now - std::get<0>(it->second) >
+          std::chrono::seconds(lidar_config_all.duration_seconds)) {
+        updated = true;
         it = timestamps.erase(it);
-        metadata_map.erase(it->first);
       } else {
         ++it;
       }
@@ -118,15 +110,10 @@ int main(int argc, char **argv) {
       std::cout << ("{\"linear\":" + std::to_string(vec.linear) +
                     ",\"angular\":" + std::to_string(vec.angular) + "}")
                 << std::endl;
-
-      if (FLAGS_s) {
-        cv::imshow("multiple", visualizer.multipleVisualize(data, vec));
-        cv::waitKey(1);
-      }
     }
 
     updated = false;
   }
-
+  std::this_thread::sleep_for(std::chrono::milliseconds(1));
   return 0;
 }
