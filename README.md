@@ -43,12 +43,12 @@
 
 ### 一覧
 
-| アプリ名           | トピック名      | データ形式   |
-| ------------------ | --------------- | ------------ |
-| main_camera_system | cam/jpg         | JPEG         |
-| main_camera_system | cam/switch      | int or None  |
-| uart_bridge        | robot/state/*   | RobotState   |
-| uart_bridge        | robot/command/* | RobotCommand |
+| アプリ名           | トピック名             | データ形式   |
+| ------------------ | ---------------------- | ------------ |
+| main_camera_system | cam/jpg                | JPEG         |
+| main_camera_system | robot/command/video_id | int or None  |
+| uart_bridge        | robot/state/*          | RobotState   |
+| uart_bridge        | robot/command/*        | RobotCommand |
 
 ### ネットワーク
 
