@@ -65,6 +65,7 @@ RepulsiveForceVector CollisionAvoidance::calcRepulsiveForce(
 
   double linear = std::hypot(total_force.x, total_force.y);
   double angular = 0.0;
+
   if (std::abs(total_force.x) > eps || std::abs(total_force.y) > eps) {
     angular = std::atan2(total_force.y, total_force.x) * 180.0 / M_PI;
   } else if (std::abs(total_force.y) > eps) {
@@ -72,6 +73,8 @@ RepulsiveForceVector CollisionAvoidance::calcRepulsiveForce(
   } else if (std::abs(total_force.x) > eps) {
     angular = (total_force.x > 0) ? 0.0 : 180.0;
   }
+
+  angular = std::fmod(angular + 360.0f, 360.0f);
 
   return RepulsiveForceVector(linear, angular);
 }
