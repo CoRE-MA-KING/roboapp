@@ -2,11 +2,9 @@
 #define LIDAR_DATA_HPP_
 
 #include <cstdint>
-#include <cstring>
 #include <map>
 #include <nlohmann/json.hpp>
 #include <opencv2/core.hpp>
-#include <string>
 #include <vector>
 
 using LiDARData = std::map<float, float>;
