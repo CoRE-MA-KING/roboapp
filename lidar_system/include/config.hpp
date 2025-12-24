@@ -1,6 +1,7 @@
 #ifndef CONFIG_HPP_
 #define CONFIG_HPP_
 
+#include <cstdint>
 #include <map>
 
 #include "gflags/gflags.h"
@@ -85,6 +86,8 @@ class LiDARConfig {
   uint32_t robot_length = 800;
   double repulsive_gain = 0.7;
   uint32_t influence_range = 200;
+  uint32_t duration_seconds = 1;
+
   std::map<std::string, LiDARDeviceConfig> devices;
 
   LiDARConfig(toml::value toml_config) {
@@ -102,6 +105,10 @@ class LiDARConfig {
       if (lidar_config.contains("influence_range")) {
         influence_range =
             toml::get<uint32_t>(lidar_config.at("influence_range"));
+      }
+      if (lidar_config.contains("duration_seconds")) {
+        duration_seconds =
+            toml::get<uint32_t>(lidar_config.at("duration_seconds"));
       }
 
       for (const auto& [device_name, device_config] :
