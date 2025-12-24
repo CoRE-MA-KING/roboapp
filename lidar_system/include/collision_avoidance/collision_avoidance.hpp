@@ -3,15 +3,21 @@
 
 #include <array>
 #include <cmath>
+#include <nlohmann/json.hpp>
 #include <opencv2/core.hpp>
 #include <vector>
-
 struct RepulsiveForceVector {
   double linear;
   double angular;
 
   RepulsiveForceVector(double lin = 0.0, double ang = 0.0)
       : linear(lin), angular(ang) {}
+
+  RepulsiveForceVector(const std::string& str) {
+    auto j = nlohmann::json(str);
+    j.at("linear").get_to(this->linear);
+    j.at("angular").get_to(this->angular);
+  }
 };
 
 class CollisionAvoidance {
