@@ -14,7 +14,7 @@ struct RepulsiveForceVector {
       : linear(lin), angular(ang) {}
 
   RepulsiveForceVector(const std::string& str) {
-    auto j = nlohmann::json(str);
+    auto j = nlohmann::json::parse(str);
     j.at("linear").get_to(this->linear);
     j.at("angular").get_to(this->angular);
   }
