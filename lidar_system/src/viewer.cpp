@@ -87,6 +87,7 @@ int main(int argc, char **argv) {
         updated = true;
       },
       zenoh::closures::none);
+
   while (true) {
     auto now = std::chrono::system_clock::now();
     std::vector<cv::Point2d> data;
@@ -110,11 +111,10 @@ int main(int argc, char **argv) {
 
       cv::imshow("multiple", visualizer.multipleVisualize(data, vec));
       cv::waitKey(1);
+      updated = false;
     } else {
-      std::this_thread::sleep_for(std::chrono::microseconds(1));
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
-
-    updated = false;
   }
 
   return 0;
