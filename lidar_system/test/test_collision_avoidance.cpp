@@ -22,8 +22,8 @@ TEST(CollisionAvoidanceTest, ObstacleFront)
     // 後方に斥力が発生する
     EXPECT_GT(result.linear, 0.0);
     // angularが[π/2, π]または[-π, -π/2]の範囲にあることを確認
-    EXPECT_TRUE((result.angular >= M_PI/2 && result.angular <= M_PI) || 
-                (result.angular >= -M_PI && result.angular <= -M_PI/2));
+    EXPECT_TRUE((90 <= result.angular && result.angular <= 180) || 
+                (-180 <= result.angular && result.angular <= -90));
 }
 
 TEST(CollisionAvoidanceTest, ObstacleSide)
@@ -34,7 +34,7 @@ TEST(CollisionAvoidanceTest, ObstacleSide)
     auto result = ca.calcRepulsiveForce(lidar_points);
     // 側方に斥力が発生する
     EXPECT_GT(result.linear, 0.0);
-    EXPECT_NEAR(result.angular, -M_PI/2, M_PI/2);
+    EXPECT_NEAR(result.angular, -90, 90);
 }
 
 TEST(CollisionAvoidanceTest, ObstacleDiagonalFrontRight)
@@ -46,8 +46,8 @@ TEST(CollisionAvoidanceTest, ObstacleDiagonalFrontRight)
     // 右後方方向に斥力が発生する
     EXPECT_GT(result.linear, 0.0);
     // 角度は右後方（3象限）になるはず：-π < angular < -π/2
-    EXPECT_GE(result.angular, -M_PI);
-    EXPECT_LE(result.angular, -M_PI/2);
+    EXPECT_GE(result.angular, -180);
+    EXPECT_LE(result.angular, -90);
 }
 
 TEST(CollisionAvoidanceTest, ObstacleNearFrontRightCorner)
@@ -103,8 +103,8 @@ TEST(CollisionAvoidanceTest, RobotInsideRectangleOffCenter)
     // 右側の壁が近いため、左方向の斥力が発生
     EXPECT_GT(result.linear, 0.0);
     // 角度は左方向（0付近または±π付近）
-    EXPECT_TRUE((result.angular >= -M_PI/4 && result.angular <= M_PI/4) || 
-                (std::abs(result.angular) >= 3*M_PI/4));
+    EXPECT_TRUE((result.angular >= -45 && result.angular <= 45) || 
+                (std::abs(result.angular) >= 3*45));
 }
 
 TEST(CollisionAvoidanceTest, RobotInsideNarrowCorridor)
@@ -128,8 +128,8 @@ TEST(CollisionAvoidanceTest, RobotNearCornerInside)
     // 左上の角が近いため、右上方向への斥力が発生
     EXPECT_GT(result.linear, 0.0);
     // 角度は右上方向（-π < angular < -π/2）
-    EXPECT_GT(result.angular, -M_PI);
-    EXPECT_LT(result.angular, -M_PI/2);
+    EXPECT_GT(result.angular, -180);
+    EXPECT_LT(result.angular, -90);
 }
 
 
