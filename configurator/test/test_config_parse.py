@@ -1,9 +1,10 @@
+import tomllib
 from pathlib import Path
 
 import pytest
-import tomllib
-from configurator.config import Config
 from pydantic import ValidationError
+
+from configurator.config import Config
 
 
 @pytest.fixture

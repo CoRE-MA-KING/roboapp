@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
+
 from uart_bridge.domain.config import (
     get_global_config,
     get_uart_config,
