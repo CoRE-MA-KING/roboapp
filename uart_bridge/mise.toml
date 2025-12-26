@@ -16,6 +16,11 @@ depends = ["deps"]
 description = "Run Formatter"
 run = "uv run task format"
 
+[tasks.test]
+depends = ["deps"]
+description = "Run tests"
+run = "uv run task test"
+
 [tasks.start]
 depends = ["deps"]
 description = "Start Application"

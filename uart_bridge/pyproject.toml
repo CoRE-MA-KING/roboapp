@@ -27,7 +27,7 @@ dev = [
     "types-pyserial>=3.5.0.20250326",
 ]
 
-[tool.lint.ruff]
+[tool.ruff.lint]
 select = [
     "E",
     "F",

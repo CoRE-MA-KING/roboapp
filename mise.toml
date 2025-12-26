@@ -36,3 +36,12 @@ depends = [
   "//uart_bridge:format",
   "//ui_system:format"
 ]
+
+[tasks.test]
+description = "Run tests for all projects"
+depends = [
+  "//configurator:test",
+  "//main_camera_system:test",
+  "//uart_bridge:test",
+  "//ui_system:test"
+]
