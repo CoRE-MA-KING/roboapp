@@ -34,7 +34,6 @@ run = "pnpm tauri build"
 sources = [
     "package.json",
     "pnpm-lock.yaml",
-    "index.html",
     "src/**",
     "tsconfig*.json",
     "vite.config.*",
