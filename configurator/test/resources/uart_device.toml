@@ -1,0 +1,2 @@
+[uart]
+device = "/tmp/roboapp_test_uart"

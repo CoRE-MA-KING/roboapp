@@ -1,0 +1,45 @@
+[project]
+name = "configurator"
+version = "0.1.0"
+description = "roboapp の設定を管理・検証するためのツール"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "jinja2>=3.1.6",
+    "prompt-toolkit>=3.0.52",
+    "pydantic>=2.12.4",
+]
+authors = [
+    { name = "motty", email = "motty.mio2@gmail.com" },
+]
+
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.18.2",
+    "pytest>=9.0.0",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.14.3",
+    "taskipy>=1.14.1",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "W",
+]
+
+[tool.taskipy.variables]
+targets = "src test"
+
+[tool.taskipy.tasks]
+check = {cmd = "mypy {targets} --strict", use_vars = true}
+lint = {cmd = "ruff check {targets}", use_vars = true}
+format = {cmd = "ruff check {targets} --fix && ruff format {targets}", use_vars = true}
+test = "pytest --cov --cov-report=html test/"

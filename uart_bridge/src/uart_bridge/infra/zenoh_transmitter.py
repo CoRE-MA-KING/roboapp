@@ -7,8 +7,13 @@ from uart_bridge.domain.messages import RobotCommand, RobotState
 class ZenohTransmitter(Transmitter):
     """Transmits data using Zenoh protocol."""
 
-    def __init__(self) -> None:
+    def __init__(self, prefix: str | None = None) -> None:
         self.zenoh_session = zenoh.open(zenoh.Config())
+
+        if prefix:
+            prefix = prefix.rstrip("/") + "/"
+        else:
+            prefix = ""
 
         self.publishers = {}
 
@@ -17,26 +22,23 @@ class ZenohTransmitter(Transmitter):
 
         for key in RobotState.model_fields.keys():
             self.publishers[key] = self.zenoh_session.declare_publisher(
-                f"robot/state/{key}"
+                f"{prefix}robot/state/{key}"
             )
 
         for key in RobotCommand.model_fields.keys():
             self.zenoh_session.declare_subscriber(
-                f"robot/command/{key}",
+                f"{prefix}robot/command/{key}",
                 self._subscriber,
             )
-        # self.zenoh_session.declare_subscriber(
-        #     "robot/command",
-        #     self._subscriber,
-        # )
+
         self.zenoh_session.declare_subscriber(
-            "robot/state/request",
+            f"{prefix}robot/state/request",
             self._subscriber_callback_request,
         )
 
     def publish(self, robot_state: RobotState, force: bool = False) -> None:
         """Transmit data to the specified topic."""
-        for key in robot_state.model_fields.keys():
+        for key in RobotState.model_fields.keys():
             value = getattr(robot_state, key)
 
             if not force and value == getattr(self.robot_state, key):
