@@ -2,7 +2,7 @@ use clap::Parser;
 use futures_util::{SinkExt, StreamExt};
 use log::{debug, error, info};
 use main_camera_system::camera_wrapper::create_camera_stream;
-use main_camera_system::config::{CameraConfig, GlobalConfig};
+use main_camera_system::config::load_config;
 use std::env;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
@@ -29,8 +29,11 @@ async fn main() {
     unsafe { env::set_var("RUST_LOG", if args.debug { "debug" } else { "info" }) };
     env_logger::init();
 
-    let camera_config = CameraConfig::from_config_file(args.config_file.clone());
-    let global_config = GlobalConfig::from_config_file(args.config_file.clone());
+    let config = load_config(args.config_file).expect("Failed to load configuration");
+    let global_config = config.global;
+    let camera_config = config
+        .camera
+        .expect("設定ファイルに [camera] セクションが見つかりません");
 
     debug!("Global Config: {:?}", global_config);
     debug!("Camera Config: {:?}", camera_config);
@@ -56,7 +59,7 @@ async fn main() {
     let zenoh = zenoh::open(zenoh_config).await.unwrap();
 
     let prefix: String = match global_config.zenoh_prefix {
-        Some(prefix) => format!("{}/{}", prefix, "cam"),
+        Some(ref prefix) => format!("{}/{}", prefix, "cam"),
         None => "cam".to_string(),
     };
 

@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use toml::Value;
 
 use dirs;
 use std::env;
@@ -45,18 +44,6 @@ impl GlobalConfig {
     fn default_zenoh_prefix() -> Option<String> {
         None
     }
-    pub fn from_config_file(path: Option<&str>) -> Self {
-        let value: Value =
-            toml::from_str(&std::fs::read_to_string(get_config_file(path)).unwrap()).unwrap();
-
-        match value.get("global") {
-            Some(v) => match v.clone().try_into() {
-                Ok(cfg) => cfg,
-                Err(_) => panic!("'global' テーブルのパースに失敗しました"),
-            },
-            None => GlobalConfig::default(),
-        }
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -77,18 +64,20 @@ impl GUIConfig {
     fn default_host() -> String {
         "localhost".to_string()
     }
-    pub fn from_config_file(path: Option<&str>) -> Self {
-        let value: Value =
-            toml::from_str(&std::fs::read_to_string(get_config_file(path)).unwrap()).unwrap();
+}
 
-        match value.get("gui") {
-            Some(v) => match v.clone().try_into() {
-                Ok(cfg) => cfg,
-                Err(_) => panic!("'gui' テーブルのパースに失敗しました"),
-            },
-            None => GUIConfig::default(),
-        }
-    }
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Config {
+    #[serde(default)]
+    pub global: GlobalConfig,
+    pub gui: Option<GUIConfig>,
+}
+
+pub fn load_config(path: Option<&str>) -> Result<Config, Box<dyn std::error::Error>> {
+    let config_path = get_config_file(path);
+    let content = std::fs::read_to_string(config_path)?;
+    let config: Config = toml::from_str(&content)?;
+    Ok(config)
 }
 
 #[cfg(test)]
@@ -97,7 +86,9 @@ mod tests {
 
     #[test]
     fn test_parse_globalconfig() {
-        let g = GlobalConfig::from_config_file(Some("test/resources/global_config_empty.toml"));
+        let g = load_config(Some("test/resources/global_config_empty.toml"))
+            .unwrap()
+            .global;
 
         assert_eq!(g.websocket_port, 8080);
         assert_eq!(g.zenoh_prefix, None);
@@ -105,8 +96,9 @@ mod tests {
 
     #[test]
     fn test_parse_globalconfig_zenoh_prefix() {
-        let g =
-            GlobalConfig::from_config_file(Some("test/resources/global_config_zenoh_prefix.toml"));
+        let g = load_config(Some("test/resources/global_config_zenoh_prefix.toml"))
+            .unwrap()
+            .global;
 
         assert_eq!(g.websocket_port, 8080);
         assert_eq!(g.zenoh_prefix, Some("roboapp".into()));
@@ -114,9 +106,9 @@ mod tests {
 
     #[test]
     fn test_parse_globalconfig_websocket_port() {
-        let g = GlobalConfig::from_config_file(Some(
-            "test/resources/global_config_websocket_port.toml",
-        ));
+        let g = load_config(Some("test/resources/global_config_websocket_port.toml"))
+            .unwrap()
+            .global;
 
         assert_eq!(g.websocket_port, 9090);
         assert_eq!(g.zenoh_prefix, None);
@@ -124,15 +116,16 @@ mod tests {
 
     #[test]
     fn test_parse_guiconfig_empty() {
-        let g = GUIConfig::from_config_file(Some("test/resources/gui_config_empty.toml"));
+        let config = load_config(Some("test/resources/gui_config_empty.toml")).unwrap();
 
-        assert_eq!(g.host, "localhost");
+        assert!(config.gui.is_none());
     }
 
     #[test]
     fn test_parse_guiconfig_host() {
-        let g = GUIConfig::from_config_file(Some("test/resources/gui_config_host.toml"));
+        let config = load_config(Some("test/resources/gui_config_host.toml")).unwrap();
 
+        let g = config.gui.expect("gui section should exist");
         assert_eq!(g.host, "foo.local");
     }
 }

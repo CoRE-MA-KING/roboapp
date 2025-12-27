@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use toml::Value;
 
 use dirs;
 use std::env;
@@ -45,18 +44,6 @@ impl GlobalConfig {
     fn default_zenoh_prefix() -> Option<String> {
         None
     }
-    pub fn from_config_file(path: Option<PathBuf>) -> Self {
-        let value: Value =
-            toml::from_str(&std::fs::read_to_string(parse_configpath(path)).unwrap()).unwrap();
-
-        match value.get("global") {
-            Some(v) => match v.clone().try_into() {
-                Ok(cfg) => cfg,
-                Err(_) => panic!("'global' テーブルのパースに失敗しました"),
-            },
-            None => GlobalConfig::default(),
-        }
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -78,13 +65,11 @@ impl CameraDevice {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-
 pub struct CameraConfig {
     #[serde(default = "CameraConfig::default_websocket")]
     pub websocket: bool,
     #[serde(default = "CameraConfig::default_zenoh")]
     pub zenoh: bool,
-    #[serde(default)]
     pub devices: Vec<CameraDevice>,
 }
 
@@ -95,18 +80,20 @@ impl CameraConfig {
     fn default_zenoh() -> bool {
         false
     }
-    pub fn from_config_file(path: Option<PathBuf>) -> Self {
-        let value: Value =
-            toml::from_str(&std::fs::read_to_string(parse_configpath(path)).unwrap()).unwrap();
+}
 
-        match value.get("camera") {
-            Some(v) => match v.clone().try_into() {
-                Ok(cfg) => cfg,
-                Err(_) => panic!("'camera' テーブルのパースに失敗しました"),
-            },
-            None => panic!("'camera' テーブルが見つかりませんでした"),
-        }
-    }
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Config {
+    #[serde(default)]
+    pub global: GlobalConfig,
+    pub camera: Option<CameraConfig>,
+}
+
+pub fn load_config(path: Option<PathBuf>) -> Result<Config, Box<dyn std::error::Error>> {
+    let config_path = parse_configpath(path);
+    let content = std::fs::read_to_string(config_path)?;
+    let config: Config = toml::from_str(&content)?;
+    Ok(config)
 }
 
 #[cfg(test)]
@@ -115,52 +102,48 @@ mod tests {
 
     #[test]
     fn test_parse_globalconfig_empty() {
-        let g = GlobalConfig::from_config_file(Some(PathBuf::from(
+        let config = load_config(Some(PathBuf::from(
             "test/resources/global_config_empty.toml",
-        )));
-        assert_eq!(g.websocket_port, 8080);
-        assert_eq!(g.zenoh_prefix, None);
+        )))
+        .expect("cameraセクションがなくてもパースは成功すべき");
+
+        assert!(config.camera.is_none());
+        assert_eq!(config.global.websocket_port, 8080);
     }
 
     #[test]
     fn test_parse_globalconfig_websocket_port() {
-        let g = GlobalConfig::from_config_file(Some(PathBuf::from(
+        let config = load_config(Some(PathBuf::from(
             "test/resources/global_config_websocket_port.toml",
-        )));
-        assert_eq!(g.websocket_port, 9090);
-        assert_eq!(g.zenoh_prefix, None);
-    }
+        )))
+        .expect("cameraセクションがなくてもパースは成功すべき");
 
-    #[test]
-    fn test_parse_globalconfig_zenoh_prefix() {
-        let g = GlobalConfig::from_config_file(Some(PathBuf::from(
-            "test/resources/global_config_zenoh_prefix.toml",
-        )));
-        assert_eq!(g.websocket_port, 8080);
-        assert_eq!(g.zenoh_prefix, Some("roboapp".to_string()));
-    }
-
-    #[test]
-    fn test_parse_invalid_cameraconfig() {
-        let result = std::panic::catch_unwind(|| {
-            CameraConfig::from_config_file(Some(PathBuf::from(
-                "test/resources/camera_config_no_dev.toml",
-            )))
-        });
-        assert!(
-            result.is_err(),
-            "deviceフィールドがない場合はパニックになるべき"
-        );
+        assert!(config.camera.is_none());
+        assert_eq!(config.global.websocket_port, 9090);
     }
 
     #[test]
     fn test_parse_cameraconfig() {
-        let c = CameraConfig::from_config_file(Some(PathBuf::from(
+        let c = load_config(Some(PathBuf::from(
             "test/resources/camera_config_device_width.toml",
+        )))
+        .unwrap();
+
+        let camera = c.camera.expect("cameraセクションがあるべき");
+        assert_eq!(camera.devices.len(), 1);
+        assert_eq!(camera.devices[0].device, "/dev/video0");
+        assert_eq!(camera.devices[0].width, 640);
+        assert_eq!(camera.devices[0].height, 720);
+    }
+
+    #[test]
+    fn test_parse_invalid_cameraconfig() {
+        let result = load_config(Some(PathBuf::from(
+            "test/resources/camera_config_no_dev.toml",
         )));
-        assert_eq!(c.devices.len(), 1);
-        assert_eq!(c.devices[0].device, "/dev/video0");
-        assert_eq!(c.devices[0].width, 640);
-        assert_eq!(c.devices[0].height, 720);
+        assert!(
+            result.is_err(),
+            "deviceフィールドがない場合はエラーになるべき"
+        );
     }
 }

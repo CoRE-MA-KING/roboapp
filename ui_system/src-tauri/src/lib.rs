@@ -1,7 +1,6 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 mod zenoh_client;
-use crate::config::GUIConfig;
-use crate::config::GlobalConfig;
+use crate::config::load_config;
 use std::sync::Arc;
 use std::sync::Mutex;
 use tauri::AppHandle;
@@ -14,8 +13,8 @@ pub mod config;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .manage(Mutex::new(GlobalConfig::default()))
-        .manage(Mutex::new(GUIConfig::default()))
+        .manage(Mutex::new(config::GlobalConfig::default()))
+        .manage(Mutex::new(config::GUIConfig::default()))
         .plugin(tauri_plugin_cli::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_log::Builder::new().build())
@@ -42,14 +41,17 @@ pub fn run() {
                 None => None,
             };
 
-            let global_config = GlobalConfig::from_config_file(config_file);
-            let gui_config = GUIConfig::from_config_file(config_file);
+            let config = load_config(config_file).expect("Failed to load configuration");
+            let global_config = config.global;
+            let gui_config = config
+                .gui
+                .expect("設定ファイルに [gui] セクションが見つかりません");
 
             println!("Using config file: {:?}", gui_config);
             println!("Using config file: {:?}", global_config);
 
-            let state_global_config = app.state::<Mutex<GlobalConfig>>();
-            let state_gui_config = app.state::<Mutex<GUIConfig>>();
+            let state_global_config = app.state::<Mutex<config::GlobalConfig>>();
+            let state_gui_config = app.state::<Mutex<config::GUIConfig>>();
 
             let mut global_config_lock = state_global_config.lock().unwrap();
             let mut gui_config_lock = state_gui_config.lock().unwrap();
@@ -96,7 +98,9 @@ async fn declare_and_emit(
 }
 
 #[tauri::command]
-async fn state_request(global_config: State<'_, Mutex<GlobalConfig>>) -> Result<(), String> {
+async fn state_request(
+    global_config: State<'_, Mutex<config::GlobalConfig>>,
+) -> Result<(), String> {
     let prefix = global_config.lock().unwrap().zenoh_prefix.clone();
 
     log::info!("Requesting robot state");
@@ -117,12 +121,12 @@ async fn state_request(global_config: State<'_, Mutex<GlobalConfig>>) -> Result<
 }
 
 #[tauri::command]
-fn get_config_host(gui_config: State<'_, Mutex<GUIConfig>>) -> Result<String, String> {
+fn get_config_host(gui_config: State<'_, Mutex<config::GUIConfig>>) -> Result<String, String> {
     Ok(gui_config.lock().unwrap().host.clone())
 }
 
 #[tauri::command]
-fn get_config_port(global_config: State<'_, Mutex<GlobalConfig>>) -> Result<u16, String> {
+fn get_config_port(global_config: State<'_, Mutex<config::GlobalConfig>>) -> Result<u16, String> {
     println!(
         "call port: {}",
         global_config.lock().unwrap().websocket_port

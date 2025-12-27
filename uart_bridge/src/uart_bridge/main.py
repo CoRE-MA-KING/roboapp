@@ -1,7 +1,7 @@
 import argparse
 
 from uart_bridge.application.application import Application
-from uart_bridge.domain.config import get_uart_config
+from uart_bridge.domain.config import load_and_parse_config
 from uart_bridge.infra.serial_robot_driver import SerialRobotDriver
 from uart_bridge.infra.zenoh_transmitter import ZenohTransmitter
 
@@ -21,11 +21,12 @@ def parse_args() -> argparse.Namespace:
 
 def run_application(
     robot_port: str,
+    zenoh_prefix: str | None = None,
 ) -> None:
     """アプリケーションを実行する"""
     with (
         SerialRobotDriver(robot_port) as robot_driver,
-        ZenohTransmitter() as transmitter,
+        ZenohTransmitter(prefix=zenoh_prefix) as transmitter,
     ):
         app = Application(robot_driver, transmitter)
         app.spin()
@@ -34,10 +35,14 @@ def run_application(
 def main() -> None:
     args = parse_args()
 
-    uart_config = get_uart_config(file_path=args.config_file)
+    config = load_and_parse_config(file_path=args.config_file)
+
+    if config.uart is None:
+        raise ValueError("設定ファイルに [uart] セクションが見つかりません")
 
     run_application(
-        robot_port=uart_config.device,
+        robot_port=config.uart.device,
+        zenoh_prefix=config.global_.zenoh_prefix,
     )
 
 
