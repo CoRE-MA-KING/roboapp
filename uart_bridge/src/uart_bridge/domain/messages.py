@@ -21,6 +21,11 @@ class TargetState(BaseModel):
     position: Optional[Tuple[float]]
 
 
+class LiDARMessage(BaseModel):
+    linear: float
+    angular: float
+
+
 class RobotStateId(Enum):
     """ロボットの状態ID"""
 
@@ -56,4 +61,6 @@ class RobotCommand(BaseModel):
     target_x: int = 640
     target_y: int = 360
     target_distance: int = 0
+    force_linear: int = 0
+    force_angular: int = 0
     dummy: int = 0  # 未使用

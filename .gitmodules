@@ -1,0 +1,6 @@
+[submodule "lidar_system/3rdparty/rplidar_sdk"]
+	path = lidar_system/3rdparty/rplidar_sdk
+	url = https://github.com/Slamtec/rplidar_sdk
+[submodule "lidar_system/3rdparty/toml11"]
+	path = lidar_system/3rdparty/toml11
+	url = https://github.com/ToruNiina/toml11

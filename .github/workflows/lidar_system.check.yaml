@@ -1,0 +1,36 @@
+name: LiDAR System Check
+on:
+  pull_request:
+    branches:
+      - "main"
+    paths:
+      - "lidar_system/**"
+      - ".github/workflows/lidar_system_check.yaml"
+env:
+  WORKDIR: lidar_system
+jobs:
+  LiDAR_System_Check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKDIR }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/mise
+        with:
+          workdir: ${{ env.WORKDIR }}
+      - name: Install Dependencies
+        run: |
+          mise //:deps
+          mise //${{ env.WORKDIR }}:deps
+      - name: Build
+        run: |
+          mise //${{ env.WORKDIR }}:build
+      - name: Lint
+        run: |
+          mise //${{ env.WORKDIR }}:lint
+      - name: Test
+        run: |
+          mise //${{ env.WORKDIR }}:test

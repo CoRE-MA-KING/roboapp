@@ -29,9 +29,4 @@ class Application(ApplicationInterface):
 
             robot_command: RobotCommand = self._transmitter.subscribe()
 
-            self._robot_driver.set_send_values(
-                robot_command.target_x,
-                robot_command.target_y,
-                robot_command.target_distance,
-                robot_command.dummy,
-            )
+            self._robot_driver.set_send_values(robot_command)

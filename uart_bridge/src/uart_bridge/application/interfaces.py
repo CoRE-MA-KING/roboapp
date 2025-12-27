@@ -26,9 +26,7 @@ class RobotDriver(ABC):
         pass
 
     @abstractmethod
-    def set_send_values(
-        self, target_x: int, target_y: int, target_distance: int, dummy: int
-    ) -> None:
+    def set_send_values(self, value: RobotCommand) -> None:
         """Set values to be sent to the robot."""
         pass
 
