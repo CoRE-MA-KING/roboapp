@@ -6,11 +6,18 @@ rust = "1.91"
 [tasks.deps_node]
 description = "Install Node.js dependencies"
 run = "pnpm i"
+sources = ["package.json", "pnpm-lock.yaml"]
+outputs = { auto = true }
 
 [tasks.deps_rust]
 description = "Install Rust dependencies"
 dir = "src-tauri"
 run = ["cargo fetch", "rustup component add clippy rustfmt"]
+sources = [
+    "src-tauri/Cargo.toml",
+    "src-tauri/Cargo.lock",
+]
+outputs = { auto = true }
 
 [tasks.deps]
 description = "Install dependencies"
@@ -20,6 +27,20 @@ depends = ["deps_node", "deps_rust"]
 depends = ["deps"]
 description = "Build Application"
 run = "pnpm tauri build"
+sources = [
+    "package.json",
+    "pnpm-lock.yaml",
+    "src/**",
+    "tsconfig*.json",
+    "vite.config.*",
+    "src-tauri/capabilities/**",
+    "src-tauri/Cargo.toml",
+    "src-tauri/Cargo.lock",
+    "src-tauri/src/**",
+    "src-tauri/tauri.conf.json",
+    "src-tauri/icons/**",
+]
+outputs = { auto = true }
 
 [tasks.lint_node]
 depends = ["deps_node"]

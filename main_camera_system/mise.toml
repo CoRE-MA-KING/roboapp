@@ -4,11 +4,23 @@ rust = "1.91"
 [tasks.deps]
 description = "Install dependency"
 run = ["cargo fetch", "rustup component add clippy rustfmt"]
+sources = [
+    "Cargo.toml",
+    "Cargo.lock",
+]
+outputs = { auto = true }
 
 [tasks.build]
 depends = ["deps"]
 description = "Build Application"
 run = "cargo build --release"
+sources = [
+    "Cargo.toml",
+    "Cargo.lock",
+    "src/**",
+]
+outputs = { auto = true }
+
 
 [tasks.lint]
 depends = ["deps"]
