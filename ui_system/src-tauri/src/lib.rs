@@ -105,13 +105,13 @@ async fn state_request(global_config: State<'_, Mutex<GlobalConfig>>) -> Result<
         None => "".to_string(),
     } + "robot/state/request";
 
-    let _ = zenoh_client::create_zenoh_session()
+    zenoh_client::create_zenoh_session()
         .declare_publisher(robot_state_key)
         .await
-        .unwrap()
+        .map_err(|e| e.to_string())?
         .put("")
         .await
-        .map_err(|e| e.to_string());
+        .map_err(|e| e.to_string())?;
 
     Ok(())
 }
