@@ -16,10 +16,6 @@ run = ["cargo fetch", "rustup component add clippy rustfmt"]
 sources = [
     "src-tauri/Cargo.toml",
     "src-tauri/Cargo.lock",
-    "src-tauri/src/**",
-    "src-tauri/tauri.conf.json",
-    "src-tauri/capabilities/**",
-    "src-tauri/icons/**",
 ]
 outputs = { auto = true }
 
