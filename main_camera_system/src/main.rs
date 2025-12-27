@@ -52,13 +52,13 @@ async fn main() {
     let zenoh = zenoh::open(zenoh_config).await.unwrap();
 
     let prefix: String = if !config.zenoh_prefix.is_empty() {
-        format!("{}/{}", config.zenoh_prefix.clone(), "cam")
+        format!("{}/", config.zenoh_prefix.clone())
     } else {
-        "cam".to_string()
+        "".to_string()
     };
 
     let jpg_publisher: Option<zenoh::pubsub::Publisher> = if config.zenoh {
-        let topic_name = format!("{prefix}/jpg");
+        let topic_name = format!("{prefix}cam/jpg");
         info!("JPEG publishing enabled at {topic_name}");
         Some(zenoh.declare_publisher(topic_name).await.unwrap())
     } else {
@@ -66,7 +66,7 @@ async fn main() {
     };
 
     let subscriber = zenoh
-        .declare_subscriber(format!("{}/switch", prefix))
+        .declare_subscriber(format!("{}robot/command/video_id", prefix))
         .await
         .unwrap();
 

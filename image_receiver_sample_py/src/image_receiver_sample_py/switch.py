@@ -14,9 +14,9 @@ if __name__ == "__main__":
 
     session = zenoh.open(zenoh.Config())
     if args.prefix:
-        key_expr = f"{args.prefix}/cam/switch"
+        key_expr = f"{args.prefix}/robot/command/video_id"
     else:
-        key_expr = "cam/switch"
+        key_expr = "robot/command/video_id"
     publisher = session.declare_publisher(
         key_expr,
     )
