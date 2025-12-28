@@ -104,10 +104,12 @@ async fn state_request(
     let prefix = global_config.lock().unwrap().zenoh_prefix.clone();
 
     log::info!("Requesting robot state");
-    let robot_state_key = match prefix.clone() {
-        Some(ref p) => p.to_owned() + "/",
-        None => "".to_string(),
-    } + "robot/state/request";
+    let prefix_slash = if prefix.is_empty() {
+        "".to_string()
+    } else {
+        format!("{prefix}/")
+    };
+    let robot_state_key = format!("{prefix_slash}robot/state/request");
 
     zenoh_client::create_zenoh_session()
         .declare_publisher(robot_state_key)
@@ -134,22 +136,21 @@ fn get_config_port(global_config: State<'_, Mutex<config::GlobalConfig>>) -> Res
     Ok(global_config.lock().unwrap().websocket_port)
 }
 
-async fn zenoh_sub(app: AppHandle, prefix: Option<String>) {
+async fn zenoh_sub(app: AppHandle, prefix: String) {
     zenoh::init_log_from_env_or("error");
 
     let session = zenoh_client::create_zenoh_session();
 
     let app = Arc::new(app);
 
-    let robot_state_key = match prefix {
-        Some(ref p) => p.to_owned() + "/",
-        None => "".to_string(),
-    } + "robot/state";
+    let prefix_slash = if prefix.is_empty() {
+        "".to_string()
+    } else {
+        format!("{prefix}/")
+    };
+    let robot_state_key = format!("{prefix_slash}robot/state");
 
-    let robot_command_key = match prefix {
-        Some(ref p) => p.to_owned() + "/",
-        None => "".to_string(),
-    } + "robot/command";
+    let robot_command_key = format!("{prefix_slash}robot/command");
 
     // Robot State
     declare_and_emit(

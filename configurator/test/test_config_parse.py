@@ -62,7 +62,7 @@ def test_global_config_websocket_port(get_resource_path: Path) -> None:
         config = Config.model_validate(tomllib.load(f))
     assert config.global_ is not None
     assert config.global_.websocket_port == 9090
-    assert config.global_.zenoh_prefix is None
+    assert config.global_.zenoh_prefix == ""
 
 
 def test_global_config_zenoh_prefix(get_resource_path: Path) -> None:

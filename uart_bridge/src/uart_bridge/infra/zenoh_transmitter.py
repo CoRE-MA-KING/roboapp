@@ -7,7 +7,7 @@ from uart_bridge.domain.messages import RobotCommand, RobotState
 class ZenohTransmitter(Transmitter):
     """Transmits data using Zenoh protocol."""
 
-    def __init__(self, prefix: str | None = None) -> None:
+    def __init__(self, prefix: str = "") -> None:
         self.zenoh_session = zenoh.open(zenoh.Config())
 
         if prefix:

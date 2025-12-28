@@ -25,7 +25,7 @@ pub struct GlobalConfig {
     #[serde(default = "GlobalConfig::default_websocket_port")]
     pub websocket_port: u16,
     #[serde(default = "GlobalConfig::default_zenoh_prefix")]
-    pub zenoh_prefix: Option<String>,
+    pub zenoh_prefix: String,
 }
 
 impl Default for GlobalConfig {
@@ -41,8 +41,8 @@ impl GlobalConfig {
     fn default_websocket_port() -> u16 {
         8080
     }
-    fn default_zenoh_prefix() -> Option<String> {
-        None
+    fn default_zenoh_prefix() -> String {
+        "".to_string()
     }
 }
 
@@ -91,7 +91,7 @@ mod tests {
             .global;
 
         assert_eq!(g.websocket_port, 8080);
-        assert_eq!(g.zenoh_prefix, None);
+        assert_eq!(g.zenoh_prefix, "");
     }
 
     #[test]
@@ -101,7 +101,7 @@ mod tests {
             .global;
 
         assert_eq!(g.websocket_port, 8080);
-        assert_eq!(g.zenoh_prefix, Some("roboapp".into()));
+        assert_eq!(g.zenoh_prefix, "roboapp".to_string());
     }
 
     #[test]
@@ -111,7 +111,7 @@ mod tests {
             .global;
 
         assert_eq!(g.websocket_port, 9090);
-        assert_eq!(g.zenoh_prefix, None);
+        assert_eq!(g.zenoh_prefix, "");
     }
 
     #[test]

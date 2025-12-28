@@ -58,9 +58,10 @@ async fn main() {
 
     let zenoh = zenoh::open(zenoh_config).await.unwrap();
 
-    let prefix: String = match global_config.zenoh_prefix {
-        Some(ref prefix) => format!("{}/{}", prefix, "cam"),
-        None => "cam".to_string(),
+    let prefix: String = if global_config.zenoh_prefix.is_empty() {
+        "cam".to_string()
+    } else {
+        format!("{}/{}", global_config.zenoh_prefix, "cam")
     };
 
     let jpg_publisher: Option<zenoh::pubsub::Publisher> = if camera_config.zenoh {

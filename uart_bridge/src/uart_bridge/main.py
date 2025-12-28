@@ -21,7 +21,7 @@ def parse_args() -> argparse.Namespace:
 
 def run_application(
     robot_port: str,
-    zenoh_prefix: str | None = None,
+    zenoh_prefix: str = "",
 ) -> None:
     """アプリケーションを実行する"""
     with (
