@@ -22,7 +22,7 @@ def test_read_sample(get_resource_path: Path) -> None:
     assert config.uart.device == "/dev/ttyUSB0"
     assert config.camera is not None
     assert not config.camera.zenoh
-    assert not config.camera.websocket
+    assert config.camera.websocket
     assert config.camera.devices[0].device == "/dev/video0"
 
 

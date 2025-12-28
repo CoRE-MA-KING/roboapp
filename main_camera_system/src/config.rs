@@ -75,7 +75,7 @@ pub struct CameraConfig {
 
 impl CameraConfig {
     fn default_websocket() -> bool {
-        false
+        true
     }
     fn default_zenoh() -> bool {
         false
@@ -134,6 +134,7 @@ mod tests {
         assert_eq!(camera.devices[0].device, "/dev/video0");
         assert_eq!(camera.devices[0].width, 640);
         assert_eq!(camera.devices[0].height, 720);
+        assert!(camera.websocket);
     }
 
     #[test]
