@@ -1,5 +1,3 @@
-from typing import Literal
-
 from pydantic import BaseModel, Field
 
 
@@ -12,24 +10,24 @@ class GlobalConfig(BaseModel):
     )
 
 
-class LidarDevice(BaseModel):
-    model_config = {"extra": "forbid"}
+# class LidarDevice(BaseModel):
+#     model_config = {"extra": "forbid"}
 
-    device: str = Field(..., description="LiDARのデバイスパス")
-    backend: Literal["random", "rplidar"] = Field(
-        "random", description="LiDARのバックエンド"
-    )
-    x: int = Field(..., description="LiDARのX座標")
-    y: int = Field(..., description="LiDARのY座標")
-    min_degree: int = Field(default=0, ge=0, le=360, description="LiDARの最小角度")
-    max_degree: int = Field(default=360, ge=0, le=360, description="LiDARの最大角度")
-    max_distance: int = Field(default=1000, gt=0, description="LiDARの最大距離")
+#     device: str = Field(..., description="LiDARのデバイスパス")
+#     backend: Literal["random", "rplidar"] = Field(
+#         "random", description="LiDARのバックエンド"
+#     )
+#     x: int = Field(..., description="LiDARのX座標")
+#     y: int = Field(..., description="LiDARのY座標")
+#     min_degree: int = Field(default=0, ge=0, le=360, description="LiDARの最小角度")
+#     max_degree: int = Field(default=360, ge=0, le=360, description="LiDARの最大角度")
+#     max_distance: int = Field(default=1000, gt=0, description="LiDARの最大距離")
 
 
-class LidarConfig(BaseModel):
-    model_config = {"extra": "forbid"}
+# class LidarConfig(BaseModel):
+#     model_config = {"extra": "forbid"}
 
-    devices: dict[str, LidarDevice] = Field(..., description="LiDARデバイスの一覧")
+#     devices: dict[str, LidarDevice] = Field(..., description="LiDARデバイスの一覧")
 
 
 class CameraDevice(BaseModel):
