@@ -83,7 +83,7 @@ set (COLLISION_AVOIDANCE_FILES
 
 add_library(CollisionAvoidanceLib ${COLLISION_AVOIDANCE_FILES})
 target_include_directories(CollisionAvoidanceLib PUBLIC include/collision_avoidance)
-target_link_libraries(CollisionAvoidanceLib gtest_main gtest nlohmann_json::nlohmann_json ${OpenCV_LIBS} pthread)
+target_link_libraries(CollisionAvoidanceLib nlohmann_json::nlohmann_json ${OpenCV_LIBS} pthread)
 
 set (VISUALIZER_FILES
     src/visualizer/visualizer.cpp
@@ -91,7 +91,7 @@ set (VISUALIZER_FILES
 
 add_library(VisualizerLib ${VISUALIZER_FILES})
 target_include_directories(VisualizerLib PUBLIC include/visualizer)
-target_link_libraries(VisualizerLib CollisionAvoidanceLib gtest_main gtest ${OpenCV_LIBS})
+target_link_libraries(VisualizerLib CollisionAvoidanceLib ${OpenCV_LIBS})
 
 
 add_executable(sender src/sender.cpp)
