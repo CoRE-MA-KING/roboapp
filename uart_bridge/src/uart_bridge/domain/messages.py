@@ -74,4 +74,4 @@ class RobotCommand(BaseModel):
             self.force_angular,
             self.dummy,
         )
-        return (",".join(map(str, values)) + "\n")
+        return ",".join(map(str, values)) + "\n"
