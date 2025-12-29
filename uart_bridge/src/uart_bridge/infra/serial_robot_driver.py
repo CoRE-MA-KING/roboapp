@@ -112,11 +112,7 @@ class SerialRobotDriver(RobotDriver):
 
             # 受信後すぐに送信処理を実施（排他制御）
             with self._send_lock:
-                v = self._send_values
-                send_str = (
-                    f"{v.target_x},{v.target_y},{v.target_distance},"
-                    f"{v.force_linear},{v.force_angular},{v.dummy}\n"
-                )
+                send_str = self._send_values.to_str()
             try:
                 self._serial.write(send_str.encode())
                 print(f"sent data: {send_str.strip()}")

@@ -64,3 +64,14 @@ class RobotCommand(BaseModel):
     force_linear: int = 0
     force_angular: int = 0
     dummy: int = 0  # 未使用
+
+    def to_str(self) -> str:
+        values = (
+            self.target_x,
+            self.target_y,
+            self.target_distance,
+            self.force_linear,
+            self.force_angular,
+            self.dummy,
+        )
+        return (",".join(map(str, values)) + "\n")
