@@ -6,6 +6,7 @@
 #include <nlohmann/json.hpp>
 #include <opencv2/core.hpp>
 #include <vector>
+
 struct RepulsiveForceVector {
   double linear;
   double angular;
@@ -17,6 +18,13 @@ struct RepulsiveForceVector {
     auto j = nlohmann::json::parse(str);
     j.at("linear").get_to(this->linear);
     j.at("angular").get_to(this->angular);
+  }
+
+  std::string dump() const {
+    nlohmann::json j;
+    j["linear"] = linear;
+    j["angular"] = angular;
+    return j.dump();
   }
 };
 

@@ -104,12 +104,9 @@ int main(int argc, char **argv) {
       // ロボット用に回転方向を反転
       vec.angular = std::fmod(360.f - vec.angular, 360);
 
-      vec_publisher.put("{\"linear\":" + std::to_string(vec.linear) +
-                        ",\"angular\":" + std::to_string(vec.angular) + "}");
+      vec_publisher.put(vec.dump());
 
-      std::cout << ("{\"linear\":" + std::to_string(vec.linear) +
-                    ",\"angular\":" + std::to_string(vec.angular) + "}")
-                << std::endl;
+      std::cout << vec.dump() << std::endl;
     }
 
     updated = false;
