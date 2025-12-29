@@ -1,3 +1,1 @@
-[lidar]
-devices = { random = { backend = "random" } }
-repulsive_gain = 1.2
+../../../configurator/test/resources/lidar_config_repulsive_gain.toml

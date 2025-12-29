@@ -1,2 +1,1 @@
-[lidar]
-devices = { rplidar = { backend = "rplidar", device = "/dev/ttyUSB0" } }
+../../../configurator/test/resources/lidar_device_config_rplidar_with_device.toml

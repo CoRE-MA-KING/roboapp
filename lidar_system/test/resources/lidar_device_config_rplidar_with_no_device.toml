@@ -1,2 +1,1 @@
-[lidar]
-devices = { rplidar = { backend = "rplidar" } }
+../../../configurator/test/resources/lidar_device_config_rplidar_with_no_device.toml

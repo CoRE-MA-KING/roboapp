@@ -1,2 +1,1 @@
-[lidar]
-devices = { random = { backend = "random" } }
+../../../configurator/test/resources/lidar_config_default.toml

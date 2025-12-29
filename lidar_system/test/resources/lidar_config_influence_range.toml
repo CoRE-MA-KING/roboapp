@@ -1,3 +1,1 @@
-[lidar]
-devices = { random = { backend = "random" } }
-influence_range = 1200
+../../../configurator/test/resources/lidar_config_influence_range.toml

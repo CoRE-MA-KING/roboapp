@@ -1,3 +1,1 @@
-[lidar]
-devices = { random = { backend = "random" } }
-robot_width = 1200
+../../../configurator/test/resources/lidar_config_robot_width.toml
