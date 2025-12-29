@@ -1,5 +1,7 @@
-from pydantic import BaseModel, Field
+from typing import Literal, Self
 
+from pydantic import BaseModel, Field
+from pydantic import BaseModel, model_validator
 
 class GlobalConfig(BaseModel):
     model_config = {"extra": "forbid"}
@@ -10,24 +12,30 @@ class GlobalConfig(BaseModel):
     )
 
 
-# class LidarDevice(BaseModel):
-#     model_config = {"extra": "forbid"}
+class LidarDevice(BaseModel):
+    model_config = {"extra": "forbid"}
 
-#     device: str = Field(..., description="LiDARのデバイスパス")
-#     backend: Literal["random", "rplidar"] = Field(
-#         "random", description="LiDARのバックエンド"
-#     )
-#     x: int = Field(..., description="LiDARのX座標")
-#     y: int = Field(..., description="LiDARのY座標")
-#     min_degree: int = Field(default=0, ge=0, le=360, description="LiDARの最小角度")
-#     max_degree: int = Field(default=360, ge=0, le=360, description="LiDARの最大角度")
-#     max_distance: int = Field(default=1000, gt=0, description="LiDARの最大距離")
+    device: str | None = Field(None, description="LiDARのデバイスパス")
+    backend: Literal["random", "rplidar"] = Field(
+        "random", description="LiDARのバックエンド"
+    )
+    x: int = Field(default=0, description="LiDARのX座標")
+    y: int = Field(default=0, description="LiDARのY座標")
+    min_degree: int = Field(default=0, ge=0, le=360, description="LiDARの最小角度")
+    max_degree: int = Field(default=360, ge=0, le=360, description="LiDARの最大角度")
+    max_distance: int = Field(default=1000, gt=0, description="LiDARの最大距離")
+    rotate: int = Field(default=0, description="LiDARの取り付け角度")
 
+    @model_validator(mode="after")
+    def require_device_if_rplidar(self) -> Self:
+        if self.backend == "rplidar" and self.device is None:
+            raise ValueError("RPLIDAR backend requires a device path.")
+        return self
 
-# class LidarConfig(BaseModel):
-#     model_config = {"extra": "forbid"}
+class LidarConfig(BaseModel):
+    model_config = {"extra": "forbid"}
 
-#     devices: dict[str, LidarDevice] = Field(..., description="LiDARデバイスの一覧")
+    devices: dict[str, LidarDevice] = Field(..., description="LiDARデバイスの一覧")
 
 
 class CameraDevice(BaseModel):
@@ -62,7 +70,7 @@ class Config(BaseModel):
     model_config = {"extra": "forbid"}
 
     global_: GlobalConfig | None = Field(None, alias="global")
-    # lidar: LidarConfig | None = Field(..., alias="lidar")
+    lidar: LidarConfig | None = Field(None, alias="lidar")
     camera: CameraConfig | None = Field(None, alias="camera")
     gui: GUIConfig | None = Field(None, alias="gui")
     uart: UARTConfig | None = Field(None, alias="uart")
