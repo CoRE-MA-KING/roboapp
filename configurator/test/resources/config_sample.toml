@@ -17,7 +17,7 @@ device = "/dev/ttyUSB0"
 zenoh = false
 # websocketによる送信を有効化
 websocket = true
-# zenohによる送信を有効化
+# カメラデバイスのリスト
 devices = [
   { device = "/dev/video0", width = 1280, height = 720 },
 ]
