@@ -11,6 +11,9 @@ env:
 jobs:
   UART_Bridge_Check:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKDIR }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/mise
@@ -21,10 +24,12 @@ jobs:
           workdir: ${{ env.WORKDIR }}
       - name: Lint
         run: |
-          cd "$WORKDIR"
           uv run mypy . --strict
           uv run ruff check .
       - name: Format
         run: |
-          cd "$WORKDIR"
           uv run ruff format . --check --diff
+      - name: Run Tests
+        run: |
+          uv run task test
+

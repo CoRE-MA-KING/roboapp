@@ -1,12 +1,10 @@
-<script lang="ts" module>
+<script lang="ts">
+	import { onMount } from "svelte";
+
 	export type ImageViewerProps = {
 		host: string | null;
 		port: string | null;
 	};
-</script>
-
-<script lang="ts">
-	import { onMount } from "svelte";
 
 	let { host, port }: ImageViewerProps = $props();
 
