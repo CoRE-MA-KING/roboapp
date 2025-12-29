@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
+echo "Cloning Submodules"
+git submodule update --init --recursive
+
 sudo echo "Install Dependencies"
 sudo mkdir -p /etc/apt/keyrings
 if [ ! -f "/etc/apt/keyrings/zenoh-public-key.gpg" ]; then
