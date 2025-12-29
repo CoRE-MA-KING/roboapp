@@ -72,6 +72,16 @@ run = "cargo fmt --all"
 description = "Run formatters"
 depends = ["format_node", "format_rust"]
 
+[tasks.test_rust]
+depends = ["deps_rust"]
+description = "Run Rust tests"
+dir = "src-tauri"
+run = "cargo test"
+
+[tasks.test]
+description = "Run tests"
+depends = ["test_rust"]
+
 [tasks.start]
 depends = ["build"]
 description = "Start Application"

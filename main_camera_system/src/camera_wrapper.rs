@@ -11,21 +11,22 @@ fn resolve_path(path: &Path) -> Result<std::path::PathBuf, String> {
     let mut resolved_path = path.to_path_buf();
     for _ in 0..10 {
         let metadata = fs::symlink_metadata(&resolved_path)
-            .map_err(|e| format!("symlink_metadata失敗: {}", e))?;
+            .map_err(|e| format!("symlink_metadata失敗: {}, {}", e, resolved_path.display()))?;
         if metadata.file_type().is_symlink() {
-            resolved_path =
-                fs::read_link(resolved_path).map_err(|e| format!("read_link失敗: {}", e))?;
+            let link_target = fs::read_link(&resolved_path)
+                .map_err(|e| format!("read_link失敗: {}, {}", e, resolved_path.display()))?;
+            // 絶対パスでなければ resolved_path の親ディレクトリで補完
+            resolved_path = if link_target.is_absolute() {
+                link_target
+            } else {
+                match resolved_path.parent() {
+                    Some(parent) => parent.join(link_target),
+                    None => link_target,
+                }
+            };
         } else {
             break;
         }
-    }
-    let final_metadata =
-        fs::symlink_metadata(&resolved_path).map_err(|e| format!("symlink_metadata失敗: {}", e))?;
-    if final_metadata.file_type().is_symlink() {
-        return Err(format!(
-            "シンボリックリンクの解決に失敗しました: {:?}",
-            resolved_path
-        ));
     }
     Ok(resolved_path)
 }

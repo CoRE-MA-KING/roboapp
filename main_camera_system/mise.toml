@@ -32,6 +32,11 @@ depends = ["deps"]
 description = "Run Formatter"
 run = "cargo fmt --all"
 
+[tasks.test]
+depends = ["deps"]
+description = "Run tests"
+run = "cargo test"
+
 [tasks.start]
 depends = ["build"]
 description = "Start Application"
