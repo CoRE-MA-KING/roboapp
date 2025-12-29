@@ -48,9 +48,9 @@ int main(int argc, char **argv) {
       lidar_config_all.repulsive_gain, lidar_config_all.influence_range);
 
   // Zenoh Setup
-  auto prefix = std::string("");
-  if (global_config.zenoh_prefix.has_value()) {
-    prefix = global_config.zenoh_prefix.value() + "/";
+  auto prefix = global_config.zenoh_prefix;
+  if (!prefix.empty() && prefix.back() != '/') {
+    prefix += "/";
   }
 
   auto zenoh_config = zenoh::Config::create_default();

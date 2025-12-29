@@ -2,6 +2,7 @@
 #define CONFIG_HPP_
 
 #include <cstdint>
+#include <filesystem>
 #include <map>
 
 #include "gflags/gflags.h"
@@ -9,7 +10,7 @@
 
 class GlobalConfig {
  public:
-  std::optional<std::string> zenoh_prefix = std::nullopt;
+  std::string zenoh_prefix = "";
   uint16_t websocket_port = 8080;
 
   GlobalConfig() = default;
@@ -17,8 +18,7 @@ class GlobalConfig {
     if (toml_config.contains("global")) {
       auto global_config = toml_config.at("global");
       if (global_config.contains("zenoh_prefix")) {
-        zenoh_prefix = toml::find<std::optional<std::string>>(global_config,
-                                                              "zenoh_prefix");
+        zenoh_prefix = toml::find<std::string>(global_config, "zenoh_prefix");
       }
       if (global_config.contains("websocket_port")) {
         websocket_port =
