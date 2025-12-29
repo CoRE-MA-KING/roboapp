@@ -5,13 +5,23 @@ RplidarWrapper::RplidarWrapper(std::string device, float max_distance,
                                int32_t rotation)
     : MockLiDAR(max_distance, min_degree, max_degree, rotation) {
   auto channel_result = sl::createSerialPortChannel(device, 115200);
+  if (!SL_IS_OK(channel_result)) {
+    fprintf(stderr, "Failed to create serial port channel for LIDAR\r\n");
+    return;
+  }
   channel = std::unique_ptr<sl::IChannel>(channel_result.value);
-  lidar = std::unique_ptr<sl::ILidarDriver>(sl::createLidarDriver().value);
+
+  auto lidar_result = sl::createLidarDriver();
+  if (!SL_IS_OK(lidar_result)) {
+    fprintf(stderr, "Failed to create LIDAR driver\r\n");
+    return;
+  }
+  lidar = std::unique_ptr<sl::ILidarDriver>(lidar_result.value);
 
   auto op_result = lidar->connect(channel.get());
-
   if (!SL_IS_OK(op_result)) {
     fprintf(stderr, "Failed to connect to LIDAR %08x\r\n", op_result);
+    return;
   }
   lidar->setMotorSpeed();
   lidar->startScan(0, 1);
