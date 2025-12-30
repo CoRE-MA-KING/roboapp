@@ -33,7 +33,10 @@ def test_lidar_device_config_random_success(get_resource_path: Path) -> None:
     with open(config_file, "rb") as f:
         config = Config.model_validate(tomllib.load(f))
 
-    dev = config.lidar.devices["random"]
+    lidar = config.lidar
+    assert lidar is not None
+
+    dev = lidar.devices["random"]
     assert dev.backend == "random"
 
 
@@ -45,7 +48,10 @@ def test_lidar_device_config_rplidar_with_device_success(
     with open(config_file, "rb") as f:
         config = Config.model_validate(tomllib.load(f))
 
-    dev = config.lidar.devices["rplidar"]
+    lidar = config.lidar
+    assert lidar is not None
+
+    dev = lidar.devices["rplidar"]
     assert dev.backend == "rplidar"
     assert dev.device == "/dev/ttyUSB0"
     # x, y はデフォルト0

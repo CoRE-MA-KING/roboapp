@@ -2,6 +2,7 @@ from typing import Literal, Self
 
 from pydantic import BaseModel, Field, model_validator
 
+
 class GlobalConfig(BaseModel):
     model_config = {"extra": "forbid"}
 
@@ -30,6 +31,7 @@ class LidarDevice(BaseModel):
         if self.backend == "rplidar" and self.device is None:
             raise ValueError("RPLIDAR backend requires a device path.")
         return self
+
 
 class LidarConfig(BaseModel):
     model_config = {"extra": "forbid"}
