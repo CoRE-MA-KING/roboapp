@@ -18,17 +18,20 @@
 1. ビルド
 
    - `mise build`
-   - `build/processor` と `build/sender` に実行ファイルが生成されます
+   - `build/processor` と `build/sender` と `build/viewer` に実行ファイルが生成されます
 
 2. 実行
 
+   - ※実行アプリ数が使用方法によって変わるため、`mise start` は提供していません
    - `sender`
      - lidarデータを送信するソフトです
      - `./build/sender -n foo` のように、`-n` オプションでデバイス名を指定して実行します
    - `processor`
      - 障害物回避の計算と可視化を行うソフトです
      - `./build/processor` で実行します
-     - `-s` オプションをつけると点群情報を描画します
+   - `viewer`
+     - 点群情報を可視化するソフトです
+     - `./build/viewer` で実行します
 
 ## 設定ファイル
 
