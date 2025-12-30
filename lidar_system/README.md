@@ -48,18 +48,18 @@ influence_range = 200
 backend = "random"
 # LiDARの接続先（rplidarのみ）
 device = "/dev/ttyUSB0"
+# 取り付け位置（左右）・ロボット座標系（右が正）
+x = 0
+# 取り付け位置（前後）・ロボット座標系（前が正）
+y = 0
+# 取り付け角度（度単位、反時計・左回りが正）
+rotation = 0
 # LiDARの最大距離（この距離に丸める）
 max_distance = 1000
 # LiDARの検出角度（下限）
 min_degree = 0
 # LiDARの検出角度（上限）
 max_degree = 360
-# 取り付け位置（左右）
-x = 0
-# 取り付け位置（前後）
-y = 0
-# 画像座標系に対する、LiDAR座標系の回転角（度単位、時計回りが正）
-rotation = 0
 ```
 
 ## 座標系

@@ -1,7 +1,6 @@
 from typing import Literal, Self
 
-from pydantic import BaseModel, Field
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, Field, model_validator
 
 class GlobalConfig(BaseModel):
     model_config = {"extra": "forbid"}
@@ -21,10 +20,10 @@ class LidarDevice(BaseModel):
     )
     x: int = Field(default=0, description="LiDARのX座標")
     y: int = Field(default=0, description="LiDARのY座標")
+    rotate: int = Field(default=0, description="LiDARの取り付け角度")
+    max_distance: int = Field(default=1000, gt=0, description="LiDARの最大距離")
     min_degree: int = Field(default=0, ge=0, le=360, description="LiDARの最小角度")
     max_degree: int = Field(default=360, ge=0, le=360, description="LiDARの最大角度")
-    max_distance: int = Field(default=1000, gt=0, description="LiDARの最大距離")
-    rotate: int = Field(default=0, description="LiDARの取り付け角度")
 
     @model_validator(mode="after")
     def require_device_if_rplidar(self) -> Self:
