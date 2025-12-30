@@ -57,7 +57,7 @@ uv run python3 src/configurator/check.py
 
 ### 一覧
 
-| アプリ名               | トピック名         | データ形式   |
+| アプリ名               | 出力トピック名     | データ形式   |
 | ---------------------- | ------------------ | ------------ |
 | main_camera_system     | cam/jpg            | JPEG         |
 | main_camera_system     | cam/switch         | int or None  |
@@ -75,14 +75,18 @@ uv run python3 src/configurator/check.py
     B[UI System]
     U[Uart Bridge]
     M{{STM32}}
-    LS(LiDARSystem/Sender)
+    LS1(LiDARSystem/Sender1)
+    LS2(LiDARSystem/Sender2)
     LP(LiDARSystem/Processor)
+    LV(LiDARSystem/Veiwer)
 
     A -- （WebSocket）--> B
     U -- robot/state --> B
     U -- robot/command --> B
-    LS -- lidar/data --> LP
+    LS1 -- lidar/data --> LP
+    LS2 -- lidar/data --> LP
     LP -- lidar/force_vector --> U
+    LP -- lidar/force_vector --> LV
     U -- （UART） --> M
     M -- （UART） --> U
 ```
