@@ -6,6 +6,21 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 include_directories(include)
 include_directories(include/lidar_device)
 
+# rplidar SDK include
+include_directories(3rdparty/rplidar_sdk/sdk/include)
+include_directories(3rdparty/rplidar_sdk/sdk/src)
+include_directories(3rdparty/rplidar_sdk/sdk/src/hal)
+include_directories(3rdparty/rplidar_sdk/sdk/src/arch/linux)
+
+# Third party libraries
+add_subdirectory(3rdparty/toml11)
+include_directories(3rdparty/toml11/include)
+find_package(gflags REQUIRED)
+find_package(nlohmann_json REQUIRED)
+find_package(OpenCV REQUIRED)
+find_package(zenohc REQUIRED)
+find_package(zenohcxx REQUIRED)
+
 # GoolgeTest
 include(FetchContent)
 cmake_policy(SET CMP0135 NEW)
@@ -31,21 +46,6 @@ foreach(test_src ${TEST_SOURCES})
   add_test(NAME ${test_name} COMMAND ${test_name})
   gtest_discover_tests(${test_name})
 endforeach()
-
-# rplidar SDK include
-include_directories(3rdparty/rplidar_sdk/sdk/include)
-include_directories(3rdparty/rplidar_sdk/sdk/src)
-include_directories(3rdparty/rplidar_sdk/sdk/src/hal)
-include_directories(3rdparty/rplidar_sdk/sdk/src/arch/linux)
-
-# Third party libraries
-add_subdirectory(3rdparty/toml11)
-include_directories(3rdparty/toml11/include)
-find_package(gflags REQUIRED)
-find_package(nlohmann_json REQUIRED)
-find_package(OpenCV REQUIRED)
-find_package(zenohc REQUIRED)
-find_package(zenohcxx REQUIRED)
 
 include_directories (${gflags_INCLUDE_DIR})
 include_directories(${OpenCV_INCLUDE_DIRS})
