@@ -1,0 +1,3 @@
+[lidar]
+[lidar.devices]
+random = { backend = "random", rotate = 45 }

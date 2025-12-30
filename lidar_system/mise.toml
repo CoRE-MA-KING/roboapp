@@ -1,0 +1,37 @@
+[vars]
+target = './include ./src -regex ".*\.\(c\|h\|cpp\|hpp\)"'
+
+[tasks.deps]
+description = "Generate Build Files"
+run = "cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release"
+sources = ["CMakeLists.txt", "src/**", "include/**"]
+outputs = ["build/"]
+
+[tasks.build]
+depends = ["deps"]
+description = "Build Application"
+run = "cmake --build build --config Release"
+
+[tasks.lint]
+description = "Run linter"
+run = [{ tasks = ["clang_tidy", "format_check"] }]
+
+[tasks.clang_tidy]
+depends = ["deps"]
+description = "Run clang-tidy"
+run = ["find {{ vars.target }} -exec clang-tidy -p ./build {} +"]
+
+[tasks.format_check]
+depends = ["deps"]
+description = "Check Formatter"
+run = "find {{ vars.target }} -exec clang-format --Werror --dry-run {} +;"
+
+[tasks.format]
+depends = ["deps"]
+description = "Run Formatter"
+run = "find {{ vars.target }} -exec clang-format -i {} +;"
+
+[tasks.test]
+depends = ["build"]
+description = "Run Tests"
+run = "ctest --test-dir build --output-on-failure"

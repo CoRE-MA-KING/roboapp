@@ -57,12 +57,14 @@ uv run python3 src/configurator/check.py
 
 ### 一覧
 
-| アプリ名           | トピック名      | データ形式   |
-| ------------------ | --------------- | ------------ |
-| main_camera_system | cam/jpg         | JPEG         |
-| main_camera_system | cam/switch      | int or None  |
-| uart_bridge        | robot/state/*   | RobotState   |
-| uart_bridge        | robot/command/* | RobotCommand |
+| アプリ名               | 出力トピック名     | データ形式   |
+| ---------------------- | ------------------ | ------------ |
+| main_camera_system     | cam/jpg            | JPEG         |
+| main_camera_system     | cam/switch         | int or None  |
+| uart_bridge            | robot/state/*      | RobotState   |
+| uart_bridge            | robot/command/*    | RobotCommand |
+| lidar_system/sender    | lidar/data         | LiDARData    |
+| lidar_system/processor | lidar/force_vector | LiDARMessage |
 
 ### ネットワーク
 
@@ -71,17 +73,20 @@ uv run python3 src/configurator/check.py
 
     A[main_camera_system]
     B[UI System]
-    C[画像処理 or Image Reciever]
     U[Uart Bridge]
-    E(UART Bridge （example）)
     M{{STM32}}
+    LS1(LiDARSystem/Sender1)
+    LS2(LiDARSystem/Sender2)
+    LP(LiDARSystem/Processor)
+    LV(LiDARSystem/Veiwer)
 
     A -- （WebSocket）--> B
-    A -- cam/jpg --> C
     U -- robot/state --> B
-    U -- robot/state --> E
-    E -- robot/command --> U
-    E -- robot/command --> B
+    U -- robot/command --> B
+    LS1 -- lidar/data --> LP
+    LS2 -- lidar/data --> LP
+    LP -- lidar/force_vector --> U
+    LP -- lidar/force_vector --> LV
     U -- （UART） --> M
     M -- （UART） --> U
 ```
