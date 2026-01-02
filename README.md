@@ -87,6 +87,6 @@ uv run python3 src/configurator/check.py
     LP -- lidar/force_vector --> U
     LP -- lidar/force_vector --> LV
     U -- （UART） --> M
-    U -- （UART） --> A
+    U -- robot/command/video_id --> A
     M -- （UART） --> U
 ```
