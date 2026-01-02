@@ -144,7 +144,6 @@ async fn zenoh_sub(app: AppHandle, prefix: String) {
 
     let app = Arc::new(app);
 
-
     let prefix_slash = if prefix.is_empty() {
         "".to_string()
     } else {
@@ -152,7 +151,6 @@ async fn zenoh_sub(app: AppHandle, prefix: String) {
     };
     let robot_state_key = format!("{prefix_slash}robot/state");
     let damage_panel_key = format!("{prefix_slash}damagepanel");
-
 
     // Robot State
     declare_and_emit(
@@ -234,23 +232,31 @@ async fn zenoh_sub(app: AppHandle, prefix: String) {
     .await;
 
     // Damage Panel Recognition
-    session
+    if let Err(e) = session
         .declare_subscriber(damage_panel_key)
         .callback_mut(move |sample| {
             if let Ok(v) = sample.payload().try_to_string() {
                 if let Ok(dp) = serde_json::from_str::<msg::DamagePanelRecognition>(&v) {
                     let app = Arc::clone(&app);
                     tauri::async_runtime::spawn(async move {
-                        app.emit("target_x", dp.target_x).unwrap();
-                        app.emit("target_y", dp.target_y).unwrap();
-                        app.emit("target_distance", dp.target_distance).unwrap();
+                        if let Err(e) = app.emit("target_x", dp.target_x) {
+                            log::error!("Failed to emit target_x: {}", e);
+                        }
+                        if let Err(e) = app.emit("target_y", dp.target_y) {
+                            log::error!("Failed to emit target_y: {}", e);
+                        }
+                        if let Err(e) = app.emit("target_distance", dp.target_distance) {
+                            log::error!("Failed to emit target_distance: {}", e);
+                        }
                     });
                 }
             }
         })
         .background()
         .await
-        .unwrap();
+    {
+        log::error!("Failed to declare subscriber for damagepanel: {}", e);
+    };
 
     loop {
         tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
