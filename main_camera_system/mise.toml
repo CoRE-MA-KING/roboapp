@@ -1,0 +1,43 @@
+[tools]
+rust = "1.91"
+
+[tasks.deps]
+description = "Install dependency"
+run = ["cargo fetch", "rustup component add clippy rustfmt"]
+sources = [
+    "Cargo.toml",
+    "Cargo.lock",
+]
+outputs = { auto = true }
+
+[tasks.build]
+depends = ["deps"]
+description = "Build Application"
+run = "cargo build --release"
+sources = [
+    "Cargo.toml",
+    "Cargo.lock",
+    "src/**",
+]
+outputs = { auto = true }
+
+
+[tasks.lint]
+depends = ["deps"]
+description = "Run linter"
+run = "cargo clippy --all-targets --all-features -- -D warnings"
+
+[tasks.format]
+depends = ["deps"]
+description = "Run Formatter"
+run = "cargo fmt --all"
+
+[tasks.test]
+depends = ["deps"]
+description = "Run tests"
+run = "cargo test"
+
+[tasks.start]
+depends = ["build"]
+description = "Start Application"
+run = "./target/release/main-camera-system"

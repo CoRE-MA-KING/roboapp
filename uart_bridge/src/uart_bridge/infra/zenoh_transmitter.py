@@ -2,13 +2,19 @@ import zenoh
 
 from uart_bridge.application.interfaces import Transmitter
 from uart_bridge.domain.messages import DamagePanelRecognition, RobotCommand, RobotState
+from uart_bridge.domain.messages import LiDARMessage, RobotCommand, RobotState
 
 
 class ZenohTransmitter(Transmitter):
     """Transmits data using Zenoh protocol."""
 
-    def __init__(self) -> None:
+    def __init__(self, prefix: str = "") -> None:
         self.zenoh_session = zenoh.open(zenoh.Config())
+
+        if prefix:
+            prefix = prefix.rstrip("/") + "/"
+        else:
+            prefix = ""
 
         self.publishers = {}
 
@@ -17,11 +23,16 @@ class ZenohTransmitter(Transmitter):
 
         for key in RobotState.model_fields.keys():
             self.publishers[key] = self.zenoh_session.declare_publisher(
-                f"robot/state/{key}"
+                f"{prefix}robot/state/{key}"
             )
 
         self.zenoh_session.declare_subscriber(
-            "robot/state/request",
+            f"{prefix}lidar/force_vector",
+            self.lidar_subscriber,
+        )
+
+        self.zenoh_session.declare_subscriber(
+            f"{prefix}robot/state/request",
             self._subscriber_callback_request,
         )
 
@@ -55,6 +66,11 @@ class ZenohTransmitter(Transmitter):
         self.robot_command.target_x = d.target_x
         self.robot_command.target_y = d.target_y
         self.robot_command.target_distance = d.target_distance
+
+    def lidar_subscriber(self, sample: zenoh.Sample) -> None:
+        m = LiDARMessage.model_validate_json(sample.payload.to_string())
+        self.robot_command.force_linear = int(m.linear)
+        self.robot_command.force_angular = int(m.angular * 10)
 
     def subscribe(self) -> RobotCommand:
         return self.robot_command

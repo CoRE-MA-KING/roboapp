@@ -1,0 +1,88 @@
+[tools]
+node = "22"
+"npm:pnpm" = "10"
+rust = "1.91"
+
+[tasks.deps_node]
+description = "Install Node.js dependencies"
+run = "pnpm i"
+sources = ["package.json", "pnpm-lock.yaml"]
+outputs = { auto = true }
+
+[tasks.deps_rust]
+description = "Install Rust dependencies"
+dir = "src-tauri"
+run = ["cargo fetch", "rustup component add clippy rustfmt"]
+sources = [
+    "src-tauri/Cargo.toml",
+    "src-tauri/Cargo.lock",
+]
+outputs = { auto = true }
+
+[tasks.deps]
+description = "Install dependencies"
+depends = ["deps_node", "deps_rust"]
+
+[tasks.build]
+depends = ["deps"]
+description = "Build Application"
+run = "pnpm tauri build"
+sources = [
+    "package.json",
+    "pnpm-lock.yaml",
+    "src/**",
+    "tsconfig*.json",
+    "vite.config.*",
+    "src-tauri/capabilities/**",
+    "src-tauri/Cargo.toml",
+    "src-tauri/Cargo.lock",
+    "src-tauri/src/**",
+    "src-tauri/tauri.conf.json",
+    "src-tauri/icons/**",
+]
+outputs = { auto = true }
+
+[tasks.lint_node]
+depends = ["deps_node"]
+description = "Run Node.js linter"
+run = ["pnpm lint", "pnpm check"]
+
+[tasks.lint_rust]
+depends = ["deps_rust"]
+description = "Run Rust linter"
+dir = "src-tauri"
+run = "cargo clippy --all-targets --all-features -- -D warnings"
+
+[tasks.lint]
+description = "Run linters"
+depends = ["lint_node", "lint_rust"]
+
+[tasks.format_node]
+depends = ["deps_node"]
+description = "Run Node.js Formatter"
+run = "pnpm format"
+
+[tasks.format_rust]
+depends = ["deps_rust"]
+description = "Run Formatter"
+dir = "src-tauri"
+run = "cargo fmt --all"
+
+[tasks.format]
+description = "Run formatters"
+depends = ["format_node", "format_rust"]
+
+[tasks.test_rust]
+depends = ["deps_rust"]
+description = "Run Rust tests"
+dir = "src-tauri"
+run = "cargo test"
+
+[tasks.test]
+description = "Run tests"
+depends = ["test_rust"]
+
+[tasks.start]
+depends = ["build"]
+description = "Start Application"
+run = "./src-tauri/target/release/ui_system"

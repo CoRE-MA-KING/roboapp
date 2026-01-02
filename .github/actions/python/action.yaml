@@ -7,7 +7,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v4
     - uses: astral-sh/setup-uv@v6
       with:
         enable-cache: true
