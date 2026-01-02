@@ -58,7 +58,7 @@ async fn main() {
     let mut timestamps: VecDeque<Instant> = VecDeque::new();
 
     PrometheusBuilder::new()
-        .with_http_listener(([127, 0, 0, 1], 9901))
+        .with_http_listener(([0, 0, 0, 0], 9901))
         .idle_timeout(MetricKindMask::GAUGE, Some(Duration::from_secs(10)))
         .install()
         .expect("failed to install recorder");
