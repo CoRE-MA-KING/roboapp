@@ -14,7 +14,8 @@ def main() -> None:
     session.declare_subscriber(
         f"{key_expr}",
         lambda sample: print(
-            f"Received DamagePanelRecognition: {DamagePanelRecognition.model_validate_json(sample.payload.to_string())}"
+            "Received DamagePanelRecognition:"
+            + f" {DamagePanelRecognition.model_validate_json(sample.payload.to_string())}"  # noqa
         ),
     )
 

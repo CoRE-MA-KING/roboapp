@@ -1,8 +1,12 @@
 import zenoh
 
 from uart_bridge.application.interfaces import Transmitter
-from uart_bridge.domain.messages import DamagePanelRecognition, RobotCommand, RobotState
-from uart_bridge.domain.messages import LiDARMessage, RobotCommand, RobotState
+from uart_bridge.domain.messages import (
+    DamagePanelRecognition,
+    LiDARMessage,
+    RobotCommand,
+    RobotState,
+)
 
 
 class ZenohTransmitter(Transmitter):
