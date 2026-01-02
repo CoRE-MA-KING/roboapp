@@ -62,7 +62,7 @@ uv run python3 src/configurator/check.py
 | main_camera_system     | cam/jpg            | JPEG                   |
 | main_camera_system     | cam/switch         | int or None            |
 | uart_bridge            | robot/state/*      | RobotState             |
-| uart_bridge            | damagepanel        | DamagePanelRecognition |
+| damage_panel_recog     | damagepanel        | DamagePanelRecognition |
 | lidar_system/sender    | lidar/data         | LiDARData              |
 | lidar_system/processor | lidar/force_vector | LiDARMessage           |
 
