@@ -1,7 +1,12 @@
 import zenoh
 
 from uart_bridge.application.interfaces import Transmitter
-from uart_bridge.domain.messages import LiDARMessage, RobotCommand, RobotState
+from uart_bridge.domain.messages import (
+    DamagePanelRecognition,
+    LiDARMessage,
+    RobotCommand,
+    RobotState,
+)
 
 
 class ZenohTransmitter(Transmitter):
@@ -25,12 +30,6 @@ class ZenohTransmitter(Transmitter):
                 f"{prefix}robot/state/{key}"
             )
 
-        for key in RobotCommand.model_fields.keys():
-            self.zenoh_session.declare_subscriber(
-                f"{prefix}robot/command/{key}",
-                self._subscriber,
-            )
-
         self.zenoh_session.declare_subscriber(
             f"{prefix}lidar/force_vector",
             self.lidar_subscriber,
@@ -39,6 +38,11 @@ class ZenohTransmitter(Transmitter):
         self.zenoh_session.declare_subscriber(
             f"{prefix}robot/state/request",
             self._subscriber_callback_request,
+        )
+
+        self.zenoh_session.declare_subscriber(
+            "damagepanel",
+            self.recognition_damagepanel_subscriber,
         )
 
     def publish(self, robot_state: RobotState, force: bool = False) -> None:
@@ -60,12 +64,12 @@ class ZenohTransmitter(Transmitter):
             self.publishers[key].put(f"{value}")
             print(f"Published {key}: {value}")
 
-    def _subscriber(self, sample: zenoh.Sample) -> None:
-        setattr(
-            self.robot_command,
-            str(sample.key_expr).split("/")[-1],
-            sample.payload.to_string(),
-        )
+    def recognition_damagepanel_subscriber(self, sample: zenoh.Sample) -> None:
+        d = DamagePanelRecognition.model_validate_json(sample.payload.to_string())
+
+        self.robot_command.target_x = d.target_x
+        self.robot_command.target_y = d.target_y
+        self.robot_command.target_distance = d.target_distance
 
     def lidar_subscriber(self, sample: zenoh.Sample) -> None:
         m = LiDARMessage.model_validate_json(sample.payload.to_string())

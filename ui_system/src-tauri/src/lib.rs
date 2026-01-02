@@ -1,4 +1,5 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
+mod msg;
 mod zenoh_client;
 use crate::config::load_config;
 use std::sync::Arc;
@@ -149,8 +150,7 @@ async fn zenoh_sub(app: AppHandle, prefix: String) {
         format!("{prefix}/")
     };
     let robot_state_key = format!("{prefix_slash}robot/state");
-
-    let robot_command_key = format!("{prefix_slash}robot/command");
+    let damage_panel_key = format!("{prefix_slash}damagepanel");
 
     // Robot State
     declare_and_emit(
@@ -230,37 +230,34 @@ async fn zenoh_sub(app: AppHandle, prefix: String) {
         "reserved",
     )
     .await;
-    // Robot Command
-    declare_and_emit(
-        &session,
-        Arc::clone(&app),
-        &format!("{robot_command_key}/target_x"),
-        "target_x",
-    )
-    .await;
-    declare_and_emit(
-        &session,
-        Arc::clone(&app),
-        &format!("{robot_command_key}/target_y"),
-        "target_y",
-    )
-    .await;
-    declare_and_emit(
-        &session,
-        Arc::clone(&app),
-        &format!("{robot_command_key}/target_distance"),
-        "target_distance",
-    )
-    .await;
-    declare_and_emit(
-        &session,
-        Arc::clone(&app),
-        &format!("{robot_command_key}/dummy"),
-        "dummy",
-    )
-    .await;
 
-    // session.declare_publisher(&format!("{robot_state_key}/request")).await.unwrap().put("request").await.unwrap();
+    // Damage Panel Recognition
+    if let Err(e) = session
+        .declare_subscriber(damage_panel_key)
+        .callback_mut(move |sample| {
+            if let Ok(v) = sample.payload().try_to_string() {
+                if let Ok(dp) = serde_json::from_str::<msg::DamagePanelRecognition>(&v) {
+                    let app = Arc::clone(&app);
+                    tauri::async_runtime::spawn(async move {
+                        if let Err(e) = app.emit("target_x", dp.target_x) {
+                            log::error!("Failed to emit target_x: {}", e);
+                        }
+                        if let Err(e) = app.emit("target_y", dp.target_y) {
+                            log::error!("Failed to emit target_y: {}", e);
+                        }
+                        if let Err(e) = app.emit("target_distance", dp.target_distance) {
+                            log::error!("Failed to emit target_distance: {}", e);
+                        }
+                    });
+                }
+            }
+        })
+        .background()
+        .await
+    {
+        log::error!("Failed to declare subscriber for damagepanel: {}", e);
+    };
+
     loop {
         tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
     }

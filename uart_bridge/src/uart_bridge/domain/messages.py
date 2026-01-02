@@ -55,6 +55,14 @@ class RobotState(BaseModel):
     reserved: int = 0  # 未使用
 
 
+class DamagePanelRecognition(BaseModel):
+    """ダメージパネル認識結果"""
+
+    target_x: int = 640
+    target_y: int = 360
+    target_distance: int = 0
+
+
 class RobotCommand(BaseModel):
     """ロボットに送信するコマンド"""
 
