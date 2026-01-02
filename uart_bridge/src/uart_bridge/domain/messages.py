@@ -1,29 +1,6 @@
-from enum import Enum, auto
-from typing import Optional, Tuple
+from enum import Enum
 
-from pydantic import BaseModel
-
-
-class Command(Enum):
-    NONE = auto()
-    QUIT = auto()
-
-
-class Detection(BaseModel):
-    xyxy: Tuple[float]
-    score: float
-    class_id: int
-
-
-class TargetState(BaseModel):
-    track_id: int
-    detection: Detection
-    position: Optional[Tuple[float]]
-
-
-class LiDARMessage(BaseModel):
-    linear: float
-    angular: float
+from pydantic import BaseModel, Field
 
 
 class RobotStateId(Enum):
