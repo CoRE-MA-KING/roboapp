@@ -1,0 +1,33 @@
+[tools]
+uv = "0.9"
+
+[tasks.deps]
+description = "Install dependency"
+run = "uv sync"
+alias = "build"
+sources = [
+    "pyproject.toml",
+    "uv.lock",
+]
+outputs = { auto = true }
+
+[tasks.lint]
+depends = ["deps"]
+description = "Run linter"
+run = ["uv run task lint", "uv run task check"]
+
+[tasks.format]
+depends = ["deps"]
+description = "Run Formatter"
+run = "uv run task format"
+
+[tasks.test]
+depends = ["deps"]
+description = "Run tests"
+run = "uv run task test"
+
+[tasks.configurator]
+alias = "start"
+depends = ["deps"]
+description = "Start Application"
+run = "uv run python3 src/configurator/main.py"

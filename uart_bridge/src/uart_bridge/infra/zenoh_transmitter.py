@@ -1,14 +1,19 @@
 import zenoh
 
 from uart_bridge.application.interfaces import Transmitter
-from uart_bridge.domain.messages import RobotCommand, RobotState
+from uart_bridge.domain.messages import LiDARMessage, RobotCommand, RobotState
 
 
 class ZenohTransmitter(Transmitter):
     """Transmits data using Zenoh protocol."""
 
-    def __init__(self) -> None:
+    def __init__(self, prefix: str = "") -> None:
         self.zenoh_session = zenoh.open(zenoh.Config())
+
+        if prefix:
+            prefix = prefix.rstrip("/") + "/"
+        else:
+            prefix = ""
 
         self.publishers = {}
 
@@ -17,26 +22,28 @@ class ZenohTransmitter(Transmitter):
 
         for key in RobotState.model_fields.keys():
             self.publishers[key] = self.zenoh_session.declare_publisher(
-                f"robot/state/{key}"
+                f"{prefix}robot/state/{key}"
             )
 
         for key in RobotCommand.model_fields.keys():
             self.zenoh_session.declare_subscriber(
-                f"robot/command/{key}",
+                f"{prefix}robot/command/{key}",
                 self._subscriber,
             )
-        # self.zenoh_session.declare_subscriber(
-        #     "robot/command",
-        #     self._subscriber,
-        # )
+
         self.zenoh_session.declare_subscriber(
-            "robot/state/request",
+            f"{prefix}lidar/force_vector",
+            self.lidar_subscriber,
+        )
+
+        self.zenoh_session.declare_subscriber(
+            f"{prefix}robot/state/request",
             self._subscriber_callback_request,
         )
 
     def publish(self, robot_state: RobotState, force: bool = False) -> None:
         """Transmit data to the specified topic."""
-        for key in robot_state.model_fields.keys():
+        for key in RobotState.model_fields.keys():
             value = getattr(robot_state, key)
 
             if not force and value == getattr(self.robot_state, key):
@@ -59,6 +66,11 @@ class ZenohTransmitter(Transmitter):
             str(sample.key_expr).split("/")[-1],
             sample.payload.to_string(),
         )
+
+    def lidar_subscriber(self, sample: zenoh.Sample) -> None:
+        m = LiDARMessage.model_validate_json(sample.payload.to_string())
+        self.robot_command.force_linear = int(m.linear)
+        self.robot_command.force_angular = int(m.angular * 10)
 
     def subscribe(self) -> RobotCommand:
         return self.robot_command

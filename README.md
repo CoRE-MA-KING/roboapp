@@ -21,6 +21,20 @@
     mise deps
     ```
 
+## 設定ファイル
+
+本アプリケーション群は、`$XDG_CONFIG_HOME/` または `~/.config/` 以下 `roboapp/config.toml` に設定ファイルを配置します。
+
+設定ファイルの書式があっているかは、`configurator` アプリで確認できます。
+正常終了したら、書式はあっています。
+
+```bash
+cd configurator
+uv run python3 src/configurator/check.py
+```
+
+書式や設定内容は、[サンプルファイル](./configurator/test/resources/config_sample.toml)や、[設定の実装](./configurator/src/configurator/config.py)、各アプリケーションの実装・ドキュメントを参考にしてください。
+
 ## アプリ一覧
 
 ### main_camera_system
@@ -43,12 +57,13 @@
 
 ### 一覧
 
-| アプリ名           | トピック名             | データ形式   |
-| ------------------ | ---------------------- | ------------ |
-| main_camera_system | cam/jpg                | JPEG         |
-| main_camera_system | robot/command/video_id | int or None  |
-| uart_bridge        | robot/state/*          | RobotState   |
-| uart_bridge        | robot/command/*        | RobotCommand |
+| アプリ名               | 出力トピック名     | データ形式   |
+| ---------------------- | ------------------ | ------------ |
+| main_camera_system     | cam/jpg            | JPEG         |
+| uart_bridge            | robot/state/*      | RobotState   |
+| uart_bridge            | robot/command/*    | RobotCommand |
+| lidar_system/sender    | lidar/data         | LiDARData    |
+| lidar_system/processor | lidar/force_vector | LiDARMessage |
 
 ### ネットワーク
 
@@ -57,17 +72,21 @@
 
     A[main_camera_system]
     B[UI System]
-    C[画像処理 or Image Reciever]
     U[Uart Bridge]
-    E(UART Bridge （example）)
     M{{STM32}}
+    LS1(LiDARSystem/Sender1)
+    LS2(LiDARSystem/Sender2)
+    LP(LiDARSystem/Processor)
+    LV(LiDARSystem/Veiwer)
 
     A -- （WebSocket）--> B
-    A -- cam/jpg --> C
     U -- robot/state --> B
-    U -- robot/state --> E
-    E -- robot/command --> U
-    E -- robot/command --> B
+    U -- robot/command --> B
+    LS1 -- lidar/data --> LP
+    LS2 -- lidar/data --> LP
+    LP -- lidar/force_vector --> U
+    LP -- lidar/force_vector --> LV
     U -- （UART） --> M
+    U -- （UART） --> A
     M -- （UART） --> U
 ```

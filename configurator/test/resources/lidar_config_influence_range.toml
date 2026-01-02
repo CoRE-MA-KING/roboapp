@@ -1,0 +1,3 @@
+[lidar]
+devices = { random = { backend = "random" } }
+influence_range = 1200
