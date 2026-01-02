@@ -2,7 +2,7 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "ui_system",
   "version": "0.1.0",
-  "identifier": "com.uisystem.app",
+  "identifier": "com.making.uisystem",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
@@ -39,14 +39,10 @@
       "description": "UI System",
       "args": [
         {
-          "name": "address",
-          "short": "a",
-          "description": "WebSocket host address"
-        },
-        {
-          "name": "port",
-          "short": "p",
-          "description": "WebSocket port"
+          "name": "config",
+          "short": "c",
+          "description": "path/to/config.toml",
+          "takesValue": true
         }
       ]
     }

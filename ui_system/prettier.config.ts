@@ -1,5 +1,5 @@
 /** @type {import("prettier").Config} */
-const config = {
+export default {
 	useTabs: true,
 	trailingComma: "none",
 	printWidth: 100,
@@ -14,5 +14,3 @@ const config = {
 	],
 	tailwindStylesheet: "./src/routes/layout.css"
 };
-
-export default config;

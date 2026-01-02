@@ -1,0 +1,2 @@
+[camera]
+devices = [{ device = "/dev/video0", width = 640 }]

@@ -1,6 +1,7 @@
 import argparse
 
 from uart_bridge.application.application import Application
+from uart_bridge.domain.config import load_and_parse_config
 from uart_bridge.infra.serial_robot_driver import SerialRobotDriver
 from uart_bridge.infra.zenoh_transmitter import ZenohTransmitter
 
@@ -9,10 +10,10 @@ def parse_args() -> argparse.Namespace:
     """コマンドライン引数をパースする"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--robot_port",
-        default="/dev/ttyACM0",
+        "--config-file",
+        default=None,
         type=str,
-        help="serial port for communicating with robot",
+        help="Path to the configuration file",
     )
 
     return parser.parse_args()
@@ -20,11 +21,12 @@ def parse_args() -> argparse.Namespace:
 
 def run_application(
     robot_port: str,
+    zenoh_prefix: str = "",
 ) -> None:
     """アプリケーションを実行する"""
     with (
         SerialRobotDriver(robot_port) as robot_driver,
-        ZenohTransmitter() as transmitter,
+        ZenohTransmitter(prefix=zenoh_prefix) as transmitter,
     ):
         app = Application(robot_driver, transmitter)
         app.spin()
@@ -32,9 +34,15 @@ def run_application(
 
 def main() -> None:
     args = parse_args()
-    # シンボリックリンクから実際のビデオ番号を取得する
+
+    config = load_and_parse_config(file_path=args.config_file)
+
+    if config.uart is None:
+        raise ValueError("設定ファイルに [uart] セクションが見つかりません")
+
     run_application(
-        robot_port=args.robot_port,
+        robot_port=config.uart.device,
+        zenoh_prefix=config.global_.zenoh_prefix,
     )
 
 
