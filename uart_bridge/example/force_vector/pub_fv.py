@@ -2,7 +2,7 @@ import random
 
 import zenoh
 
-from uart_bridge.domain.transmitter_message import LiDARMessage
+from uart_bridge.domain.transmitter_messages import LiDARMessage
 
 
 class LiDARReceiver:

@@ -2,7 +2,7 @@ import random
 
 import zenoh
 
-from uart_bridge.domain.zenoh_messages import CameraSwitchMessage
+from uart_bridge.domain.transmitter_messages import CameraSwitchMessage
 
 
 class CamSwitchSender:
