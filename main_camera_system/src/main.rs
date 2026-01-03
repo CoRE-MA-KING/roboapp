@@ -4,7 +4,6 @@ use log::{debug, error, info};
 use main_camera_system::camera_wrapper::create_camera_stream;
 use main_camera_system::config::load_config;
 use main_camera_system::messages::CameraSwitchMessage;
-use serde_json;
 use std::env;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
