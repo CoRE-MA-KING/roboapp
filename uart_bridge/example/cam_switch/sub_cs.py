@@ -2,20 +2,19 @@ import time
 
 import zenoh
 
-from uart_bridge.domain.transmitter_messages import LiDARMessage
 
-
-class LiDARReceiver:
-    key_expr = "lidar/force_vector"
+class CamSwitchReceiver:
+    key_expr = "cam/switch"
 
     def __init__(self) -> None:
         self.session = zenoh.open(zenoh.Config())
 
         self.session.declare_subscriber(f"{self.key_expr}", self._on_received)
 
+        self.session.declare_publisher(f"{self.key_expr}/request").put("request")
+
     def _on_received(self, sample: zenoh.Sample) -> None:
-        value = LiDARMessage.model_validate_json(sample.payload.to_string())
-        print(f"Received {sample.key_expr}: {value}")
+        print(f"Received {sample.key_expr}: {sample.payload.to_string()}")
 
     def run(self) -> None:
         while True:
@@ -26,6 +25,6 @@ class LiDARReceiver:
 
 
 if __name__ == "__main__":
-    main = LiDARReceiver()
+    main = CamSwitchReceiver()
 
     main.run()
