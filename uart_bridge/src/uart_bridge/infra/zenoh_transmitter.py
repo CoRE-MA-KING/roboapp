@@ -1,7 +1,8 @@
 import zenoh
 
 from uart_bridge.application.interfaces import Transmitter
-from uart_bridge.domain.messages import LiDARMessage, RobotCommand, RobotState
+from uart_bridge.domain.messages import RobotCommand, RobotState
+from uart_bridge.domain.transmitter_message import LiDARMessage
 from uart_bridge.domain.zenoh_messages import CameraSwitchMessage
 
 
