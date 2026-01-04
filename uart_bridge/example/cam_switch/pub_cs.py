@@ -2,28 +2,26 @@ import random
 
 import zenoh
 
-from uart_bridge.domain.transmitter_messages import LiDARMessage
+from uart_bridge.domain.transmitter_messages import CameraSwitchMessage
 
 
-class LiDARReceiver:
-    key_expr = "lidar/force_vector"
+class CamSwitchSender:
+    key_expr = "cam/switch"
 
     def __init__(self) -> None:
         self.session = zenoh.open(zenoh.Config())
 
     def run(self) -> None:
-        msg = LiDARMessage(
-            linear=random.uniform(0.0, 10.0),
-            angular=random.uniform(0.0, 360.0),
-        )
+        msg = CameraSwitchMessage(camera_id=random.randint(0, 2))
+        print(f"Publishing: {msg}")
+
         self.session.declare_publisher(f"{self.key_expr}").put(msg.model_dump_json())
-        print(f"Published {self.key_expr}: {msg}")
 
     def __del__(self) -> None:
         self.session.close()  # type: ignore
 
 
 if __name__ == "__main__":
-    main = LiDARReceiver()
+    main = CamSwitchSender()
 
     main.run()
