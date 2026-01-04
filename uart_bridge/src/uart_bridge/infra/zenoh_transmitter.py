@@ -21,17 +21,6 @@ class ZenohTransmitter(Transmitter):
         self.robot_command = RobotCommand()
         self.robot_state = RobotState()
 
-        for key in RobotState.model_fields.keys():
-            self.publishers[key] = self.zenoh_session.declare_publisher(
-                f"{prefix}robot/state/{key}"
-            )
-
-        for key in RobotCommand.model_fields.keys():
-            self.zenoh_session.declare_subscriber(
-                f"{prefix}robot/command/{key}",
-                self._subscriber,
-            )
-
         self.publishers["cam/switch"] = self.zenoh_session.declare_publisher(
             f"{prefix}cam/switch"
         )
@@ -39,11 +28,6 @@ class ZenohTransmitter(Transmitter):
         self.zenoh_session.declare_subscriber(
             f"{prefix}lidar/force_vector",
             self.lidar_subscriber,
-        )
-
-        self.zenoh_session.declare_subscriber(
-            f"{prefix}robot/state/request",
-            self._subscriber_callback_request,
         )
 
     def publish(self, robot_state: RobotState, force: bool = False) -> None:
