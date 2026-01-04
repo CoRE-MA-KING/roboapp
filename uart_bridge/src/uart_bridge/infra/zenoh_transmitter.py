@@ -2,7 +2,12 @@ import zenoh
 
 from uart_bridge.application.interfaces import Transmitter
 from uart_bridge.domain.messages import RobotCommand, RobotState
-from uart_bridge.domain.transmitter_messages import CameraSwitchMessage, LiDARMessage
+from uart_bridge.domain.transmitter_messages import (
+    CameraSwitchMessage,
+    DisksMessage,
+    FlapMessage,
+    LiDARMessage,
+)
 
 
 class ZenohTransmitter(Transmitter):
@@ -25,6 +30,12 @@ class ZenohTransmitter(Transmitter):
             f"{prefix}cam/switch"
         )
 
+        self.publishers["disks"] = self.zenoh_session.declare_publisher(
+            f"{prefix}disks"
+        )
+
+        self.publishers["flap"] = self.zenoh_session.declare_publisher(f"{prefix}flap")
+
         self.zenoh_session.declare_subscriber(
             f"{prefix}lidar/force_vector",
             self.lidar_subscriber,
@@ -32,32 +43,20 @@ class ZenohTransmitter(Transmitter):
 
     def publish(self, robot_state: RobotState, force: bool = False) -> None:
         """Transmit data to the specified topic."""
-        for key in RobotState.model_fields.keys():
-            value = getattr(robot_state, key)
-
-            if not force and value == getattr(self.robot_state, key):
-                continue
-
-            setattr(self.robot_state, key, value)
-
-            if key == "state_id":
-                value = value.value
-            elif key == "pitch_deg":
-                value = value / 10
-            elif key == "muzzle_velocity":
-                value = value / 1000
-            self.publishers[key].put(f"{value}")
-            print(f"Published {key}: {value}")
-
         self.publishers["cam/switch"].put(
             CameraSwitchMessage(camera_id=robot_state.video_id).model_dump_json()
         )
 
-    def _subscriber(self, sample: zenoh.Sample) -> None:
-        setattr(
-            self.robot_command,
-            str(sample.key_expr).split("/")[-1],
-            sample.payload.to_string(),
+        self.publishers["disks"].put(
+            DisksMessage(
+                left=robot_state.left_disks, right=robot_state.right_disks
+            ).model_dump_json()
+        )
+
+        self.publishers["flap"].put(
+            FlapMessage(
+                pitch=robot_state.pitch_deg, yaw=robot_state.yaw_deg
+            ).model_dump_json()
         )
 
     def lidar_subscriber(self, sample: zenoh.Sample) -> None:
@@ -67,9 +66,6 @@ class ZenohTransmitter(Transmitter):
 
     def subscribe(self) -> RobotCommand:
         return self.robot_command
-
-    def _subscriber_callback_request(self, sample: zenoh.Sample) -> None:
-        self.publish(self.robot_state, force=True)
 
     def close(self) -> None:
         """Close the Zenoh session."""
