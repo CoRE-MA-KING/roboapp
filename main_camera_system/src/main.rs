@@ -3,6 +3,7 @@ use futures_util::{SinkExt, StreamExt};
 use log::{debug, error, info};
 use main_camera_system::camera_wrapper::create_camera_stream;
 use main_camera_system::config::load_config;
+use main_camera_system::messages::CameraSwitchMessage;
 use std::env;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
@@ -59,13 +60,13 @@ async fn main() {
     let zenoh = zenoh::open(zenoh_config).await.unwrap();
 
     let prefix: String = if global_config.zenoh_prefix.is_empty() {
-        "cam".to_string()
+        "".to_string()
     } else {
-        format!("{}/{}", global_config.zenoh_prefix, "cam")
+        format!("{}/", global_config.zenoh_prefix)
     };
 
     let jpg_publisher: Option<zenoh::pubsub::Publisher> = if camera_config.zenoh {
-        let topic_name = format!("{prefix}/jpg");
+        let topic_name = format!("{prefix}cam/jpg");
         info!("JPEG publishing enabled at {topic_name}");
         Some(zenoh.declare_publisher(topic_name).await.unwrap())
     } else {
@@ -73,7 +74,7 @@ async fn main() {
     };
 
     let subscriber = zenoh
-        .declare_subscriber(format!("{}/switch", prefix))
+        .declare_subscriber(format!("{}cam/switch", prefix))
         .await
         .unwrap();
 
@@ -130,11 +131,13 @@ async fn main() {
     tokio::spawn(async move {
         loop {
             if let Ok(sample) = subscriber.recv_async().await {
-                let new_value: Option<usize> = sample
+                let msg: CameraSwitchMessage = sample
                     .payload()
                     .try_to_string()
                     .ok()
-                    .and_then(|s| s.parse().ok());
+                    .and_then(|s| serde_json::from_str(&s).ok())
+                    .unwrap();
+                let new_value: usize = msg.camera_id;
                 let _ = switch_tx.send(new_value);
             }
         }
@@ -143,10 +146,7 @@ async fn main() {
     loop {
         // カメラ切り替え通知が来ていれば切り替え
         if let Ok(new_value) = switch_rx.try_recv() {
-            let new_index = match new_value {
-                Some(n) => n,
-                None => device_index + 1,
-            } % camera_config.devices.len();
+            let new_index = new_value % camera_config.devices.len();
 
             if new_index == device_index {
                 continue;

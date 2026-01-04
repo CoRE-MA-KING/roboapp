@@ -1,7 +1,8 @@
 import zenoh
 
 from uart_bridge.application.interfaces import Transmitter
-from uart_bridge.domain.messages import LiDARMessage, RobotCommand, RobotState
+from uart_bridge.domain.messages import RobotCommand, RobotState
+from uart_bridge.domain.transmitter_messages import CameraSwitchMessage, LiDARMessage
 
 
 class ZenohTransmitter(Transmitter):
@@ -31,6 +32,10 @@ class ZenohTransmitter(Transmitter):
                 self._subscriber,
             )
 
+        self.publishers["cam/switch"] = self.zenoh_session.declare_publisher(
+            f"{prefix}cam/switch"
+        )
+
         self.zenoh_session.declare_subscriber(
             f"{prefix}lidar/force_vector",
             self.lidar_subscriber,
@@ -59,6 +64,10 @@ class ZenohTransmitter(Transmitter):
                 value = value / 1000
             self.publishers[key].put(f"{value}")
             print(f"Published {key}: {value}")
+
+        self.publishers["cam/switch"].put(
+            CameraSwitchMessage(camera_id=robot_state.video_id).model_dump_json()
+        )
 
     def _subscriber(self, sample: zenoh.Sample) -> None:
         setattr(
