@@ -6,7 +6,7 @@ from uart_bridge.domain.transmitter_messages import DisksMessage
 
 
 class DiskSender:
-    key_expr = "disk"
+    key_expr = "disks"
 
     def __init__(self) -> None:
         self.session = zenoh.open(zenoh.Config())
