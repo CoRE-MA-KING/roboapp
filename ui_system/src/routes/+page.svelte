@@ -1,6 +1,7 @@
 <script lang="ts" module>
 	import Background from "$lib/components/Background.svelte";
 	import Disks from "$lib/components/Disks.svelte";
+	import ImageViewer from "$lib/components/ImageViewer.svelte";
 	import { cameraIdStore } from "$lib/store/cameraid.svelte";
 	import { leftDiskStore, rightDiskStore } from "$lib/store/disks.svelte";
 	import { max_disks } from "$lib/values/component_variable";
@@ -35,7 +36,7 @@
 
 <main>
 	<Background />
-	<!-- <ImageViewer {host} {port} /> -->
+	<ImageViewer {host} {port} />
 
 	<p>
 		"Camera ID: {$cameraIdStore}"
