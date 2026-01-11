@@ -3,7 +3,11 @@ export default {
 	useTabs: true,
 	trailingComma: "none",
 	printWidth: 100,
-	plugins: ["prettier-plugin-svelte", "prettier-plugin-tailwindcss"],
+	plugins: [
+		"prettier-plugin-svelte",
+		"prettier-plugin-tailwindcss",
+		"@trivago/prettier-plugin-sort-imports"
+	],
 	overrides: [
 		{
 			files: "*.svelte",
