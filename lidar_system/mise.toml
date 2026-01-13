@@ -5,7 +5,7 @@ target = './include ./src -regex ".*\.\(c\|h\|cpp\|hpp\)"'
 description = "Generate Build Files"
 run = "cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release"
 sources = ["CMakeLists.txt", "src/**", "include/**"]
-outputs = ["build/"]
+outputs = ["build/build.ninja", "compile_commands.json"]
 
 [tasks.build]
 depends = ["deps"]
