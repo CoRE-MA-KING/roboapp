@@ -16,29 +16,29 @@ depends = [
 [tasks.mdlint]
 description = "Run markdownlint-cli2 linter"
 run = 'markdownlint-cli2 "**/*.md" "#**/.venv" "#**/node_modules" "#**/target" "#**/build" "#**/3rdparty"'
-    
+
 [tasks.mdformat]
 description = "Run markdownlint-cli2 linter"
 run = 'markdownlint-cli2 "**/*.md" "#**/.venv" "#**/node_modules" "#**/target" "#**/build" "#**/3rdparty" --fix'
 
 [tasks.build]
 description = "Build all projects"
-run = [
-  "cd configurator; mise build",
-  "cd main_camera_system; mise build",
-  "cd uart_bridge; mise build",
-  "cd ui_system; mise build",
-  "cd lidar_system; mise build",
+depends = [
+  "//configurator:build",
+  "//main_camera_system:build",
+  "//uart_bridge:build",
+  "//ui_system:build",
+  "//lidar_system:build",
 ]
 
 [tasks.lint]
 description = "Run linters for all projects"
-run = [
-  "cd configurator; mise lint",
-  "cd main_camera_system; mise lint",
-  "cd uart_bridge; mise lint",
-  "cd ui_system; mise lint",
-  "cd lidar_system; mise lint",
+depends = [
+  "//configurator:lint",
+  "//main_camera_system:lint",
+  "//uart_bridge:lint",
+  "//ui_system:lint",
+  "//lidar_system:lint",
 ]
 
 [tasks.format]
@@ -60,4 +60,3 @@ run = [
   "cd ui_system; mise test",
   "cd lidar_system; mise test",
 ]
-
