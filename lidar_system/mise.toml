@@ -6,12 +6,14 @@ just = "latest"
 description = "Generate Build Files"
 run = "just deps"
 sources = ["CMakeLists.txt", "src/**", "include/**"]
-outputs = ["build/build.ninja", "compile_commands.json"]
+outputs = ["./build/build.ninja", "./build/compile_commands.json"]
 
 [tasks.build]
 depends = ["deps"]
 description = "Build Application"
 run = "just build"
+sources = ["./build/build.ninja", "./build/compile_commands.json", "include/**", "src/**"]
+outputs = ["./build/processor", "./build/sender", "./build/viewer"]
 
 [tasks.lint]
 description = "Run linter"
