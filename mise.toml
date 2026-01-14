@@ -4,11 +4,22 @@ experimental_monorepo_root = true
 experimental = true
 task.monorepo_depth = 2
 
+[tools]
+markdownlint-cli2 = "latest"
+
 [tasks.configurator]
 description = "Run roboapp configurator"
 depends = [
   "//configurator:configurator",
 ]
+
+[tasks.mdlint]
+description = "Run markdownlint-cli2 linter"
+run = 'markdownlint-cli2 "**/*.md" "#**/.venv" "#**/node_modules" "#**/target" "#**/build" "#**/3rdparty"'
+    
+[tasks.mdformat]
+description = "Run markdownlint-cli2 linter"
+run = 'markdownlint-cli2 "**/*.md" "#**/.venv" "#**/node_modules" "#**/target" "#**/build" "#**/3rdparty" --fix'
 
 [tasks.build]
 description = "Build all projects"
@@ -49,3 +60,4 @@ run = [
   "cd ui_system; mise test",
   "cd lidar_system; mise test",
 ]
+
