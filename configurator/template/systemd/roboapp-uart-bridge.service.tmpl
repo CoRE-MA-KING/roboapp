@@ -3,7 +3,7 @@ Description=Roboapp UART Bridge
 
 [Service]
 WorkingDirectory={{APP_FOLDER}}/uart_bridge
-ExecStart={{UV_PATH}} run python src/uart_bridge/main.py
+ExecStart={{APP_FOLDER}}/uart_bridge/.venv/bin/python src/uart_bridge/main.py
 ExecStop=/bin/kill ${MAINPID}
 Restart=always
 RestartSec=3
