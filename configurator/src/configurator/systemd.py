@@ -59,10 +59,10 @@ def place_systemd() -> None:
 
     lidar_devices: list[str] = []
 
-    with open(get_default_config_path(),"rb") as f:
-        c = Config.model_validate(tomllib.load(f))
+    with open(get_default_config_path(),"rb") as cf:
+        c = Config.model_validate(tomllib.load(cf))
         if c.lidar:
-            lidar_devices += list(c.lidar.devices.keys())
+            lidar_devices = list(c.lidar.devices.keys())
 
     def place_single(config: SystemdConfig, file: Path, post_fix: str="") -> None:
         template = env.get_template(file.name)
