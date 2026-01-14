@@ -10,15 +10,15 @@ from configurator.check import get_default_config_path
 from configurator.config import Config
 
 
-def get_service_template() -> tuple[list[Path],Path]:
+def get_service_template() -> tuple[list[Path], Path]:
     prefix = Path(__file__).parents[2] / "template" / "systemd"
     return (
         [
-             prefix / "roboapp-lidar-processor.service.tmpl",
+            prefix / "roboapp-lidar-processor.service.tmpl",
             prefix / "roboapp-main-camera-system.service.tmpl",
             prefix / "roboapp-uart-bridge.service.tmpl",
             prefix / "roboapp-ui-system.service.tmpl",
-         ],
+        ],
         prefix / "roboapp-lidar-sender.service.tmpl",
     )
 
@@ -49,6 +49,7 @@ class SystemdConfig(BaseModel):
             return Path(uv)
         raise FileNotFoundError("uv not found")
 
+
 def place_systemd() -> None:
     systemd_paths, lidar_sender_path = get_service_template()
 
@@ -59,12 +60,12 @@ def place_systemd() -> None:
 
     lidar_devices: list[str] = []
 
-    with open(get_default_config_path(),"rb") as cf:
+    with open(get_default_config_path(), "rb") as cf:
         c = Config.model_validate(tomllib.load(cf))
         if c.lidar:
             lidar_devices = list(c.lidar.devices.keys())
 
-    def place_single(config: SystemdConfig, file: Path, post_fix: str="") -> None:
+    def place_single(config: SystemdConfig, file: Path, post_fix: str = "") -> None:
         template = env.get_template(file.name)
         rendered = template.render(config.model_dump(by_alias=True))
 
