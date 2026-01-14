@@ -2,6 +2,8 @@
 	import type { Writable } from "svelte/store";
 
 	export type RobotStatusProps = {
+		id: string;
+		classes: string;
 		num: Writable<number>;
 		width: number;
 		height: number;
@@ -11,12 +13,12 @@
 </script>
 
 <script lang="ts">
-	let { num, width, height, stroke = 5, max_number }: RobotStatusProps = $props();
+	let { id, classes, num, width, height, stroke = 5, max_number }: RobotStatusProps = $props();
 
 	let step = (height - stroke / 2) / max_number;
 </script>
 
-<main>
+<main {id} class={classes}>
 	<svg {width} {height} version="1.1" xmlns="http://www.w3.org/2000/svg">
 		<rect
 			x={stroke / 2}

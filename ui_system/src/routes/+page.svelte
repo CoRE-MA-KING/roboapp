@@ -41,8 +41,24 @@
 	<p>
 		"Camera ID: {$cameraIdStore}"
 	</p>
-	<Disks num={leftDiskStore} width={50} height={400} stroke={5} max_number={max_disks} />
+	<Disks
+		id="left-disk"
+		classes=""
+		num={leftDiskStore}
+		width={50}
+		height={400}
+		stroke={5}
+		max_number={max_disks}
+	/>
 
 	<p>a</p>
-	<Disks num={rightDiskStore} width={50} height={400} stroke={5} max_number={max_disks} />
+	<Disks
+		id="right-disk"
+		classes=""
+		num={rightDiskStore}
+		width={50}
+		height={400}
+		stroke={5}
+		max_number={max_disks}
+	/>
 </main>
