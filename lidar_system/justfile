@@ -1,16 +1,17 @@
 # https://just.systems
 
-target := './include ./src -regex ".*\.\(c\|h\|cpp\|hpp\)"'
+target := './include ./src -regex ".*\.\(c\|h\|cpp\|hpp\)$"'
+
 deps:
     cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 
-lint:
+clang-tidy:
     find {{ target }} -exec clang-tidy -p ./build {} +;
 
 format:
     find {{ target }} -exec clang-format -i {} +;
 
-dry-format:
+format-check:
     find {{ target }} -exec clang-format --Werror --dry-run -i {} +;
 
 build:

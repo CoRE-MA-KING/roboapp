@@ -1,7 +1,6 @@
 [tools]
 just = "latest"
 
-
 [tasks.deps]
 description = "Generate Build Files"
 run = "just deps"
@@ -12,7 +11,12 @@ outputs = ["./build/build.ninja", "./build/compile_commands.json"]
 depends = ["deps"]
 description = "Build Application"
 run = "just build"
-sources = ["./build/build.ninja", "./build/compile_commands.json", "include/**", "src/**"]
+sources = [
+  "./build/build.ninja",
+  "./build/compile_commands.json",
+  "include/**",
+  "src/**"
+]
 outputs = ["./build/processor", "./build/sender", "./build/viewer"]
 
 [tasks.lint]
@@ -22,12 +26,12 @@ run = [{ tasks = ["clang_tidy", "format_check"] }]
 [tasks.clang_tidy]
 depends = ["deps"]
 description = "Run clang-tidy"
-run = "just lint" 
+run = "just clang-tidy"
 
 [tasks.format_check]
 depends = ["deps"]
 description = "Check Formatter"
-run = "just dry-format"
+run = "just format-check"
 
 [tasks.format]
 depends = ["deps"]
@@ -38,4 +42,3 @@ run = "just format"
 depends = ["build"]
 description = "Run Tests"
 run = "just test"
-
