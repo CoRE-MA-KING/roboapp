@@ -19,7 +19,7 @@ sources = [
     "Cargo.lock",
     "src/**",
 ]
-outputs = { auto = true }
+outputs = ["./target/release/main-camera-system"]
 
 
 [tasks.lint]
