@@ -1,14 +1,25 @@
 import shutil
 import subprocess
+import tomllib
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
 from pydantic import BaseModel, Field, field_validator
 
+from configurator.check import get_default_config_path
+from configurator.config import Config
 
-def get_service_template() -> list[Path]:
-    return list(
-        (Path(__file__).parents[2] / "template" / "systemd").glob("*.service.tmpl")
+
+def get_service_template() -> tuple[list[Path], Path]:
+    prefix = Path(__file__).parents[2] / "template" / "systemd"
+    return (
+        [
+            prefix / "roboapp-lidar-processor.service.tmpl",
+            prefix / "roboapp-main-camera-system.service.tmpl",
+            prefix / "roboapp-uart-bridge.service.tmpl",
+            prefix / "roboapp-ui-system.service.tmpl",
+        ],
+        prefix / "roboapp-lidar-sender.service.tmpl",
     )
 
 
@@ -26,8 +37,8 @@ def get_service() -> list[str]:
 
 
 class SystemdConfig(BaseModel):
-    uv_path: Path = Field(Path().home() / ".local" / "bin" / "uv", alias="UV_PATH")
-    app_folder: Path = Field((Path(__file__).parents[3]), alias="APP_FOLDER")
+    app_folder: Path = Field(default=Path(__file__).parents[3], alias="APP_FOLDER")
+    lidar_name: str = Field(default="lidar", alias="LIDAR_NAME")
 
     @field_validator("uv_path")
     def set_uv_path(cls, v: Path) -> Path:
@@ -40,23 +51,37 @@ class SystemdConfig(BaseModel):
 
 
 def place_systemd() -> None:
-    config = SystemdConfig()  # type:ignore
-
-    systemd_path = get_service_folder()
+    systemd_paths, lidar_sender_path = get_service_template()
 
     env = Environment(
         loader=FileSystemLoader((Path(__file__).parents[2] / "template" / "systemd")),
         autoescape=False,
     )
-    for f in get_service_template():
-        template = env.get_template(f.name)
+
+    lidar_devices: list[str] = []
+
+    with open(get_default_config_path(), "rb") as cf:
+        c = Config.model_validate(tomllib.load(cf))
+        if c.lidar:
+            lidar_devices = list(c.lidar.devices.keys())
+
+    def place_single(config: SystemdConfig, file: Path, post_fix: str = "") -> None:
+        template = env.get_template(file.name)
         rendered = template.render(config.model_dump(by_alias=True))
 
-        service_name = f.stem.replace(".service", "")
-        service_file_path = systemd_path / f"{service_name}.service"
+        service_name = file.stem.replace(".service", "")
+        service_file_path = get_service_folder() / f"{service_name}{post_fix}.service"
 
         with open(service_file_path, "w") as service_file:
             service_file.write(rendered)
+
+    config = SystemdConfig()
+    for f in systemd_paths:
+        place_single(config, f)
+
+    for ln in lidar_devices:
+        config_lidar = SystemdConfig(LIDAR_NAME=ln)
+        place_single(config_lidar, lidar_sender_path, post_fix=f"-{ln}")
 
     subprocess.run(["systemctl", "--user", "daemon-reload"], check=True)
 
