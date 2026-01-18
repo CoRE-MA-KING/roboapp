@@ -44,7 +44,7 @@
 	<TextBox pre="record_video : " task_name="record_video" post="" />
 	<TextBox pre="ready_to_fire : " task_name="ready_to_fire" post="" />
 
-	<h2>Robot Command</h2>
+	<h2>Damage Panel Recognition</h2>
 	<TextBox pre="target_x : " task_name="target_x" post="" />
 	<TextBox pre="target_y : " task_name="target_y" post="" />
 	<TextBox pre="target_distance : " task_name="target_distance" post="" />
