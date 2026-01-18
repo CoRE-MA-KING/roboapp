@@ -39,24 +39,26 @@ depends = [
   "//uart_bridge:lint",
   "//ui_system:lint",
   "//lidar_system:lint",
+  "//:mdlint",
 ]
 
 [tasks.format]
 description = "Run formatters for all projects"
-run = [
-  "cd configurator; mise format",
-  "cd main_camera_system; mise format",
-  "cd uart_bridge; mise format",
-  "cd ui_system; mise format",
-  "cd lidar_system; mise format",
+depends = [
+  "//configurator:format",
+  "//main_camera_system:format",
+  "//uart_bridge:format",
+  "//ui_system:format",
+  "//lidar_system:format",
+  "//:mdformat",
 ]
 
 [tasks.test]
 description = "Run tests for all projects"
-run = [
-  "cd configurator; mise test",
-  "cd main_camera_system; mise test",
-  "cd uart_bridge; mise test",
-  "cd ui_system; mise test",
-  "cd lidar_system; mise test",
+depends = [
+  "//configurator:test",
+  "//main_camera_system:test",
+  "//uart_bridge:test",
+  "//ui_system:test",
+  "//lidar_system:test",
 ]
