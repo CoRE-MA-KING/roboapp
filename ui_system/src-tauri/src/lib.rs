@@ -1,5 +1,4 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-mod msg;
 mod zenoh_client;
 use crate::config::load_config;
 use std::sync::Arc;
