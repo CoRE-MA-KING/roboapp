@@ -1,4 +1,5 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
+mod msg;
 mod zenoh_client;
 use crate::config::load_config;
 use std::sync::Arc;
@@ -123,7 +124,6 @@ async fn zenoh_sub(app: AppHandle, prefix: String) {
     } else {
         format!("{prefix}/")
     };
-
     declare_and_emit(
         &session,
         Arc::clone(&app),

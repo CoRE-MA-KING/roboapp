@@ -57,37 +57,39 @@ uv run python3 src/configurator/check.py
 
 ### 一覧
 
-| アプリ名               | 出力トピック名     | データ形式          |
-| ---------------------- | ------------------ | ------------------- |
-| main_camera_system     | cam/jpg            | JPEG                |
-| uart_bridge            | robot/state/*      | RobotState          |
-| uart_bridge            | robot/command/*    | RobotCommand        |
-| uart_bridge            | cam/switch         | CameraSwitchMessage |
-| lidar_system/sender    | lidar/data         | LiDARData           |
-| lidar_system/processor | lidar/force_vector | LiDARMessage        |
+| アプリ名               | 出力トピック名     | データ形式             |
+| ---------------------- | ------------------ | ---------------------- |
+| main_camera_system     | cam/jpg            | JPEG                   |
+| uart_bridge            | cam/switch         | CameraSwitchMessage    |
+| uart_bridge            | robot/state/*      | RobotState             |
+| damage_panel_recog     | damagepanel        | DamagePanelRecognition |
+| lidar_system/sender    | lidar/data         | LiDARData              |
+| lidar_system/processor | lidar/force_vector | LiDARMessage           |
 
 ### ネットワーク
 
 ```mermaid
     flowchart LR
 
-    A[main_camera_system]
-    B[UI System]
+    C[main_camera_system]
+    T[UI System]
     U[Uart Bridge]
     M{{STM32}}
+    D[Damage Panel Recognition]
     LS1(LiDARSystem/Sender1)
     LS2(LiDARSystem/Sender2)
     LP(LiDARSystem/Processor)
     LV(LiDARSystem/Veiwer)
 
-    A -- （WebSocket）--> B
-    U -- robot/state --> B
-    U -- robot/command --> B
+    C -- （WebSocket）--> T
+    U -- robot/state --> T
+    U -- （UART：RobotCommand） --> M
+    M -- （UART：RobotState） --> U
+    D -- damagepanel --> U
+    D -- damagepanel --> T
     LS1 -- lidar/data --> LP
     LS2 -- lidar/data --> LP
     LP -- lidar/force_vector --> U
     LP -- lidar/force_vector --> LV
-    U -- （UART） --> M
-    U -- cam/switch --> A
-    M -- （UART） --> U
+    U -- cam/switch --> C
 ```

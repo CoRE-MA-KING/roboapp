@@ -40,7 +40,7 @@ sources = [
     "src-tauri/tauri.conf.json",
     "src-tauri/icons/**",
 ]
-outputs = { auto = true }
+outputs = ["./src-tauri/target/release/ui_system"]
 
 [tasks.lint_node]
 depends = ["deps_node"]

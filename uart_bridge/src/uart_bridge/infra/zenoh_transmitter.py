@@ -4,6 +4,7 @@ from uart_bridge.application.interfaces import Transmitter
 from uart_bridge.domain.messages import RobotCommand, RobotState
 from uart_bridge.domain.transmitter_messages import (
     CameraSwitchMessage,
+    DamagePanelRecognition,
     DisksMessage,
     FlapMessage,
     LiDARMessage,
@@ -44,7 +45,9 @@ class ZenohTransmitter(Transmitter):
     def publish(self, robot_state: RobotState, force: bool = False) -> None:
         """Transmit data to the specified topic."""
         self.publishers["cam/switch"].put(
-            CameraSwitchMessage(camera_id=robot_state.video_id).model_dump_json()
+            CameraSwitchMessage(
+                camera_id=robot_state.video_id,
+            ).model_dump_json()
         )
 
         self.publishers["disks"].put(
@@ -58,6 +61,13 @@ class ZenohTransmitter(Transmitter):
                 pitch=robot_state.pitch_deg, yaw=robot_state.yaw_deg
             ).model_dump_json()
         )
+
+    def damagepanel_subscriber(self, sample: zenoh.Sample) -> None:
+        d = DamagePanelRecognition.model_validate_json(sample.payload.to_string())
+
+        self.robot_command.target_x = d.target_x
+        self.robot_command.target_y = d.target_y
+        self.robot_command.target_distance = d.target_distance
 
     def lidar_subscriber(self, sample: zenoh.Sample) -> None:
         m = LiDARMessage.model_validate_json(sample.payload.to_string())
