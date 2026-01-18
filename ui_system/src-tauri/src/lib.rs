@@ -19,10 +19,7 @@ pub fn run() {
         .plugin(tauri_plugin_cli::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_log::Builder::new().build())
-        .invoke_handler(tauri::generate_handler![
-            get_config_host,
-            get_config_port
-        ])
+        .invoke_handler(tauri::generate_handler![get_config_host, get_config_port])
         .setup(|app| {
             let args = match app.cli().matches() {
                 Ok(matches) => matches.args,
@@ -97,7 +94,6 @@ async fn declare_and_emit(
         .unwrap();
 }
 
-
 #[tauri::command]
 fn get_config_host(gui_config: State<'_, Mutex<config::GUIConfig>>) -> Result<String, String> {
     Ok(gui_config.lock().unwrap().host.clone())
@@ -124,28 +120,10 @@ async fn zenoh_sub(app: AppHandle, prefix: String) {
     } else {
         format!("{prefix}/")
     };
+    declare_and_emit(&session, Arc::clone(&app), &prefix_slash, "cam/switch").await;
+    declare_and_emit(&session, Arc::clone(&app), &prefix_slash, "disks").await;
+    declare_and_emit(&session, Arc::clone(&app), &prefix_slash, "flap").await;
     declare_and_emit(
-        &session,
-        Arc::clone(&app),
-        &prefix_slash,
-        "cam/switch",
-    )
-    .await;
-    declare_and_emit(
-        &session,
-        Arc::clone(&app),
-        &prefix_slash,
-        "disks",
-    )
-    .await;
-    declare_and_emit(
-        &session,
-        Arc::clone(&app),
-        &prefix_slash,
-        "flap",
-    )
-    .await;
-        declare_and_emit(
         &session,
         Arc::clone(&app),
         &prefix_slash,
