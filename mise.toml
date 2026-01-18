@@ -18,7 +18,7 @@ description = "Run markdownlint-cli2 linter"
 run = 'markdownlint-cli2 "**/*.md" "#**/.venv" "#**/node_modules" "#**/target" "#**/build" "#**/3rdparty"'
 
 [tasks.mdformat]
-description = "Run markdownlint-cli2 linter"
+description = "Run markdownlint-cli2 formatter"
 run = 'markdownlint-cli2 "**/*.md" "#**/.venv" "#**/node_modules" "#**/target" "#**/build" "#**/3rdparty" --fix'
 
 [tasks.build]
