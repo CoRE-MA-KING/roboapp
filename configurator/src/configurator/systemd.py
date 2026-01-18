@@ -1,10 +1,9 @@
-import shutil
 import subprocess
 import tomllib
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 
 from configurator.check import get_default_config_path
 from configurator.config import Config
@@ -39,15 +38,6 @@ def get_service() -> list[str]:
 class SystemdConfig(BaseModel):
     app_folder: Path = Field(default=Path(__file__).parents[3], alias="APP_FOLDER")
     lidar_name: str = Field(default="lidar", alias="LIDAR_NAME")
-
-    @field_validator("uv_path")
-    def set_uv_path(cls, v: Path) -> Path:
-        if v.exists():
-            return v
-
-        if uv := shutil.which("uv"):
-            return Path(uv)
-        raise FileNotFoundError("uv not found")
 
 
 def place_systemd() -> None:
