@@ -1,10 +1,12 @@
 <script lang="ts" module>
 	import { cameraIdStore } from "$lib/store/cameraid.svelte";
+	import { damagePanelStore } from "$lib/store/damagepanel.svelte";
 	import { leftDiskStore, rightDiskStore } from "$lib/store/disks.svelte";
 	import { flapMessageStore } from "$lib/store/flap.svelte";
 	import { lidarMessageStore } from "$lib/store/lidar.svelte";
 	import type {
 		CameraSwitchMessage,
+		DamagePanelMessage,
 		DisksMessage,
 		FlapMessage,
 		LiDARMessage
@@ -23,9 +25,18 @@
 	});
 
 	$effect(() => {
+		let unlistenPromise = listen("damagepanel", (event) => {
+			let msg = JSON.parse(event.payload as string) as DamagePanelMessage;
+			damagePanelStore.set(msg);
+		});
+		return () => {
+			unlistenPromise.then((unlisten) => unlisten());
+		};
+	});
+
+	$effect(() => {
 		let unlistenPromise = listen("disks", (event) => {
 			let msg = JSON.parse(event.payload as string) as DisksMessage;
-			console.log("Disks message received:", msg, msg.left, msg.right);
 			leftDiskStore.set(msg.left);
 			rightDiskStore.set(msg.right);
 		});

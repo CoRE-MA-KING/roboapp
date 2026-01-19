@@ -18,3 +18,9 @@ export type FlapMessage = {
 	pitch: number;
 	yaw: number;
 };
+
+export type DamagePanelMessage = {
+	target_x: number;
+	target_y: number;
+	target_distance: number;
+};

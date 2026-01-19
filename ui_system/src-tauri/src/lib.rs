@@ -120,6 +120,7 @@ async fn zenoh_sub(app: AppHandle, prefix: String) {
         format!("{prefix}/")
     };
     declare_and_emit(&session, Arc::clone(&app), &prefix_slash, "cam/switch").await;
+    declare_and_emit(&session, Arc::clone(&app), &prefix_slash, "damagepanel").await;
     declare_and_emit(&session, Arc::clone(&app), &prefix_slash, "disks").await;
     declare_and_emit(&session, Arc::clone(&app), &prefix_slash, "flap").await;
     declare_and_emit(
