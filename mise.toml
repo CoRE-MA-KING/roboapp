@@ -1,5 +1,14 @@
 experimental_monorepo_root = true
 
+[monorepo]
+config_roots = [
+  "./configurator/",
+  "./lidar_system/",
+  "./main_camera_system/",
+  "./uart_bridge/",
+  "./ui_system/",
+]
+
 [settings]
 experimental = true
 task.monorepo_depth = 2
