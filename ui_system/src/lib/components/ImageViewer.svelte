@@ -1,7 +1,10 @@
-<script lang="ts">
+<script module lang="ts">
+	import { damagePanelStore } from "$lib/store/damagepanel.svelte";
 	import { image_height, image_width, target_height, target_width } from "$lib/values/image";
 	import { onMount } from "svelte";
+</script>
 
+<script lang="ts">
 	export type ImageViewerProps = {
 		host: string | null;
 		port: string | null;
@@ -66,8 +69,8 @@
 		<rect
 			height={target_height}
 			width={target_width}
-			x={(image_width - target_width) / 2}
-			y={(image_height - target_height) / 2}
+			x={($damagePanelStore ? $damagePanelStore.target_x : image_width / 2) - target_width / 2}
+			y={($damagePanelStore ? $damagePanelStore.target_y : image_height / 2) - target_height / 2}
 			fill-opacity="0.0"
 			stroke="red"
 			stroke-width="10"
