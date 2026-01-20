@@ -57,11 +57,12 @@ uv run python3 src/configurator/check.py
 
 ### 一覧
 
-| アプリ名               | 出力トピック名     | データ形式             |
+| 送信元アプリ名         | 出力トピック名     | データ形式             |
 | ---------------------- | ------------------ | ---------------------- |
 | main_camera_system     | cam/jpg            | JPEG                   |
 | uart_bridge            | cam/switch         | CameraSwitchMessage    |
-| uart_bridge            | robot/state/*      | RobotState             |
+| uart_bridge            | disks              | DisksMessage           |
+| uart_bridge            | flap               | FlapMessage            |
 | damage_panel_recog     | damagepanel        | DamagePanelRecognition |
 | lidar_system/sender    | lidar/data         | LiDARData              |
 | lidar_system/processor | lidar/force_vector | LiDARMessage           |
@@ -73,8 +74,8 @@ uv run python3 src/configurator/check.py
 
     C[main_camera_system]
     T[UI System]
-    U[Uart Bridge]
     M{{STM32}}
+    U[Uart Bridge]
     D[Damage Panel Recognition]
     LS1(LiDARSystem/Sender1)
     LS2(LiDARSystem/Sender2)
@@ -82,7 +83,10 @@ uv run python3 src/configurator/check.py
     LV(LiDARSystem/Veiwer)
 
     C -- （WebSocket）--> T
-    U -- robot/state --> T
+    U -- cam/switch --> T
+    U -- cam/switch --> C
+    U -- disks --> T
+    U -- flap --> T
     U -- （UART：RobotCommand） --> M
     M -- （UART：RobotState） --> U
     D -- damagepanel --> U
@@ -91,5 +95,4 @@ uv run python3 src/configurator/check.py
     LS2 -- lidar/data --> LP
     LP -- lidar/force_vector --> U
     LP -- lidar/force_vector --> LV
-    U -- cam/switch --> C
 ```

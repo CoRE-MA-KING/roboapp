@@ -2,7 +2,13 @@ import time
 
 import zenoh
 
-key_expr = ("lidar/force_vector", "cam/switch", "damagepanel", "flap", "disks")
+key_expr = (
+    "lidar/force_vector",
+    "cam/switch",
+    "damagepanel",
+    "flap",
+    "disks",
+)
 
 
 def callback(sample: zenoh.Sample) -> None:
