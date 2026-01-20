@@ -4,26 +4,14 @@ import zenoh
 
 from uart_bridge.domain.transmitter_messages import FlapMessage
 
-
-class FlapSender:
-    key_expr = "flap"
-
-    def __init__(self) -> None:
-        self.session = zenoh.open(zenoh.Config())
-
-    def run(self) -> None:
-        msg = FlapMessage(
-            pitch=random.uniform(0.0, 15.0),
-            yaw=random.uniform(0.0, 40.0),
-        )
-        self.session.declare_publisher(f"{self.key_expr}").put(msg.model_dump_json())
-        print(f"Published {self.key_expr}: {msg}")
-
-    def __del__(self) -> None:
-        self.session.close()  # type: ignore
-
-
+key_expr = "flap"
 if __name__ == "__main__":
-    main = FlapSender()
+    msg = FlapMessage(
+        pitch=random.uniform(0.0, 15.0),
+        yaw=random.uniform(0.0, 40.0),
+    )
 
-    main.run()
+    print(f"Publishing : {key_expr}: {msg}")
+
+    with zenoh.open(zenoh.Config()) as session:
+        session.declare_publisher(key_expr).put(msg.model_dump_json())

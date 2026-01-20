@@ -4,26 +4,14 @@ import zenoh
 
 from uart_bridge.domain.transmitter_messages import DisksMessage
 
-
-class DiskSender:
-    key_expr = "disks"
-
-    def __init__(self) -> None:
-        self.session = zenoh.open(zenoh.Config())
-
-    def run(self) -> None:
-        msg = DisksMessage(
-            left=random.randint(0, 35),
-            right=random.randint(0, 35),
-        )
-        self.session.declare_publisher(f"{self.key_expr}").put(msg.model_dump_json())
-        print(f"Published {self.key_expr}: {msg}")
-
-    def __del__(self) -> None:
-        self.session.close()  # type: ignore
-
-
+key_expr = "disks"
 if __name__ == "__main__":
-    main = DiskSender()
+    msg = DisksMessage(
+        left=random.randint(0, 35),
+        right=random.randint(0, 35),
+    )
 
-    main.run()
+    print(f"Publishing : {key_expr}: {msg}")
+
+    with zenoh.open(zenoh.Config()) as session:
+        session.declare_publisher(key_expr).put(msg.model_dump_json())
