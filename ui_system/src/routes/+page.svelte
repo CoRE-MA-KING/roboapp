@@ -4,7 +4,6 @@
 	import ImageViewer from "$lib/components/ImageViewer.svelte";
 	import { cameraIdStore } from "$lib/store/cameraid.svelte";
 	import { leftDiskStore, rightDiskStore } from "$lib/store/disks.svelte";
-	import { max_disks } from "$lib/values/component_variable";
 	import { invoke } from "@tauri-apps/api/core";
 	import { getMatches } from "@tauri-apps/plugin-cli";
 	import { onMount } from "svelte";
