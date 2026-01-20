@@ -1,8 +1,6 @@
 name: Configurator Check
 on:
   pull_request:
-    branches:
-      - "main"
     paths:
       - "configurator/src/**"
       - ".github/workflows/configurator.yaml"

@@ -1,8 +1,6 @@
 name: Main Camera System Check
 on:
   pull_request:
-    branches:
-      - "main"
     paths:
       - "main_camera_system/src/**"
       - ".github/workflows/main_camera_system_check.yaml"

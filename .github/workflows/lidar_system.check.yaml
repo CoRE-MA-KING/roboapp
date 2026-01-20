@@ -1,8 +1,6 @@
 name: LiDAR System Check
 on:
   pull_request:
-    branches:
-      - "main"
     paths:
       - "lidar_system/**"
       - ".github/workflows/lidar_system_check.yaml"
