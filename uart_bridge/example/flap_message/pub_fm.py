@@ -5,7 +5,7 @@ import zenoh
 from uart_bridge.domain.transmitter_messages import FlapMessage
 
 
-class DiskSender:
+class FlapSender:
     key_expr = "flap"
 
     def __init__(self) -> None:
@@ -24,6 +24,6 @@ class DiskSender:
 
 
 if __name__ == "__main__":
-    main = DiskSender()
+    main = FlapSender()
 
     main.run()
