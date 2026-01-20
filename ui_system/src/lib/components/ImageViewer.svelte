@@ -76,15 +76,18 @@
 		xmlns="http://www.w3.org/2000/svg"
 		xmlns:xlink="http://www.w3.org/1999/xlink"
 	>
-		<rect
-			height={target_height}
-			width={target_width}
-			x={($damagePanelStore ? $damagePanelStore.target_x : image_width / 2) - target_width / 2}
-			y={($damagePanelStore ? $damagePanelStore.target_y : image_height / 2) - target_height / 2}
-			fill-opacity="0.0"
-			stroke="red"
-			stroke-width="10"
-		/>
+		<!-- Damage Panel -->
+		{#if $damagePanelStore}
+			<rect
+				height={target_height}
+				width={target_width}
+				x={$damagePanelStore.target_x - target_width / 2}
+				y={$damagePanelStore.target_y - target_height / 2}
+				fill-opacity="0.0"
+				stroke="red"
+				stroke-width="10"
+			/>
+		{/if}
 		<!-- Center Crosshair -->
 		<line
 			x1={image_width / 2 - crosshair_size / 2}
