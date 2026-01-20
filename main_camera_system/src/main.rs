@@ -131,14 +131,20 @@ async fn main() {
     tokio::spawn(async move {
         loop {
             if let Ok(sample) = subscriber.recv_async().await {
-                let msg: CameraSwitchMessage = sample
+                if let Some(msg) = sample
                     .payload()
                     .try_to_string()
                     .ok()
-                    .and_then(|s| serde_json::from_str(&s).ok())
-                    .unwrap();
-                let new_value: usize = msg.camera_id;
-                let _ = switch_tx.send(new_value);
+                    .and_then(|s| serde_json::from_str::<CameraSwitchMessage>(&s).ok())
+                {
+                    let new_value: usize = msg.camera_id;
+                    let _ = switch_tx.send(new_value);
+                } else {
+                    error!(
+                        "Failed to parse CameraSwitchMessage from payload: {:?}",
+                        sample.payload()
+                    );
+                }
             }
         }
     });
