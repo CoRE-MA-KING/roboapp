@@ -1,4 +1,6 @@
 import time
+from types import TracebackType
+from typing import Optional, Self, Type
 
 import zenoh
 
@@ -20,11 +22,21 @@ class CamSwitchReceiver:
         while True:
             time.sleep(1)
 
-    def __del__(self) -> None:
+    def __enter__(self) -> Self:
+        return self
+
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         self.session.close()  # type: ignore
 
 
 if __name__ == "__main__":
-    main = CamSwitchReceiver()
-
-    main.run()
+    with CamSwitchReceiver() as main:
+        try:
+            main.run()
+        except KeyboardInterrupt:
+            pass

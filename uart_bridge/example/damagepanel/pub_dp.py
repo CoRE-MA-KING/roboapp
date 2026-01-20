@@ -1,4 +1,4 @@
-import time
+import random
 from types import TracebackType
 from typing import Optional, Self, Type
 
@@ -7,25 +7,27 @@ import zenoh
 from uart_bridge.domain.transmitter_messages import DamagePanelRecognition
 
 
-class DamagePanelReceiver:
+class DamagePanelSender:
     key_expr = "damagepanel"
 
     def __init__(self) -> None:
         self.session = zenoh.open(zenoh.Config())
 
+    def run(self) -> None:
         # Subscribe to the robot command topic
 
-        self.session.declare_subscriber(
-            f"{self.key_expr}",
-            lambda sample: print(
-                "Received DamagePanelRecognition:"
-                + f" {DamagePanelRecognition.model_validate_json(sample.payload.to_string())}"  # noqa
-            ),
+        pub = self.session.declare_publisher(f"{self.key_expr}")
+
+        d = DamagePanelRecognition(
+            target_x=random.randint(0, 1280),
+            target_y=random.randint(0, 720),
+            target_distance=random.randint(0, 100),
         )
 
-    def run(self) -> None:
-        while True:
-            time.sleep(1)
+        print(type(d.model_dump_json()))
+
+        pub.put(d.model_dump_json())
+        print(f"Published DamagePanelRecognition: {d.model_dump()}")
 
     def __enter__(self) -> Self:
         return self
@@ -40,8 +42,5 @@ class DamagePanelReceiver:
 
 
 if __name__ == "__main__":
-    with DamagePanelReceiver() as main:
-        try:
-            main.run()
-        except KeyboardInterrupt:
-            pass
+    with DamagePanelSender() as main:
+        main.run()
