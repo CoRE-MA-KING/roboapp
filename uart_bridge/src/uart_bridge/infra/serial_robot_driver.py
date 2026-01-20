@@ -6,7 +6,12 @@ from typing import Any, Optional
 import serial
 
 from uart_bridge.application.interfaces import RobotDriver
-from uart_bridge.domain.messages import RobotCommand, RobotState, RobotStateId
+from uart_bridge.domain.messages import (
+    RobotCommand,
+    RobotFlags,
+    RobotState,
+    RobotStateId,
+)
 
 
 class SerialRobotDriver(RobotDriver):
@@ -94,14 +99,15 @@ class SerialRobotDriver(RobotDriver):
                     new_state = RobotState(
                         state_id=RobotStateId(int(parts[0])),
                         pitch_deg=float(parts[1]) / 10.0,
-                        muzzle_velocity=float(parts[2]) / 1000,
-                        reloaded_left_disks=int(parts[3]),
-                        reloaded_right_disks=int(parts[4]),
+                        yaw_deg=float(parts[2]) / 10,
+                        left_disks=int(parts[3]),
+                        right_disks=int(parts[4]),
                         video_id=int(parts[5]),
-                        target_panel=bool((int(parts[6]) >> 3) & 0b00000001),
-                        auto_aim=bool((int(parts[6]) >> 2) & 0b00000001),
-                        record_video=bool((int(parts[6]) >> 1) & 0b00000001),
-                        ready_to_fire=bool((int(parts[6]) >> 0) & 0b00000001),
+                        flags=RobotFlags(
+                            is_red=bool((int(parts[6]) >> 3) & 0b00000001),
+                            record_video=bool((int(parts[6]) >> 1) & 0b00000001),
+                            ready_to_fire=bool((int(parts[6]) >> 0) & 0b00000001),
+                        ),
                         reserved=int(parts[7]),
                     )
                     with self._state_lock:

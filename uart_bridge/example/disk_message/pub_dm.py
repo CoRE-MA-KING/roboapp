@@ -2,14 +2,13 @@ import random
 
 import zenoh
 
-from uart_bridge.domain.transmitter_messages import LiDARMessage
+from uart_bridge.domain.transmitter_messages import DisksMessage
 
-key_expr = "lidar/force_vector"
-
+key_expr = "disks"
 if __name__ == "__main__":
-    msg = LiDARMessage(
-        linear=random.uniform(0.0, 10.0),
-        angular=random.uniform(0.0, 360.0),
+    msg = DisksMessage(
+        left=random.randint(0, 35),
+        right=random.randint(0, 35),
     )
 
     print(f"Publishing : {key_expr}: {msg}")

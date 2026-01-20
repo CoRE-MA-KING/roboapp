@@ -1,8 +1,6 @@
 name: UART Bridge Check
 on:
   pull_request:
-    branches:
-      - "main"
     paths:
       - "uart_bridge/src/**"
       - ".github/workflows/uart_bridge_check.yaml"
@@ -34,4 +32,3 @@ jobs:
       - name: Run Tests
         run: |
           uv run task test
-

@@ -1,4 +1,6 @@
 <script lang="ts" module>
+	import { listen } from "@tauri-apps/api/event";
+
 	export type TextBoxProps = {
 		pre: string;
 		task_name: string;
@@ -7,8 +9,6 @@
 </script>
 
 <script lang="ts">
-	import { listen } from "@tauri-apps/api/event";
-
 	let { pre, task_name, post }: TextBoxProps = $props();
 
 	let value: string = $state("");
