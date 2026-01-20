@@ -1,6 +1,6 @@
 [tools]
 node = "22"
-"npm:pnpm" = "10"
+pnpm = "10"
 rust = "1.91"
 
 [tasks.deps_node]
