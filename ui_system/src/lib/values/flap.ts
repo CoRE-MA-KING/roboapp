@@ -1,4 +1,3 @@
-
 export const min_flap_pitch_degree = 0;
 export const max_flap_pitch_degree = 15;
 

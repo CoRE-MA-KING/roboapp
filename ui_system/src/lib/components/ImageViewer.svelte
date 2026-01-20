@@ -1,10 +1,20 @@
 <script module lang="ts">
+	import { yaw_to_pixel } from "$lib/functions/flap_calc";
 	import { damagePanelStore } from "$lib/store/damagepanel.svelte";
-	import { image_height, image_width, target_height, target_width } from "$lib/values/image";
+	import { flapMessageStore } from "$lib/store/flap.svelte";
+	import {
+		crosshair_size,
+		image_height,
+		image_width,
+		target_height,
+		target_width
+	} from "$lib/values/image";
 	import { onMount } from "svelte";
 </script>
 
 <script lang="ts">
+	import { pitch_to_pixel } from "$lib/functions/flap_calc";
+
 	export type ImageViewerProps = {
 		host: string | null;
 		port: string | null;
@@ -75,5 +85,37 @@
 			stroke="red"
 			stroke-width="10"
 		/>
+		<!-- Center Crosshair -->
+		<line
+			x1={image_width / 2 - crosshair_size / 2}
+			y1={image_height / 2}
+			x2={image_width / 2 + crosshair_size / 2}
+			y2={image_height / 2}
+			stroke="gray"
+		/>
+		<line
+			x1={image_width / 2}
+			y1={image_height / 2 - crosshair_size / 2}
+			x2={image_width / 2}
+			y2={image_height / 2 + crosshair_size / 2}
+			stroke="gray"
+		/>
+		<!-- Target Center Crosshair -->
+		{#if $flapMessageStore}
+			<line
+				x1={yaw_to_pixel($flapMessageStore.yaw) + image_width / 2 - crosshair_size / 2}
+				x2={yaw_to_pixel($flapMessageStore.yaw) + image_width / 2 + crosshair_size / 2}
+				y1={-pitch_to_pixel($flapMessageStore.pitch) + image_height / 2}
+				y2={-pitch_to_pixel($flapMessageStore.pitch) + image_height / 2}
+				stroke="red"
+			/>
+			<line
+				x1={yaw_to_pixel($flapMessageStore.yaw) + image_width / 2}
+				x2={yaw_to_pixel($flapMessageStore.yaw) + image_width / 2}
+				y1={-pitch_to_pixel($flapMessageStore.pitch) + image_height / 2 - crosshair_size / 2}
+				y2={-pitch_to_pixel($flapMessageStore.pitch) + image_height / 2 + crosshair_size / 2}
+				stroke="red"
+			/>
+		{/if}
 	</svg>
 </div>

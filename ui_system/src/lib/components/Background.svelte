@@ -56,7 +56,7 @@
 
 	$effect(() => {
 		let unlistenPromise = listen("flap", (event) => {
-			flapMessageStore.set(event.payload as FlapMessage);
+			flapMessageStore.set(JSON.parse(event.payload as string) as FlapMessage);
 		});
 		return () => {
 			unlistenPromise.then((unlisten) => unlisten());
