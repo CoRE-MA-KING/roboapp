@@ -17,11 +17,13 @@ class CamSwitchSender:
 
         self.session.declare_publisher(f"{self.key_expr}").put(msg.model_dump_json())
 
-    def __del__(self) -> None:
-        self.session.close()  # type: ignore
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.session.close()
 
 
 if __name__ == "__main__":
-    main = CamSwitchSender()
-
-    main.run()
+    with CamSwitchSender() as main:
+        main.run()

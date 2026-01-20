@@ -40,11 +40,13 @@ class StateReceiver:
         )
         self.session.declare_publisher(f"{self.key_expr}/reserved").put(f"{0}")
 
-    def __del__(self) -> None:
-        self.session.close()  # type: ignore
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.session.close()
 
 
 if __name__ == "__main__":
-    main = StateReceiver()
-
-    main.run()
+    with StateReceiver() as main:
+        main.run()

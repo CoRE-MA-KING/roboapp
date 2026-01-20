@@ -5,23 +5,36 @@ import zenoh
 from uart_bridge.domain.transmitter_messages import DamagePanelRecognition
 
 
-def main() -> None:
-    session = zenoh.open(zenoh.Config())
+class DamagePanelReceiver:
     key_expr = "damagepanel"
 
-    # Subscribe to the robot command topic
+    def __init__(self) -> None:
+        self.session = zenoh.open(zenoh.Config())
 
-    session.declare_subscriber(
-        f"{key_expr}",
-        lambda sample: print(
-            "Received DamagePanelRecognition:"
-            + f" {DamagePanelRecognition.model_validate_json(sample.payload.to_string())}"  # noqa
-        ),
-    )
+        # Subscribe to the robot command topic
 
-    while True:
-        time.sleep(1)
+        self.session.declare_subscriber(
+            f"{self.key_expr}",
+            lambda sample: print(
+                "Received DamagePanelRecognition:"
+                + f" {DamagePanelRecognition.model_validate_json(sample.payload.to_string())}"  # noqa
+            ),
+        )
+
+    def run(self) -> None:
+        while True:
+            time.sleep(1)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.session.close()
 
 
 if __name__ == "__main__":
-    main()
+    with DamagePanelReceiver() as main:
+        try:
+            main.run()
+        except KeyboardInterrupt:
+            pass

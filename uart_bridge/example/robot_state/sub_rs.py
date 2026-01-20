@@ -28,11 +28,16 @@ class StateReceiver:
         while True:
             time.sleep(1)
 
-    def __del__(self) -> None:
-        self.session.close()  # type: ignore
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.session.close()
 
 
 if __name__ == "__main__":
-    main = StateReceiver()
-
-    main.run()
+    with StateReceiver() as main:
+        try:
+            main.run()
+        except KeyboardInterrupt:
+            pass

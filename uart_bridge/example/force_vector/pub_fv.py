@@ -19,11 +19,13 @@ class LiDARReceiver:
         self.session.declare_publisher(f"{self.key_expr}").put(msg.model_dump_json())
         print(f"Published {self.key_expr}: {msg}")
 
-    def __del__(self) -> None:
-        self.session.close()  # type: ignore
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.session.close()
 
 
 if __name__ == "__main__":
-    main = LiDARReceiver()
-
-    main.run()
+    with LiDARReceiver() as main:
+        main.run()
