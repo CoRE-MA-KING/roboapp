@@ -13,8 +13,8 @@ class DiskSender:
 
     def run(self) -> None:
         msg = FlapMessage(
-            pitch=random.uniform(-45.0, 45.0),
-            yaw=random.uniform(-45.0, 45.0),
+            pitch=random.uniform(0.0, 15.0),
+            yaw=random.uniform(0.0, 40.0),
         )
         self.session.declare_publisher(f"{self.key_expr}").put(msg.model_dump_json())
         print(f"Published {self.key_expr}: {msg}")
