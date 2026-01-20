@@ -22,9 +22,11 @@ jobs:
       - uses: ./.github/actions/python
         with:
           workdir: ${{ env.WORKDIR }}
-      - name: Lint
+      - name: Type Check
         run: |
           uv run mypy . --strict
+      - name: Lint
+        run: |
           uv run ruff check .
       - name: Format
         run: |
