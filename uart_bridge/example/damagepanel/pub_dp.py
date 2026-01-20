@@ -1,4 +1,6 @@
 import random
+from types import TracebackType
+from typing import Optional, Self, Type
 
 import zenoh
 
@@ -27,11 +29,16 @@ class DamagePanelSender:
         pub.put(d.model_dump_json())
         print(f"Published DamagePanelRecognition: {d.model_dump()}")
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.session.close()
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
+        self.session.close()  # type: ignore
 
 
 if __name__ == "__main__":

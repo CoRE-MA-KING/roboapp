@@ -1,4 +1,6 @@
 import random
+from types import TracebackType
+from typing import Optional, Self, Type
 
 import zenoh
 
@@ -40,11 +42,16 @@ class StateReceiver:
         )
         self.session.declare_publisher(f"{self.key_expr}/reserved").put(f"{0}")
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.session.close()
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
+        self.session.close()  # type: ignore
 
 
 if __name__ == "__main__":
