@@ -1,4 +1,5 @@
 <script module lang="ts">
+	import { pitch_to_pixel } from "$lib/functions/flap_calc";
 	import { yaw_to_pixel } from "$lib/functions/flap_calc";
 	import { damagePanelStore } from "$lib/store/damagepanel.svelte";
 	import { flapMessageStore } from "$lib/store/flap.svelte";
@@ -13,8 +14,6 @@
 </script>
 
 <script lang="ts">
-	import { pitch_to_pixel } from "$lib/functions/flap_calc";
-
 	export type ImageViewerProps = {
 		host: string | null;
 		port: string | null;
