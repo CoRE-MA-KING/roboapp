@@ -1,1 +1,1 @@
-export const max_disks = 30;
+export const max_disks = 35;

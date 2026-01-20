@@ -13,8 +13,8 @@ class DiskSender:
 
     def run(self) -> None:
         msg = DisksMessage(
-            left=random.randint(0, 10),
-            right=random.randint(0, 10),
+            left=random.randint(0, 35),
+            right=random.randint(0, 35),
         )
         self.session.declare_publisher(f"{self.key_expr}").put(msg.model_dump_json())
         print(f"Published {self.key_expr}: {msg}")
