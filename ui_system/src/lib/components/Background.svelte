@@ -47,7 +47,7 @@
 
 	$effect(() => {
 		let unlistenPromise = listen("lidar/force_vector", (event) => {
-			lidarMessageStore.set(event.payload as LiDARMessage);
+			lidarMessageStore.set(JSON.parse(event.payload as string) as LiDARMessage);
 		});
 		return () => {
 			unlistenPromise.then((unlisten) => unlisten());
