@@ -26,3 +26,4 @@ runs:
       run: |
         cd "${{ inputs.workdir }}"
         cargo fetch
+        rustup component add clippy rustfmt
