@@ -15,16 +15,16 @@ class GlobalConfig(BaseModel):
 class LidarDevice(BaseModel):
     model_config = {"extra": "forbid"}
 
-    device: str | None = Field(None, description="LiDARのデバイスパス")
     backend: Literal["random", "rplidar"] = Field(
         "random", description="LiDARのバックエンド"
     )
-    x: int = Field(default=0, description="LiDARのX座標")
-    y: int = Field(default=0, description="LiDARのY座標")
-    rotate: int = Field(default=0, description="LiDARの取り付け角度")
+    device: str | None = Field(None, description="LiDARのデバイスパス")
     max_distance: int = Field(default=1000, gt=0, description="LiDARの最大距離")
     min_degree: int = Field(default=0, ge=0, le=360, description="LiDARの最小角度")
     max_degree: int = Field(default=360, ge=0, le=360, description="LiDARの最大角度")
+    x: int = Field(default=0, description="LiDARのX座標")
+    y: int = Field(default=0, description="LiDARのY座標")
+    rotate: int = Field(default=0, description="LiDARの取り付け角度")
 
     @model_validator(mode="after")
     def require_device_if_rplidar(self) -> Self:
@@ -35,6 +35,12 @@ class LidarDevice(BaseModel):
 
 class LidarConfig(BaseModel):
     model_config = {"extra": "forbid"}
+
+    robot_width: int = Field(default=800)
+    robot_length: int = Field(default=800)
+    repulsive_gain: float = Field(default=0.7)
+    influence_range: int = Field(default=200)
+    duration_seconds: int = Field(default=1)
 
     devices: dict[str, LidarDevice] = Field(..., description="LiDARデバイスの一覧")
 
