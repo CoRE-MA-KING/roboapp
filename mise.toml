@@ -15,6 +15,7 @@ task.monorepo_depth = 2
 
 [tools]
 markdownlint-cli2 = "latest"
+node = "lts"
 
 [tasks.configurator]
 description = "Run roboapp configurator"
