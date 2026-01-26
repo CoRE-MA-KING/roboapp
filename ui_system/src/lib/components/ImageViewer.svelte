@@ -84,7 +84,7 @@
 				y={$damagePanelStore.target_y - target_height / 2}
 				fill-opacity="0.0"
 				stroke="red"
-				stroke-width="10"
+				stroke-width="4"
 			/>
 		{/if}
 		<!-- Center Crosshair -->
@@ -94,6 +94,7 @@
 			x2={image_width / 2 + crosshair_size / 2}
 			y2={image_height / 2}
 			stroke="gray"
+				stroke-width="4"
 		/>
 		<line
 			x1={image_width / 2}
@@ -101,6 +102,7 @@
 			x2={image_width / 2}
 			y2={image_height / 2 + crosshair_size / 2}
 			stroke="gray"
+				stroke-width="4"
 		/>
 		<!-- Target Center Crosshair -->
 		{#if $flapMessageStore}
@@ -110,6 +112,7 @@
 				y1={-pitch_to_pixel($flapMessageStore.pitch) + image_height / 2}
 				y2={-pitch_to_pixel($flapMessageStore.pitch) + image_height / 2}
 				stroke="red"
+				stroke-width="8"
 			/>
 			<line
 				x1={yaw_to_pixel($flapMessageStore.yaw) + image_width / 2}
@@ -117,6 +120,7 @@
 				y1={-pitch_to_pixel($flapMessageStore.pitch) + image_height / 2 - crosshair_size / 2}
 				y2={-pitch_to_pixel($flapMessageStore.pitch) + image_height / 2 + crosshair_size / 2}
 				stroke="red"
+				stroke-width="8"
 			/>
 		{/if}
 	</svg>

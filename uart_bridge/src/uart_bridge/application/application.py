@@ -4,7 +4,7 @@ from uart_bridge.application.interfaces import (
     Transmitter,
 )
 from uart_bridge.domain.messages import RobotCommand, RobotState
-
+import time
 
 class Application(ApplicationInterface):
     """Implementation for the CoRE auto-pilot application.
@@ -21,11 +21,15 @@ class Application(ApplicationInterface):
         self._transmitter = transmitter
 
     def spin(self) -> None:
+        last_send_time = time.time()
         while True:
             # ロボットの状態取得
             robot_state: RobotState = self._robot_driver.get_robot_state()
 
-            self._transmitter.publish(robot_state)
+            if time.time() - last_send_time >= 0.1:
+                last_send_time = time.time()
+                # 状態を送信
+                self._transmitter.publish(robot_state)
 
             robot_command: RobotCommand = self._transmitter.subscribe()
 
