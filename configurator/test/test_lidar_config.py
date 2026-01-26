@@ -122,15 +122,15 @@ def test_lidar_config_repulsive_gain_raises_error(get_resource_path: Path) -> No
     assert "repulsive_gain" in extra_fields
 
 
-def test_lidar_device_config_random_rotate_success(get_resource_path: Path) -> None:
-    """rotateパラメータの指定が正常に読み込めることの確認"""
-    config_file = get_resource_path / "lidar_device_config_random_rotate.toml"
+def test_lidar_device_config_random_rotation_success(get_resource_path: Path) -> None:
+    """rotationパラメータの指定が正常に読み込めることの確認"""
+    config_file = get_resource_path / "lidar_device_config_random_rotation.toml"
     with open(config_file, "rb") as f:
         config = Config.model_validate(tomllib.load(f))
 
     assert config.lidar is not None
     dev = config.lidar.devices["random"]
-    assert dev.rotate == 45
+    assert dev.rotation == 45
 
 
 def test_lidar_config_valid_dict() -> None:
