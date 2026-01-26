@@ -1,11 +1,13 @@
 import zenoh
 
 from uart_bridge.application.interfaces import Transmitter
-from uart_bridge.domain.messages import (
+from uart_bridge.domain.messages import RobotCommand, RobotState
+from uart_bridge.domain.transmitter_messages import (
+    CameraSwitchMessage,
     DamagePanelRecognition,
+    DisksMessage,
+    FlapMessage,
     LiDARMessage,
-    RobotCommand,
-    RobotState,
 )
 
 
@@ -25,46 +27,42 @@ class ZenohTransmitter(Transmitter):
         self.robot_command = RobotCommand()
         self.robot_state = RobotState()
 
-        for key in RobotState.model_fields.keys():
-            self.publishers[key] = self.zenoh_session.declare_publisher(
-                f"{prefix}robot/state/{key}"
-            )
+        self.publishers["cam/switch"] = self.zenoh_session.declare_publisher(
+            f"{prefix}cam/switch"
+        )
+
+        self.publishers["disks"] = self.zenoh_session.declare_publisher(
+            f"{prefix}disks"
+        )
+
+        self.publishers["flap"] = self.zenoh_session.declare_publisher(f"{prefix}flap")
 
         self.zenoh_session.declare_subscriber(
             f"{prefix}lidar/force_vector",
             self.lidar_subscriber,
         )
 
-        self.zenoh_session.declare_subscriber(
-            f"{prefix}robot/state/request",
-            self._subscriber_callback_request,
-        )
-
-        self.zenoh_session.declare_subscriber(
-            "damagepanel",
-            self.recognition_damagepanel_subscriber,
-        )
-
     def publish(self, robot_state: RobotState, force: bool = False) -> None:
         """Transmit data to the specified topic."""
-        for key in RobotState.model_fields.keys():
-            value = getattr(robot_state, key)
+        self.publishers["cam/switch"].put(
+            CameraSwitchMessage(
+                camera_id=robot_state.video_id,
+            ).model_dump_json()
+        )
 
-            if not force and value == getattr(self.robot_state, key):
-                continue
+        self.publishers["disks"].put(
+            DisksMessage(
+                left=robot_state.left_disks, right=robot_state.right_disks
+            ).model_dump_json()
+        )
 
-            setattr(self.robot_state, key, value)
+        self.publishers["flap"].put(
+            FlapMessage(
+                pitch=robot_state.pitch_deg, yaw=robot_state.yaw_deg
+            ).model_dump_json()
+        )
 
-            if key == "state_id":
-                value = value.value
-            elif key == "pitch_deg":
-                value = value / 10
-            elif key == "muzzle_velocity":
-                value = value / 1000
-            self.publishers[key].put(f"{value}")
-            print(f"Published {key}: {value}")
-
-    def recognition_damagepanel_subscriber(self, sample: zenoh.Sample) -> None:
+    def damagepanel_subscriber(self, sample: zenoh.Sample) -> None:
         d = DamagePanelRecognition.model_validate_json(sample.payload.to_string())
 
         self.robot_command.target_x = d.target_x
@@ -78,9 +76,6 @@ class ZenohTransmitter(Transmitter):
 
     def subscribe(self) -> RobotCommand:
         return self.robot_command
-
-    def _subscriber_callback_request(self, sample: zenoh.Sample) -> None:
-        self.publish(self.robot_state, force=True)
 
     def close(self) -> None:
         """Close the Zenoh session."""

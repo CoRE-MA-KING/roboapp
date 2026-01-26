@@ -1,7 +1,7 @@
 [tools]
 node = "22"
-"npm:pnpm" = "10"
-rust = "1.91"
+pnpm = "10"
+rust = { version = "1.91", components="rust-analyzer"}
 
 [tasks.deps_node]
 description = "Install Node.js dependencies"
@@ -12,7 +12,7 @@ outputs = { auto = true }
 [tasks.deps_rust]
 description = "Install Rust dependencies"
 dir = "src-tauri"
-run = ["cargo fetch", "rustup component add clippy rustfmt"]
+run = ["cargo fetch"]
 sources = [
     "src-tauri/Cargo.toml",
     "src-tauri/Cargo.lock",
@@ -40,7 +40,7 @@ sources = [
     "src-tauri/tauri.conf.json",
     "src-tauri/icons/**",
 ]
-outputs = { auto = true }
+outputs = ["./src-tauri/target/release/ui_system"]
 
 [tasks.lint_node]
 depends = ["deps_node"]

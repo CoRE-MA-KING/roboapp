@@ -1,8 +1,6 @@
 name: UI System Check
 on:
   pull_request:
-    branches:
-      - "main"
     paths:
       - "ui_system/src/**"
       - "ui_system/src-tauri/**"
@@ -56,4 +54,3 @@ jobs:
       - name: Lint
         run: |
           pnpm lint
-

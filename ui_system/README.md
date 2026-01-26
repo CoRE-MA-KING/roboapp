@@ -3,6 +3,7 @@
 ## 環境構築
 
 1. 依存関係のインストール
+
    - ```bash
 
       eval "$(mise activate)"

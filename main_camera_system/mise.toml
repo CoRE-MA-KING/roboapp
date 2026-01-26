@@ -1,9 +1,9 @@
 [tools]
-rust = "1.91"
+rust = { version = "1.91", components="rust-analyzer" }
 
 [tasks.deps]
 description = "Install dependency"
-run = ["cargo fetch", "rustup component add clippy rustfmt"]
+run = ["cargo fetch"]
 sources = [
     "Cargo.toml",
     "Cargo.lock",
@@ -19,7 +19,7 @@ sources = [
     "Cargo.lock",
     "src/**",
 ]
-outputs = { auto = true }
+outputs = ["./target/release/main-camera-system"]
 
 
 [tasks.lint]

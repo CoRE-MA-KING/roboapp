@@ -6,8 +6,8 @@ description = "Install dependency"
 run = "uv sync"
 alias = "build"
 sources = [
-    "pyproject.toml",
-    "uv.lock",
+  "pyproject.toml",
+  "uv.lock",
 ]
 outputs = { auto = true }
 

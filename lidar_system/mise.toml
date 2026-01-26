@@ -1,16 +1,23 @@
-[vars]
-target = './include ./src -regex ".*\.\(c\|h\|cpp\|hpp\)"'
+[tools]
+just = "latest"
 
 [tasks.deps]
 description = "Generate Build Files"
-run = "cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release"
+run = "just deps"
 sources = ["CMakeLists.txt", "src/**", "include/**"]
-outputs = ["build/"]
+outputs = ["./build/build.ninja", "./build/compile_commands.json"]
 
 [tasks.build]
 depends = ["deps"]
 description = "Build Application"
-run = "cmake --build build --config Release"
+run = "just build"
+sources = [
+  "./build/build.ninja",
+  "./build/compile_commands.json",
+  "include/**",
+  "src/**"
+]
+outputs = ["./build/processor", "./build/sender", "./build/viewer"]
 
 [tasks.lint]
 description = "Run linter"
@@ -19,19 +26,19 @@ run = [{ tasks = ["clang_tidy", "format_check"] }]
 [tasks.clang_tidy]
 depends = ["deps"]
 description = "Run clang-tidy"
-run = ["find {{ vars.target }} -exec clang-tidy -p ./build {} +"]
+run = "just clang-tidy"
 
 [tasks.format_check]
 depends = ["deps"]
 description = "Check Formatter"
-run = "find {{ vars.target }} -exec clang-format --Werror --dry-run {} +;"
+run = "just format-check"
 
 [tasks.format]
 depends = ["deps"]
 description = "Run Formatter"
-run = "find {{ vars.target }} -exec clang-format -i {} +;"
+run = "just format"
 
 [tasks.test]
 depends = ["build"]
 description = "Run Tests"
-run = "ctest --test-dir build --output-on-failure"
+run = "just test"

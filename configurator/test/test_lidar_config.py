@@ -72,65 +72,15 @@ def test_lidar_device_config_rplidar_with_no_device_raises_error(
     assert "RPLIDAR backend requires a device path" in str(excinfo.value)
 
 
-def test_lidar_config_extra_field_raises_error(get_resource_path: Path) -> None:
-    """未定義のフィールドがあるためエラー"""
-    config_file = get_resource_path / "lidar_config_robot_length.toml"
-    with open(config_file, "rb") as f:
-        with pytest.raises(ValidationError) as excinfo:
-            Config.model_validate(tomllib.load(f))
-
-    errors = excinfo.value.errors()
-    # extra_forbidden エラーを確認
-    # LidarConfigに robot_length というフィールドはないのでエラーになるはず
-    extra_fields = {e["loc"][-1] for e in errors if e["type"] == "extra_forbidden"}
-    assert "robot_length" in extra_fields
-
-
-def test_lidar_config_robot_width_raises_error(get_resource_path: Path) -> None:
-    """robot_widthフィールドは未定義のためエラー"""
-    config_file = get_resource_path / "lidar_config_robot_width.toml"
-    with open(config_file, "rb") as f:
-        with pytest.raises(ValidationError) as excinfo:
-            Config.model_validate(tomllib.load(f))
-
-    errors = excinfo.value.errors()
-    extra_fields = {e["loc"][-1] for e in errors if e["type"] == "extra_forbidden"}
-    assert "robot_width" in extra_fields
-
-
-def test_lidar_config_influence_range_raises_error(get_resource_path: Path) -> None:
-    """influence_rangeフィールドは未定義のためエラー"""
-    config_file = get_resource_path / "lidar_config_influence_range.toml"
-    with open(config_file, "rb") as f:
-        with pytest.raises(ValidationError) as excinfo:
-            Config.model_validate(tomllib.load(f))
-
-    errors = excinfo.value.errors()
-    extra_fields = {e["loc"][-1] for e in errors if e["type"] == "extra_forbidden"}
-    assert "influence_range" in extra_fields
-
-
-def test_lidar_config_repulsive_gain_raises_error(get_resource_path: Path) -> None:
-    """repulsive_gainフィールドは未定義のためエラー"""
-    config_file = get_resource_path / "lidar_config_repulsive_gain.toml"
-    with open(config_file, "rb") as f:
-        with pytest.raises(ValidationError) as excinfo:
-            Config.model_validate(tomllib.load(f))
-
-    errors = excinfo.value.errors()
-    extra_fields = {e["loc"][-1] for e in errors if e["type"] == "extra_forbidden"}
-    assert "repulsive_gain" in extra_fields
-
-
-def test_lidar_device_config_random_rotate_success(get_resource_path: Path) -> None:
-    """rotateパラメータの指定が正常に読み込めることの確認"""
-    config_file = get_resource_path / "lidar_device_config_random_rotate.toml"
+def test_lidar_device_config_random_rotation_success(get_resource_path: Path) -> None:
+    """rotationパラメータの指定が正常に読み込めることの確認"""
+    config_file = get_resource_path / "lidar_device_config_random_rotation.toml"
     with open(config_file, "rb") as f:
         config = Config.model_validate(tomllib.load(f))
 
     assert config.lidar is not None
     dev = config.lidar.devices["random"]
-    assert dev.rotate == 45
+    assert dev.rotation == 45
 
 
 def test_lidar_config_valid_dict() -> None:
@@ -154,3 +104,76 @@ def test_lidar_config_valid_dict() -> None:
     assert config.lidar is not None
     assert config.lidar.devices["front"].device == "/dev/ttyUSB0"
     assert config.lidar.devices["front"].x == 100
+
+
+def test_lidar_config_robot_width(get_resource_path: Path) -> None:
+    """robot_widthパラメータのテスト"""
+    config_file = get_resource_path / "lidar_config_robot_width.toml"
+    with open(config_file, "rb") as f:
+        config = Config.model_validate(tomllib.load(f))
+
+    assert config.lidar is not None
+    assert config.lidar.robot_width == 1200
+
+
+def test_lidar_config_robot_length(get_resource_path: Path) -> None:
+    """robot_lengthパラメータのテスト"""
+    config_file = get_resource_path / "lidar_config_robot_length.toml"
+    with open(config_file, "rb") as f:
+        config = Config.model_validate(tomllib.load(f))
+
+    assert config.lidar is not None
+    assert config.lidar.robot_length == 1200
+
+
+def test_lidar_config_repulsive_gain(get_resource_path: Path) -> None:
+    """repulsive_gainパラメータのテスト"""
+    config_file = get_resource_path / "lidar_config_repulsive_gain.toml"
+    with open(config_file, "rb") as f:
+        config = Config.model_validate(tomllib.load(f))
+
+    assert config.lidar is not None
+    assert config.lidar.repulsive_gain == 1.2
+
+
+def test_lidar_config_influence_range(get_resource_path: Path) -> None:
+    """influence_rangeパラメータのテスト"""
+    config_file = get_resource_path / "lidar_config_influence_range.toml"
+    with open(config_file, "rb") as f:
+        config = Config.model_validate(tomllib.load(f))
+
+    assert config.lidar is not None
+    assert config.lidar.influence_range == 1200
+
+
+def test_lidar_device_constraints() -> None:
+    """LiDARデバイスの設定値の境界値テスト"""
+    # max_distance <= 0 はエラー
+    with pytest.raises(ValidationError):
+        Config.model_validate(
+            {"lidar": {"devices": {"test": {"backend": "random", "max_distance": 0}}}}
+        )
+
+    # min_degree < 0 はエラー
+    with pytest.raises(ValidationError):
+        Config.model_validate(
+            {"lidar": {"devices": {"test": {"backend": "random", "min_degree": -1}}}}
+        )
+
+    # min_degree > 360 はエラー
+    with pytest.raises(ValidationError):
+        Config.model_validate(
+            {"lidar": {"devices": {"test": {"backend": "random", "min_degree": 361}}}}
+        )
+
+    # max_degree < 0 はエラー
+    with pytest.raises(ValidationError):
+        Config.model_validate(
+            {"lidar": {"devices": {"test": {"backend": "random", "max_degree": -1}}}}
+        )
+
+    # max_degree > 360 はエラー
+    with pytest.raises(ValidationError):
+        Config.model_validate(
+            {"lidar": {"devices": {"test": {"backend": "random", "max_degree": 361}}}}
+        )
