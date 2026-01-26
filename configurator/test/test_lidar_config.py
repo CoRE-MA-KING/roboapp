@@ -72,8 +72,6 @@ def test_lidar_device_config_rplidar_with_no_device_raises_error(
     assert "RPLIDAR backend requires a device path" in str(excinfo.value)
 
 
-
-
 def test_lidar_device_config_random_rotation_success(get_resource_path: Path) -> None:
     """rotationパラメータの指定が正常に読み込めることの確認"""
     config_file = get_resource_path / "lidar_device_config_random_rotation.toml"
@@ -152,50 +150,30 @@ def test_lidar_device_constraints() -> None:
     """LiDARデバイスの設定値の境界値テスト"""
     # max_distance <= 0 はエラー
     with pytest.raises(ValidationError):
-        Config.model_validate({
-            "lidar": {
-                "devices": {
-                    "test": {"backend": "random", "max_distance": 0}
-                }
-            }
-        })
+        Config.model_validate(
+            {"lidar": {"devices": {"test": {"backend": "random", "max_distance": 0}}}}
+        )
 
     # min_degree < 0 はエラー
     with pytest.raises(ValidationError):
-        Config.model_validate({
-            "lidar": {
-                "devices": {
-                    "test": {"backend": "random", "min_degree": -1}
-                }
-            }
-        })
+        Config.model_validate(
+            {"lidar": {"devices": {"test": {"backend": "random", "min_degree": -1}}}}
+        )
 
     # min_degree > 360 はエラー
     with pytest.raises(ValidationError):
-        Config.model_validate({
-            "lidar": {
-                "devices": {
-                    "test": {"backend": "random", "min_degree": 361}
-                }
-            }
-        })
+        Config.model_validate(
+            {"lidar": {"devices": {"test": {"backend": "random", "min_degree": 361}}}}
+        )
 
     # max_degree < 0 はエラー
     with pytest.raises(ValidationError):
-        Config.model_validate({
-            "lidar": {
-                "devices": {
-                    "test": {"backend": "random", "max_degree": -1}
-                }
-            }
-        })
+        Config.model_validate(
+            {"lidar": {"devices": {"test": {"backend": "random", "max_degree": -1}}}}
+        )
 
     # max_degree > 360 はエラー
     with pytest.raises(ValidationError):
-        Config.model_validate({
-            "lidar": {
-                "devices": {
-                    "test": {"backend": "random", "max_degree": 361}
-                }
-            }
-        })
+        Config.model_validate(
+            {"lidar": {"devices": {"test": {"backend": "random", "max_degree": 361}}}}
+        )
