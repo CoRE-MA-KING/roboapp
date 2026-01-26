@@ -24,7 +24,7 @@ class LidarDevice(BaseModel):
     max_degree: int = Field(default=360, ge=0, le=360, description="LiDARの最大角度")
     x: int = Field(default=0, description="LiDARのX座標")
     y: int = Field(default=0, description="LiDARのY座標")
-    rotate: int = Field(default=0, description="LiDARの取り付け角度")
+    rotation: int = Field(default=0, description="LiDARの取り付け角度")
 
     @model_validator(mode="after")
     def require_device_if_rplidar(self) -> Self:
