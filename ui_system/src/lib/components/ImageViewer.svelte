@@ -94,7 +94,7 @@
 			x2={image_width / 2 + crosshair_size / 2}
 			y2={image_height / 2}
 			stroke="gray"
-				stroke-width="4"
+			stroke-width="4"
 		/>
 		<line
 			x1={image_width / 2}
@@ -102,7 +102,7 @@
 			x2={image_width / 2}
 			y2={image_height / 2 + crosshair_size / 2}
 			stroke="gray"
-				stroke-width="4"
+			stroke-width="4"
 		/>
 		<!-- Target Center Crosshair -->
 		{#if $flapMessageStore}

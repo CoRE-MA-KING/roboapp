@@ -1,10 +1,12 @@
+import time
+
 from uart_bridge.application.interfaces import (
     ApplicationInterface,
     RobotDriver,
     Transmitter,
 )
 from uart_bridge.domain.messages import RobotCommand, RobotState
-import time
+
 
 class Application(ApplicationInterface):
     """Implementation for the CoRE auto-pilot application.
