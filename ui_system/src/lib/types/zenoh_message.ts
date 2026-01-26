@@ -19,8 +19,12 @@ export type FlapMessage = {
 	yaw: number;
 };
 
+export type Position = {
+	x: number;
+	y: number;
+};
+
 export type DamagePanelMessage = {
-	target_x: number;
-	target_y: number;
-	target_distance: number;
+	position: Position | null;
+	distance: number;
 };
