@@ -2,15 +2,11 @@ import random
 
 import zenoh
 
-from uart_bridge.domain.transmitter_messages import DamagePanelRecognition, Position
+from uart_bridge.domain.transmitter_messages import DamagePanelRecognition
 
 key_expr = "damagepanel"
 if __name__ == "__main__":
     msg = DamagePanelRecognition(
-        position=Position(
-            x=random.randint(0, 1280),
-            y=random.randint(0, 720),
-        ),
         distance=random.randint(0, 100),
     )
 
