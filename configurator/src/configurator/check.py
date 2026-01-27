@@ -7,11 +7,9 @@ from pathlib import Path
 from configurator.config import Config
 
 
-def get_default_config_path() -> Path:
+def get_default_config_path(target: str = "config.toml") -> Path:
     return (
-        Path(os.getenv("XDG_CONFIG_HOME", Path.home() / ".config"))
-        / "roboapp"
-        / "config.toml"
+        Path(os.getenv("XDG_CONFIG_HOME", Path.home() / ".config")) / "roboapp" / target
     )
 
 
