@@ -13,4 +13,4 @@ jobs:
           workdir: .
       - name: Install Dependencies
         run: |
-          mise //:githubactionlint
+          mise //:action_lint
