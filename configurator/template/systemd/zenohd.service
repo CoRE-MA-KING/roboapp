@@ -1,0 +1,18 @@
+[Unit]
+Description = Eclipse Zenoh Router
+Documentation=https://zenoh.io/docs/getting-started/key-concepts/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+Environment="RUST_LOG=info" "ZENOH_HOME=/var/zenohd"
+ExecStart = /usr/bin/zenohd -c /etc/zenohd/zenohd.json5
+KillMode=mixed
+KillSignal=SIGINT
+RestartKillSignal=SIGINT
+Restart=on-failure
+SyslogIdentifier=zenohd
+[Install]
+WantedBy=multi-user.target
+
