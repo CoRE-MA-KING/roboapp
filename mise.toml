@@ -14,14 +14,24 @@ experimental = true
 task.monorepo_depth = 2
 
 [tools]
+actionlint = "latest"
 markdownlint-cli2 = "latest"
 node = "lts"
+yamlfmt = "latest"
 
 [tasks.configurator]
 description = "Run roboapp configurator"
 depends = [
   "//configurator:configurator",
 ]
+
+[tasks.action_lint]
+description = "Lint GitHub Actions workflow files"
+run = ["yamlfmt -lint .github", "actionlint"]
+
+[tasks.action_format]
+description = "Format GitHub Actions workflow files"
+run = "yamlfmt .github"
 
 [tasks.mdlint]
 description = "Run markdownlint-cli2 linter"
@@ -50,6 +60,7 @@ depends = [
   "//ui_system:lint",
   "//lidar_system:lint",
   "//:mdlint",
+  "//:action_lint",
 ]
 
 [tasks.format]
@@ -61,6 +72,7 @@ depends = [
   "//ui_system:format",
   "//lidar_system:format",
   "//:mdformat",
+  "//:action_format",
 ]
 
 [tasks.test]

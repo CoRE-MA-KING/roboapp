@@ -1,11 +1,9 @@
 name: Setup
 description: "Setup mise dependencies"
-
 inputs:
   workdir:
     description: "Working directory"
     required: true
-
 runs:
   using: "composite"
   steps:
