@@ -30,8 +30,8 @@ description = "Lint GitHub Actions workflow files"
 run = ["yamlfmt -lint .github", "actionlint"]
 
 [tasks.action_format]
-description = "Run actionlint formatter"
-run = ["yamlfmt .github", "actionlint"]
+description = "Format GitHub Actions workflow files"
+run = "yamlfmt .github"
 
 [tasks.mdlint]
 description = "Run markdownlint-cli2 linter"
