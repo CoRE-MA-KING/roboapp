@@ -1,5 +1,7 @@
 [Unit]
 Description=Roboapp UART Bridge
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 WorkingDirectory={{APP_FOLDER}}/uart_bridge

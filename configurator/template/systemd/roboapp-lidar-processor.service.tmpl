@@ -1,5 +1,7 @@
 [Unit]
 Description=Roboapp LiDAR Processor
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 ExecStart={{APP_FOLDER}}/lidar_system/build/processor
