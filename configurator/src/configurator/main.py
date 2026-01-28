@@ -40,8 +40,8 @@ if __name__ == "__main__":
             check(Path(target))
         case "install":
             shutil.copy2(
-                Path(__file__).parents[2] / "template" / "config.json5",
-                get_default_config_path("config.json5"),
+                Path(__file__).parents[2] / "template" / "zenoh.json5",
+                get_default_config_path("zenoh.json5"),
             )
             place_systemd()
         case "start":
