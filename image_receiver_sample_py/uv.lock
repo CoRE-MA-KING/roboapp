@@ -35,7 +35,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "eclipse-zenoh", specifier = ">=1.4.0" },
+    { name = "eclipse-zenoh", specifier = ">=1.6.2" },
     { name = "opencv-python", specifier = ">=4.10" },
 ]
 
