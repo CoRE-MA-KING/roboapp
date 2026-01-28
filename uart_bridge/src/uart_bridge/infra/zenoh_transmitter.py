@@ -1,6 +1,7 @@
 import zenoh
 
 from uart_bridge.application.interfaces import Transmitter
+from uart_bridge.domain.config import get_config_path
 from uart_bridge.domain.messages import RobotCommand, RobotState
 from uart_bridge.domain.transmitter_messages import (
     CameraSwitchMessage,
@@ -15,7 +16,9 @@ class ZenohTransmitter(Transmitter):
     """Transmits data using Zenoh protocol."""
 
     def __init__(self, prefix: str = "") -> None:
-        self.zenoh_session = zenoh.open(zenoh.Config())
+        self.zenoh_session = zenoh.open(
+            zenoh.Config.from_file(get_config_path() / "zenoh.json5")
+        )
 
         if prefix:
             prefix = prefix.rstrip("/") + "/"
