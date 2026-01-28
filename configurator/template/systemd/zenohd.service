@@ -7,12 +7,15 @@ Wants=network-online.target
 [Service]
 Type=simple
 Environment="RUST_LOG=info" "ZENOH_HOME=/var/zenohd"
-ExecStart = /usr/bin/zenohd -c /etc/zenohd/zenohd.json5
+ExecStart = /usr/bin/zenohd
+ExecStop=/bin/kill ${MAINPID}
 KillMode=mixed
 KillSignal=SIGINT
 RestartKillSignal=SIGINT
-Restart=on-failure
+Restart=always
+RestartSec=3
 SyslogIdentifier=zenohd
+
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
 
