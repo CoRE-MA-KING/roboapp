@@ -1,5 +1,7 @@
 [Unit]
 Description=Roboapp Main Camera System
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 ExecStart={{APP_FOLDER}}/main_camera_system/target/release/main-camera-system
