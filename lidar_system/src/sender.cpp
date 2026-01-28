@@ -62,10 +62,10 @@ int main(int argc, char* argv[]) {
     prefix += "/";
   }
 
-  auto config = zenoh::Config::create_default();
-  config.insert_json5(Z_CONFIG_ADD_TIMESTAMP_KEY, "true");
+  auto zenoh_config =
+      zenoh::Config::from_file((get_default_path() / "zenoh.json5").string());
 
-  auto session = zenoh::Session(std::move(config));
+  auto session = zenoh::Session(std::move(zenoh_config));
   auto publisher = session.declare_publisher(  //
       zenoh::KeyExpr(prefix + "lidar/data"));
 

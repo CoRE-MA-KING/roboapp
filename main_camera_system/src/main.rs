@@ -2,7 +2,7 @@ use clap::Parser;
 use futures_util::{SinkExt, StreamExt};
 use log::{debug, error, info};
 use main_camera_system::camera_wrapper::create_camera_stream;
-use main_camera_system::config::load_config;
+use main_camera_system::config::{get_config_path, load_config};
 use main_camera_system::messages::CameraSwitchMessage;
 use std::env;
 use std::path::PathBuf;
@@ -52,10 +52,8 @@ async fn main() {
 
     // Initialize Zenoh client
 
-    let mut zenoh_config = zenoh::config::Config::default();
-    zenoh_config
-        .insert_json5("timestamping/enabled", "true")
-        .unwrap();
+    let zenoh_config =
+        zenoh::config::Config::from_file(get_config_path().join("zenoh.json5")).unwrap();
 
     let zenoh = zenoh::open(zenoh_config).await.unwrap();
 

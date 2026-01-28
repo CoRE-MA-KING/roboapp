@@ -53,8 +53,8 @@ int main(int argc, char **argv) {
     prefix += "/";
   }
 
-  auto zenoh_config = zenoh::Config::create_default();
-  zenoh_config.insert_json5(Z_CONFIG_ADD_TIMESTAMP_KEY, "true");
+  auto zenoh_config =
+      zenoh::Config::from_file((get_default_path() / "zenoh.json5").string());
 
   auto session = zenoh::Session(std::move(zenoh_config));
   session.declare_background_subscriber(      //
