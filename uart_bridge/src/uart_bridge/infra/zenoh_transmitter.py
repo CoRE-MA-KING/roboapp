@@ -26,9 +26,7 @@ class ZenohTransmitter(Transmitter):
             "cam/switch"
         )
 
-        self.publishers["disks"] = self.zenoh_session.declare_publisher(
-            "disks"
-        )
+        self.publishers["disks"] = self.zenoh_session.declare_publisher("disks")
 
         self.publishers["flap"] = self.zenoh_session.declare_publisher("flap")
 
