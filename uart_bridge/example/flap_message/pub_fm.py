@@ -1,8 +1,7 @@
 import random
 
-import zenoh
-
 from uart_bridge.domain.transmitter_messages import FlapMessage
+from uart_bridge.infra.zenoh_transmitter import create_zenoh_session
 
 key_expr = "flap"
 if __name__ == "__main__":
@@ -13,5 +12,5 @@ if __name__ == "__main__":
 
     print(f"Publishing : {key_expr}: {msg}")
 
-    with zenoh.open(zenoh.Config()) as session:
+    with create_zenoh_session() as session:
         session.declare_publisher(key_expr).put(msg.model_dump_json())
