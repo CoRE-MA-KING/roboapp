@@ -70,8 +70,8 @@ int main(int argc, char **argv) {
       },
       zenoh::closures::none);
 
-  session.declare_background_subscriber(          //
-      zenoh::KeyExpr("lidar/force_vector"),       //
+  session.declare_background_subscriber(     //
+      zenoh::KeyExpr("lidar/force_vector"),  //
       [&vec, &updated](const zenoh::Sample &sample) {
         auto timestamp = ntp64_to_timepoint(sample.get_timestamp()->get_time());
 
