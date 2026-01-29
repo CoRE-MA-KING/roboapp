@@ -53,7 +53,7 @@ async fn main() {
     // Initialize Zenoh client
 
     let zenoh_config =
-        zenoh::config::Config::from_file(get_config_path().join("zenoh.json5")).unwrap();
+        zenoh::config::Config::from_file(get_config_path().join("zenoh.json5")).expect("Failed to load zenoh.json5 configuration file.");
 
     let zenoh = zenoh::open(zenoh_config).await.unwrap();
 
