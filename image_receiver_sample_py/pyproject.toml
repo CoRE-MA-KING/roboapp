@@ -8,7 +8,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "eclipse-zenoh>=1.6.2",
+    "eclipse-zenoh==1.6.2",
     "opencv-python>=4.10",
 ]
 
