@@ -12,13 +12,15 @@ from uart_bridge.domain.transmitter_messages import (
 )
 
 
+def create_zenoh_session() -> zenoh.Session:
+    return zenoh.open(zenoh.Config.from_file(get_config_path() / "zenoh.json5"))
+
+
 class ZenohTransmitter(Transmitter):
     """Transmits data using Zenoh protocol."""
 
     def __init__(self, prefix: str = "") -> None:
-        self.zenoh_session = zenoh.open(
-            zenoh.Config.from_file(get_config_path() / "zenoh.json5")
-        )
+        self.zenoh_session = create_zenoh_session()
 
         if prefix:
             prefix = prefix.rstrip("/") + "/"
