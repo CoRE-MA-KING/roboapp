@@ -68,11 +68,7 @@ pub fn run() {
         .expect("error while running tauri application");
 }
 
-async fn declare_and_emit(
-    session: &zenoh::Session,
-    app: Arc<AppHandle>,
-    event_name: &str,
-) {
+async fn declare_and_emit(session: &zenoh::Session, app: Arc<AppHandle>, event_name: &str) {
     let event_name_cloned = event_name.to_string();
     session
         .declare_subscriber(event_name)
@@ -116,12 +112,7 @@ async fn zenoh_sub(app: AppHandle) {
     declare_and_emit(&session, Arc::clone(&app), "damagepanel").await;
     declare_and_emit(&session, Arc::clone(&app), "disks").await;
     declare_and_emit(&session, Arc::clone(&app), "flap").await;
-    declare_and_emit(
-        &session,
-        Arc::clone(&app),
-        "lidar/force_vector",
-    )
-    .await;
+    declare_and_emit(&session, Arc::clone(&app), "lidar/force_vector").await;
 
     loop {
         tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
