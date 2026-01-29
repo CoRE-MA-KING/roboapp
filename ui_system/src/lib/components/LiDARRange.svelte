@@ -28,7 +28,6 @@
 				(near_distance - Math.min(message.distance, near_distance)) / near_distance
 			);
 		}
-		console.log(dvs);
 	});
 </script>
 
@@ -42,8 +41,8 @@
 	>
 		<defs>
 			<linearGradient id="Gradient1">
-				{#each dvs as [degree, value]}
-					<stop offset="{degree * 100}%" style="stop-color: rgb({255 * value}, 0,0)" />
+				{#each dvs as [degree, value] (degree)}
+					<stop offset="{degree * 100}%" style="stop-color: rgb(255,0,0); stop-opacity: {value};" />
 				{/each}
 			</linearGradient>
 		</defs>
