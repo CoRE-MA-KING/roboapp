@@ -17,7 +17,7 @@ def get_service_template() -> tuple[list[Path], Path]:
             prefix / "roboapp-main-camera-system.service.tmpl",
             prefix / "roboapp-uart-bridge.service.tmpl",
             prefix / "roboapp-ui-system.service.tmpl",
-            prefix / "zenohd.service.tmpl",
+            prefix / "roboapp-zenohd.service.tmpl",
         ],
         prefix / "roboapp-lidar-sender.service.tmpl",
     )
@@ -34,7 +34,6 @@ def get_service() -> list[str]:
         f.stem.replace(".service", "")
         for f in get_service_folder().glob("roboapp-*.service")
     ]
-    ret.append("zenohd")
 
     return ret
 
