@@ -57,17 +57,12 @@ int main(int argc, char* argv[]) {
   }
 
   // Zenoh Setup
-  auto prefix = global_config.zenoh_prefix;
-  if (!prefix.empty() && prefix.back() != '/') {
-    prefix += "/";
-  }
-
   auto config = zenoh::Config::create_default();
   config.insert_json5(Z_CONFIG_ADD_TIMESTAMP_KEY, "true");
 
   auto session = zenoh::Session(std::move(config));
   auto publisher = session.declare_publisher(  //
-      zenoh::KeyExpr(prefix + "lidar/data"));
+      zenoh::KeyExpr("lidar/data"));
 
   auto data = LiDARDataWrapper(lidar_config.x, lidar_config.y);
 

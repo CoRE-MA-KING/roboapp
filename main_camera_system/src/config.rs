@@ -24,15 +24,12 @@ fn parse_configpath(path: Option<PathBuf>) -> PathBuf {
 pub struct GlobalConfig {
     #[serde(default = "GlobalConfig::default_websocket_port")]
     pub websocket_port: u16,
-    #[serde(default = "GlobalConfig::default_zenoh_prefix")]
-    pub zenoh_prefix: String,
 }
 
 impl Default for GlobalConfig {
     fn default() -> Self {
         Self {
             websocket_port: Self::default_websocket_port(),
-            zenoh_prefix: Self::default_zenoh_prefix(),
         }
     }
 }
@@ -40,9 +37,6 @@ impl Default for GlobalConfig {
 impl GlobalConfig {
     fn default_websocket_port() -> u16 {
         8080
-    }
-    fn default_zenoh_prefix() -> String {
-        "".to_string()
     }
 }
 

@@ -2,7 +2,6 @@
 
 [global]
 websocket_port = 8080
-zenoh_prefix = ""
 
 [gui]
 # WebSocketのホスト
