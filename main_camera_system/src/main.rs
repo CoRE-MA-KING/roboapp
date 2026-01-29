@@ -67,10 +67,7 @@ async fn main() {
         None
     };
 
-    let subscriber = zenoh
-        .declare_subscriber("cam/switch")
-        .await
-        .unwrap();
+    let subscriber = zenoh.declare_subscriber("cam/switch").await.unwrap();
 
     // WebSocket配信を有効化する場合のみサーバーを起動
     type WsClients = Arc<Mutex<Vec<tokio::sync::mpsc::UnboundedSender<Vec<u8>>>>>;
