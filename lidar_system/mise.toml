@@ -4,7 +4,7 @@ just = "latest"
 [tasks.deps]
 description = "Generate Build Files"
 run = "just deps"
-sources = ["CMakeLists.txt", "src/**", "include/**"]
+sources = ["CMakeLists.txt", "src/**/*.cpp", "include/**/*/hpp"]
 outputs = ["./build/build.ninja", "./build/compile_commands.json"]
 
 [tasks.build]
@@ -14,8 +14,8 @@ run = "just build"
 sources = [
   "./build/build.ninja",
   "./build/compile_commands.json",
-  "include/**",
-  "src/**"
+  "include/**/*.hpp",
+  "src/**/*.cpp"
 ]
 outputs = ["./build/processor", "./build/sender", "./build/viewer"]
 

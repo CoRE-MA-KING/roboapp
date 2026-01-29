@@ -106,10 +106,9 @@ int main(int argc, char **argv) {
       // ロボット用に回転方向を反転
       vec.angular = std::fmod(360.f - vec.angular, 360);
       vec_publisher.put(vec.dump());
-      std::cout << vec.dump() << std::endl;
 
       // Rangeを出力
-      auto dist = rangeSeparater(data, 4, lidar_config_all.influence_range);
+      auto dist = rangeSeparater(data, 32, lidar_config_all.influence_range);
       range_publisher.put(dist.dump());
     }
 
