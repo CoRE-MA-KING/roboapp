@@ -123,13 +123,7 @@ async fn zenoh_sub(app: AppHandle, prefix: String) {
     declare_and_emit(&session, Arc::clone(&app), &prefix_slash, "damagepanel").await;
     declare_and_emit(&session, Arc::clone(&app), &prefix_slash, "disks").await;
     declare_and_emit(&session, Arc::clone(&app), &prefix_slash, "flap").await;
-    declare_and_emit(
-        &session,
-        Arc::clone(&app),
-        &prefix_slash,
-        "lidar/force_vector",
-    )
-    .await;
+    declare_and_emit(&session, Arc::clone(&app), &prefix_slash, "lidar/range").await;
 
     loop {
         tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
