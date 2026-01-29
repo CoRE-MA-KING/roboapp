@@ -9,8 +9,8 @@
 
 #include "collision_avoidance/collision_avoidance.hpp"
 #include "config.hpp"
+#include "visualizer/range_separater.hpp"
 #include "zenoh.hxx"
-
 DEFINE_string(
     c, "", "config file path: Default `$XDG_CONFIG_DIR/roboapp/config.toml`");
 
@@ -77,6 +77,8 @@ int main(int argc, char **argv) {
 
   auto vec_publisher =
       session.declare_publisher(zenoh::KeyExpr(prefix + "lidar/force_vector"));
+  auto range_publisher =
+      session.declare_publisher(zenoh::KeyExpr(prefix + "lidar/range"));
 
   while (true) {
     auto now = std::chrono::system_clock::now();
@@ -99,14 +101,16 @@ int main(int argc, char **argv) {
         data.insert(data.end(), p.begin(), p.end());
       }
 
+      // Vectorを出力
       auto vec = collision_avoidance.calcRepulsiveForce(data);
-
       // ロボット用に回転方向を反転
       vec.angular = std::fmod(360.f - vec.angular, 360);
-
       vec_publisher.put(vec.dump());
-
       std::cout << vec.dump() << std::endl;
+
+      // Rangeを出力
+      auto dist = rangeSeparater(data, 4, lidar_config_all.influence_range);
+      range_publisher.put(dist.dump());
     }
 
     updated = false;

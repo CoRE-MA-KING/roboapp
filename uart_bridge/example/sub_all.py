@@ -4,6 +4,7 @@ import zenoh
 
 key_expr = (
     "lidar/force_vector",
+    "lidar/range",
     "cam/switch",
     "damagepanel",
     "flap",

@@ -7,6 +7,7 @@
 #include <opencv2/core.hpp>
 #include <vector>
 
+// std::map<float degree, float distance>
 using LiDARData = std::map<float, float>;
 
 class LiDARDataWrapper {
