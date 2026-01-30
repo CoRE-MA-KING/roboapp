@@ -19,13 +19,8 @@ def create_zenoh_session() -> zenoh.Session:
 class ZenohTransmitter(Transmitter):
     """Transmits data using Zenoh protocol."""
 
-    def __init__(self, prefix: str = "") -> None:
+    def __init__(self) -> None:
         self.zenoh_session = create_zenoh_session()
-
-        if prefix:
-            prefix = prefix.rstrip("/") + "/"
-        else:
-            prefix = ""
 
         self.publishers = {}
 
@@ -33,17 +28,15 @@ class ZenohTransmitter(Transmitter):
         self.robot_state = RobotState()
 
         self.publishers["cam/switch"] = self.zenoh_session.declare_publisher(
-            f"{prefix}cam/switch"
+            "cam/switch"
         )
 
-        self.publishers["disks"] = self.zenoh_session.declare_publisher(
-            f"{prefix}disks"
-        )
+        self.publishers["disks"] = self.zenoh_session.declare_publisher("disks")
 
-        self.publishers["flap"] = self.zenoh_session.declare_publisher(f"{prefix}flap")
+        self.publishers["flap"] = self.zenoh_session.declare_publisher("flap")
 
         self.zenoh_session.declare_subscriber(
-            f"{prefix}lidar/force_vector",
+            "lidar/force_vector",
             self.lidar_subscriber,
         )
 

@@ -48,17 +48,12 @@ int main(int argc, char **argv) {
       lidar_config_all.repulsive_gain, lidar_config_all.influence_range);
 
   // Zenoh Setup
-  auto prefix = global_config.zenoh_prefix;
-  if (!prefix.empty() && prefix.back() != '/') {
-    prefix += "/";
-  }
-
   auto zenoh_config =
       zenoh::Config::from_file((get_default_path() / "zenoh.json5").string());
 
   auto session = zenoh::Session(std::move(zenoh_config));
-  session.declare_background_subscriber(      //
-      zenoh::KeyExpr(prefix + "lidar/data"),  //
+  session.declare_background_subscriber(  //
+      zenoh::KeyExpr("lidar/data"),       //
       [&timestamps, &updated](const zenoh::Sample &sample) {
         auto timestamp = ntp64_to_timepoint(sample.get_timestamp()->get_time());
 
@@ -76,7 +71,7 @@ int main(int argc, char **argv) {
       zenoh::closures::none);
 
   auto vec_publisher =
-      session.declare_publisher(zenoh::KeyExpr(prefix + "lidar/force_vector"));
+      session.declare_publisher(zenoh::KeyExpr("lidar/force_vector"));
 
   while (true) {
     auto now = std::chrono::system_clock::now();

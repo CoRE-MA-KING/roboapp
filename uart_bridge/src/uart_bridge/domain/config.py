@@ -7,7 +7,6 @@ from pydantic import BaseModel, Field, field_validator
 
 
 class GlobalConfig(BaseModel):
-    zenoh_prefix: str = Field(default="", description="Zenoh Prefix")
     websocket_port: int = Field(default=8080, description="WebSocket Port")
 
 

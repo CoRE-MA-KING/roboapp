@@ -52,29 +52,20 @@ async fn main() {
 
     // Initialize Zenoh client
 
-    let zenoh_config =
-        zenoh::config::Config::from_file(get_config_path().join("zenoh.json5")).expect("Failed to load zenoh.json5 configuration file.");
+    let zenoh_config = zenoh::config::Config::from_file(get_config_path().join("zenoh.json5"))
+        .expect("Failed to load zenoh.json5 configuration file.");
 
     let zenoh = zenoh::open(zenoh_config).await.unwrap();
 
-    let prefix: String = if global_config.zenoh_prefix.is_empty() {
-        "".to_string()
-    } else {
-        format!("{}/", global_config.zenoh_prefix)
-    };
-
     let jpg_publisher: Option<zenoh::pubsub::Publisher> = if camera_config.zenoh {
-        let topic_name = format!("{prefix}cam/jpg");
+        let topic_name = "cam/jpg";
         info!("JPEG publishing enabled at {topic_name}");
         Some(zenoh.declare_publisher(topic_name).await.unwrap())
     } else {
         None
     };
 
-    let subscriber = zenoh
-        .declare_subscriber(format!("{}cam/switch", prefix))
-        .await
-        .unwrap();
+    let subscriber = zenoh.declare_subscriber("cam/switch").await.unwrap();
 
     // WebSocket配信を有効化する場合のみサーバーを起動
     type WsClients = Arc<Mutex<Vec<tokio::sync::mpsc::UnboundedSender<Vec<u8>>>>>;
