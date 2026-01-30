@@ -6,9 +6,8 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-Environment="RUST_LOG=info" "ZENOH_HOME=/var/zenohd"
+Environment="RUST_LOG=info" "ZENOH_HOME=%h/.local/share/zenohd"
 ExecStart = /usr/bin/zenohd
-ExecStop=/bin/kill ${MAINPID}
 KillMode=mixed
 KillSignal=SIGINT
 RestartKillSignal=SIGINT
