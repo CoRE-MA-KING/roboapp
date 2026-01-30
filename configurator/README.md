@@ -84,7 +84,7 @@ LiDAR システムの設定です。
 
 カメラシステムの設定です。
 
-- `websocket`: WebSocket 配信の有効化 (デフォルト: `false`)
+- `websocket`: WebSocket 配信の有効化 (デフォルト: `true`)
 - `zenoh`: Zenoh 配信の有効化 (デフォルト: `false`)
 
 **デバイス設定 (`[[camera.devices]]`)**

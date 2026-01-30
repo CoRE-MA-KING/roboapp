@@ -106,3 +106,4 @@ def test_camera_config_device_width(get_resource_path: Path) -> None:
     assert config.camera.devices[0].device == "/dev/video0"
     assert config.camera.devices[0].width == 640
     assert config.camera.devices[0].height == 720  # default
+    assert config.camera.websocket  # default is True
