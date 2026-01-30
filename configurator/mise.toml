@@ -1,5 +1,6 @@
 [tools]
 uv = "0.9"
+prettier = "latest"
 
 [tasks.deps]
 description = "Install dependency"
@@ -11,15 +12,34 @@ sources = [
 ]
 outputs = { auto = true }
 
-[tasks.lint]
+
+[tasks.lint_python]
 depends = ["deps"]
-description = "Run linter"
+description = "Run Python linter"
 run = ["uv run task lint", "uv run task check"]
 
-[tasks.format]
+[tasks.lint_json5]
 depends = ["deps"]
+description = "Run JSON5 linter"
+run = ["prettier --check '**/*.json5'"]
+
+[tasks.lint]
+depends = ["lint_json5", "lint_python"]
+description = "Run linter"
+
+[tasks.format_python]
+depends = ["deps"]
+description = "Run Python Formatter"
+run = ["uv run task format"]
+
+[tasks.format_json5]
+depends = ["deps"]
+description = "Run JSON5 Formatter"
+run = ["prettier --write '**/*.json5'"]
+
+[tasks.format]
+depends = ["format_python", "format_json5"]
 description = "Run Formatter"
-run = "uv run task format"
 
 [tasks.test]
 depends = ["deps"]
