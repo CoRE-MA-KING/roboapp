@@ -52,7 +52,8 @@ async fn main() {
 
     // Initialize Zenoh client
 
-    let zenoh_config = match zenoh::config::Config::from_file(get_config_path().join("zenoh.json5")) {
+    let zenoh_config = match zenoh::config::Config::from_file(get_config_path().join("zenoh.json5"))
+    {
         Ok(config) => config,
         Err(e) => {
             error!(
