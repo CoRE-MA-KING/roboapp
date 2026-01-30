@@ -104,7 +104,13 @@ fn get_config_port(global_config: State<'_, Mutex<config::GlobalConfig>>) -> Res
 async fn zenoh_sub(app: AppHandle) {
     zenoh::init_log_from_env_or("error");
 
-    let session = zenoh_client::create_zenoh_session();
+    let session = match zenoh_client::create_zenoh_session() {
+        Ok(session) => session,
+        Err(e) => {
+            eprintln!("Failed to create Zenoh session: {}", e);
+            return;
+        }
+    };
 
     let app = Arc::new(app);
 

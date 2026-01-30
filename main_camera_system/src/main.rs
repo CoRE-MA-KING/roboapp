@@ -52,10 +52,27 @@ async fn main() {
 
     // Initialize Zenoh client
 
-    let zenoh_config = zenoh::config::Config::from_file(get_config_path().join("zenoh.json5"))
-        .expect("Failed to load zenoh.json5 configuration file.");
+    let zenoh_config = match zenoh::config::Config::from_file(get_config_path().join("zenoh.json5")) {
+        Ok(config) => config,
+        Err(e) => {
+            error!(
+                "Failed to load zenoh.json5 configuration file: {}. Please ensure it exists or run the configurator.",
+                e
+            );
+            std::process::exit(1);
+        }
+    };
 
-    let zenoh = zenoh::open(zenoh_config).await.unwrap();
+    let zenoh = match zenoh::open(zenoh_config).await {
+        Ok(session) => session,
+        Err(e) => {
+            error!(
+                "Failed to open Zenoh session: {}. Please check if zenohd is running.",
+                e
+            );
+            std::process::exit(1);
+        }
+    };
 
     let jpg_publisher: Option<zenoh::pubsub::Publisher> = if camera_config.zenoh {
         let topic_name = "cam/jpg";
