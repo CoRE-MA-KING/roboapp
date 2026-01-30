@@ -1,7 +1,7 @@
 from copy import deepcopy
 from threading import Lock, Thread
 from time import sleep
-from typing import Any, Optional
+from typing import Any
 
 import serial
 
@@ -36,7 +36,7 @@ class SerialRobotDriver(RobotDriver):
         self._parity = parity
         self._stopbits = stopbits
         self._timeout = timeout
-        self._serial: Optional[serial.Serial] = None
+        self._serial: serial.Serial | None = None
         self._open_serial_port()
 
         # 初期ロボット状態（排他制御用ロック付き）
