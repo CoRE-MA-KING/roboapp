@@ -27,13 +27,11 @@ dev = [
     "types-pyserial>=3.5.0.20250326",
 ]
 
+[tool.mypy]
+strict = true
+
 [tool.ruff.lint]
-select = [
-    "E",
-    "F",
-    "I",
-    "W",
-]
+extend-select = ["I", "TC", "UP", "W"]
 
 [tool.taskipy.tasks]
 check = "mypy . --strict"

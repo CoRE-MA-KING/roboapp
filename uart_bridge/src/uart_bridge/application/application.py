@@ -1,9 +1,13 @@
+from typing import TYPE_CHECKING
+
 from uart_bridge.application.interfaces import (
     ApplicationInterface,
     RobotDriver,
     Transmitter,
 )
-from uart_bridge.domain.messages import RobotCommand, RobotState
+
+if TYPE_CHECKING:
+    from uart_bridge.domain.messages import RobotCommand, RobotState
 
 
 class Application(ApplicationInterface):
