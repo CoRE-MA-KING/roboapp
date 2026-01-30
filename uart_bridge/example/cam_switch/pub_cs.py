@@ -1,4 +1,7 @@
+import argparse
+import datetime
 import random
+import time
 
 import zenoh
 
@@ -7,9 +10,23 @@ from uart_bridge.domain.transmitter_messages import CameraSwitchMessage
 key_expr = "cam/switch"
 
 if __name__ == "__main__":
-    msg = CameraSwitchMessage(camera_id=random.randint(0, 2))
-
-    print(f"Publishing : {key_expr}: {msg}")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--hz", type=float, help="Publishing frequency in Hz")
+    args = parser.parse_args()
 
     with zenoh.open(zenoh.Config()) as session:
-        session.declare_publisher(key_expr).put(msg.model_dump_json())
+        pub = session.declare_publisher(key_expr)
+
+        while True:
+            msg = CameraSwitchMessage(camera_id=random.randint(0, 2))
+
+            print(
+                f"[{datetime.datetime.now().strftime('%H:%M:%S.%f')[:-3]}] Publishing : {key_expr}: {msg}"
+            )
+
+            pub.put(msg.model_dump_json())
+
+            if args.hz is None:
+                break
+
+            time.sleep(1.0 / args.hz)
