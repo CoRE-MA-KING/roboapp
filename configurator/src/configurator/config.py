@@ -57,7 +57,7 @@ class CameraConfig(BaseModel):
 
     devices: list[CameraDevice] = Field(..., description="カメラデバイスの一覧")
     zenoh: bool = Field(default=False, description="Zenohの使用有無")
-    websocket: bool = Field(default=False, description="WebSocketの使用有無")
+    websocket: bool = Field(default=True, description="WebSocketの使用有無")
 
 
 class GUIConfig(BaseModel):
