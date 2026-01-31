@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Sequence
 from copy import deepcopy
 from threading import Lock
@@ -56,7 +57,7 @@ class SerialRobotDriver(RobotDriver):
                 timeout=self._timeout,
             )
         except serial.SerialException as err:
-            print(err)
+            logging.error("Failed to open serial port: %s", err)
             self._serial = None
 
     def raw_to_RobotState(self, data: Sequence[str]) -> RobotState:
