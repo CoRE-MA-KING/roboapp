@@ -4,12 +4,15 @@
 	import { leftDiskStore, rightDiskStore } from "$lib/store/disks.svelte";
 	import { flapMessageStore } from "$lib/store/flap.svelte";
 	import { lidarMessageStore } from "$lib/store/lidar.svelte";
+	import { robotStatusStore } from "$lib/store/robotstatus.svelte";
+	import { RobotStatus } from "$lib/types/robot_status";
 	import type {
 		CameraSwitchMessage,
 		DamagePanelMessage,
 		DisksMessage,
 		FlapMessage,
-		LiDARMessage
+		LiDARMessage,
+		RobotStateMessage
 	} from "$lib/types/zenoh_message";
 	import { listen } from "@tauri-apps/api/event";
 </script>
@@ -57,6 +60,20 @@
 	$effect(() => {
 		let unlistenPromise = listen("flap", (event) => {
 			flapMessageStore.set(JSON.parse(event.payload as string) as FlapMessage);
+		});
+		return () => {
+			unlistenPromise.then((unlisten) => unlisten());
+		};
+	});
+
+	$effect(() => {
+		let unlistenPromise = listen("robotstate", (event) => {
+			let msg = JSON.parse(event.payload as string) as RobotStateMessage;
+			if (msg.state in RobotStatus) {
+				robotStatusStore.set(msg);
+			} else {
+				robotStatusStore.set(null);
+			}
 		});
 		return () => {
 			unlistenPromise.then((unlisten) => unlisten());

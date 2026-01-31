@@ -113,6 +113,7 @@ async fn zenoh_sub(app: AppHandle) {
     declare_and_emit(&session, Arc::clone(&app), "disks").await;
     declare_and_emit(&session, Arc::clone(&app), "flap").await;
     declare_and_emit(&session, Arc::clone(&app), "lidar/force_vector").await;
+    declare_and_emit(&session, Arc::clone(&app), "robotstate").await;
 
     loop {
         tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
