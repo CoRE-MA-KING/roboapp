@@ -1,6 +1,5 @@
 from collections.abc import Sequence
-from concurrent.futures import ProcessPoolExecutor
-from multiprocessing import Manager
+from concurrent.futures import ThreadPoolExecutor
 from threading import Lock
 
 from uart_bridge.application.interfaces import (
@@ -21,7 +20,7 @@ def _run_driver(
 
 class Application(ApplicationInterface):
     """Implementation for the CoRE auto-pilot application.
-    ProcessPoolExecutorを使って並列化
+    ThreadPoolExecutorを使って並列化
     """
 
     def __init__(
@@ -33,23 +32,22 @@ class Application(ApplicationInterface):
     def spin(self) -> None:
         shm = SharedRobotData(create=True)
         try:
-            with Manager() as manager:
-                state_lock = manager.Lock()
-                command_lock = manager.Lock()
+            state_lock = Lock()
+            command_lock = Lock()
 
-                with ProcessPoolExecutor(max_workers=len(self.drivers)) as executor:
-                    processes = [
-                        executor.submit(
-                            _run_driver, driver, shm.name, command_lock, state_lock
-                        )
-                        for driver in self.drivers
-                    ]
-                    try:
-                        for process in processes:
-                            process.result()
-                    except KeyboardInterrupt:
-                        print("Stopping application...")
-                        executor.shutdown(wait=False, cancel_futures=True)
+            with ThreadPoolExecutor(max_workers=len(self.drivers)) as executor:
+                futures = [
+                    executor.submit(
+                        _run_driver, driver, shm.name, command_lock, state_lock
+                    )
+                    for driver in self.drivers
+                ]
+                try:
+                    for future in futures:
+                        future.result()
+                except KeyboardInterrupt:
+                    print("Stopping application...")
+                    executor.shutdown(wait=False, cancel_futures=True)
         finally:
             shm.close()
             shm.unlink()
