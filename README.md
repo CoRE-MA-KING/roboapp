@@ -45,6 +45,10 @@ uv run python3 src/configurator/check.py
 
 - main camera system で出力した画像を受信するサンプルです
 
+### lidar_system
+
+- LiDARを用いて、障害物回避のための力ベクトルを算出します
+
 ### ui_system
 
 - データをUIに描画し、GUIで表示します
