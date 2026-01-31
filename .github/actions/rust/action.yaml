@@ -13,3 +13,9 @@ runs:
       uses: Swatinem/rust-cache@v2
       with:
         workspaces: ${{ inputs.workdir }}
+    - name: Install Dependencies
+      shell: bash
+      run: |
+        cd "${{ inputs.workdir }}"
+        cargo fetch
+        rustup component add clippy rustfmt
