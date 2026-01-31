@@ -71,9 +71,9 @@ int main(int argc, char **argv) {
       zenoh::closures::none);
 
   auto vec_publisher =
-      session.declare_publisher(zenoh::KeyExpr(prefix + "lidar/force_vector"));
+      session.declare_publisher(zenoh::KeyExpr("lidar/force_vector"));
   auto range_publisher =
-      session.declare_publisher(zenoh::KeyExpr(prefix + "lidar/range"));
+      session.declare_publisher(zenoh::KeyExpr("lidar/range"));
 
   while (true) {
     auto now = std::chrono::system_clock::now();

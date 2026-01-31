@@ -39,8 +39,6 @@
 
 ```toml
 [global]
-# Zenoh の Key Expression のプレフィックス
-zenoh_prefix = "roboapp"
 # WebSocket のポート番号
 websocket_port = 8080
 
