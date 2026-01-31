@@ -22,7 +22,7 @@
 		<p
 			class:text-red-600={$robotStatusStore.color === "red"}
 			class:text-blue-600={$robotStatusStore.color === "blue"}
-			class="backdrop-blur bw-white/60 {classes}"
+			class="backdrop-blur bg-white/60 {classes}"
 			style="-webkit-text-stroke: {stroke_width}px {stroke_color}; text-stroke: {stroke_width}px {stroke_color};"
 		>
 			{RobotStatus[$robotStatusStore.state]}
