@@ -15,7 +15,7 @@
 <script lang="ts">
 	let { id, classes, num, width, height, stroke = 5 }: RobotStatusProps = $props();
 
-	let step = (height - stroke / 2) / max_disks;
+	let step = $derived((height - stroke / 2) / max_disks);
 </script>
 
 <main {id} class={classes}>

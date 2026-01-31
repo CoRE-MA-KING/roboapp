@@ -2,7 +2,7 @@ name: Main Camera System Check
 on:
   pull_request:
     paths:
-      - "main_camera_system/src/**"
+      - "main_camera_system/**"
       - ".github/workflows/main_camera_system_check.yaml"
 env:
   CARGO_TERM_COLOR: always

@@ -2,8 +2,7 @@ name: UI System Check
 on:
   pull_request:
     paths:
-      - "ui_system/src/**"
-      - "ui_system/src-tauri/**"
+      - "ui_system/**"
       - ".github/workflows/ui_system_check.yaml"
 env:
   CARGO_TERM_COLOR: always
