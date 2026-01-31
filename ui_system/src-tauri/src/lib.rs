@@ -52,7 +52,6 @@ pub fn run() {
             let mut global_config_lock = state_global_config.lock().unwrap();
             let mut gui_config_lock = state_gui_config.lock().unwrap();
 
-            global_config_lock.zenoh_prefix = global_config.zenoh_prefix.clone();
             global_config_lock.websocket_port = global_config.websocket_port;
 
             gui_config_lock.host = gui_config.host.clone();
@@ -60,7 +59,7 @@ pub fn run() {
             let app_handle = app.app_handle().clone();
 
             tauri::async_runtime::spawn(async move {
-                zenoh_sub(app_handle, global_config.zenoh_prefix).await;
+                zenoh_sub(app_handle).await;
             });
 
             Ok(())
@@ -69,15 +68,10 @@ pub fn run() {
         .expect("error while running tauri application");
 }
 
-async fn declare_and_emit(
-    session: &zenoh::Session,
-    app: Arc<AppHandle>,
-    prefix: &str,
-    event_name: &str,
-) {
+async fn declare_and_emit(session: &zenoh::Session, app: Arc<AppHandle>, event_name: &str) {
     let event_name_cloned = event_name.to_string();
     session
-        .declare_subscriber(format!("{prefix}{event_name}"))
+        .declare_subscriber(event_name)
         .callback_mut(move |sample| {
             app.emit(
                 &event_name_cloned,
@@ -107,23 +101,18 @@ fn get_config_port(global_config: State<'_, Mutex<config::GlobalConfig>>) -> Res
     Ok(global_config.lock().unwrap().websocket_port)
 }
 
-async fn zenoh_sub(app: AppHandle, prefix: String) {
+async fn zenoh_sub(app: AppHandle) {
     zenoh::init_log_from_env_or("error");
 
     let session = zenoh_client::create_zenoh_session();
 
     let app = Arc::new(app);
 
-    let prefix_slash = if prefix.is_empty() {
-        "".to_string()
-    } else {
-        format!("{prefix}/")
-    };
-    declare_and_emit(&session, Arc::clone(&app), &prefix_slash, "cam/switch").await;
-    declare_and_emit(&session, Arc::clone(&app), &prefix_slash, "damagepanel").await;
-    declare_and_emit(&session, Arc::clone(&app), &prefix_slash, "disks").await;
-    declare_and_emit(&session, Arc::clone(&app), &prefix_slash, "flap").await;
-    declare_and_emit(&session, Arc::clone(&app), &prefix_slash, "lidar/range").await;
+    declare_and_emit(&session, Arc::clone(&app), "cam/switch").await;
+    declare_and_emit(&session, Arc::clone(&app), "damagepanel").await;
+    declare_and_emit(&session, Arc::clone(&app), "disks").await;
+    declare_and_emit(&session, Arc::clone(&app), "flap").await;
+    declare_and_emit(&session, Arc::clone(&app), "lidar/force_vector").await;
 
     loop {
         tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;

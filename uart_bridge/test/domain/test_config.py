@@ -17,7 +17,6 @@ def test_read_empty_global_config(get_resource_path: Path) -> None:
     config_file = get_resource_path / "empty.toml"
     c = load_and_parse_config(config_file).global_
 
-    assert c.zenoh_prefix == ""
     assert c.websocket_port == 8080
 
 
@@ -33,17 +32,7 @@ def test_read_global_config_websocket_port(get_resource_path: Path) -> None:
 
     c = load_and_parse_config(config_file).global_
 
-    assert c.zenoh_prefix == ""
     assert c.websocket_port == 9090
-
-
-def test_read_global_config_zenoh_prefix(get_resource_path: Path) -> None:
-    config_file = get_resource_path / "global_config_zenoh_prefix.toml"
-
-    c = load_and_parse_config(config_file).global_
-
-    assert c.zenoh_prefix == "roboapp"
-    assert c.websocket_port == 8080
 
 
 def test_read_uart_config_with_not_exist(get_resource_path: Path) -> None:

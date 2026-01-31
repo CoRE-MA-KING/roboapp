@@ -2,12 +2,13 @@ name: UI System Check
 on:
   pull_request:
     paths:
-      - "ui_system/src/**"
-      - "ui_system/src-tauri/**"
+      - "ui_system/**"
       - ".github/workflows/ui_system_check.yaml"
 env:
   CARGO_TERM_COLOR: always
   WORKDIR: ui_system
+  SCCACHE_GHA_ENABLED: "true"
+  RUSTC_WRAPPER: "sccache"
 jobs:
   UI_System_Check_Rust:
     runs-on: ubuntu-latest
@@ -16,6 +17,8 @@ jobs:
         working-directory: ${{ env.WORKDIR }}/src-tauri
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       - uses: ./.github/actions/mise
         with:
           workdir: ${{ env.WORKDIR }}

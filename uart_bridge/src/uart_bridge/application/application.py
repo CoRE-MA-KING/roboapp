@@ -1,38 +1,53 @@
-import time
+from collections.abc import Sequence
+from concurrent.futures import ThreadPoolExecutor
+from threading import Lock
 
 from uart_bridge.application.interfaces import (
     ApplicationInterface,
-    RobotDriver,
-    Transmitter,
+    RoboappBridgeDriver,
 )
-from uart_bridge.domain.messages import RobotCommand, RobotState
+from uart_bridge.domain.shared_memory import SharedRobotData
+
+
+def _run_driver(
+    robot_driver: RoboappBridgeDriver,
+    shm_name: str,
+    command_lock: Lock,
+    state_lock: Lock,
+) -> None:
+    robot_driver.spin(shm_name, command_lock, state_lock)
 
 
 class Application(ApplicationInterface):
     """Implementation for the CoRE auto-pilot application.
-    トラッキング対象物体の中心ピクセル座標を画面に表示するだけ。
-    奥行き情報(深度)・3次元変換は不要。
+    ThreadPoolExecutorを使って並列化
     """
 
     def __init__(
         self,
-        robot_driver: RobotDriver,
-        transmitter: Transmitter,
-    ):
-        self._robot_driver = robot_driver
-        self._transmitter = transmitter
+        drivers: Sequence[RoboappBridgeDriver],
+    ) -> None:
+        self.drivers = drivers
 
     def spin(self) -> None:
-        last_send_time = time.time()
-        while True:
-            # ロボットの状態取得
-            robot_state: RobotState = self._robot_driver.get_robot_state()
+        shm = SharedRobotData(create=True)
+        try:
+            state_lock = Lock()
+            command_lock = Lock()
 
-            if time.time() - last_send_time >= 0.1:
-                last_send_time = time.time()
-                # 状態を送信
-                self._transmitter.publish(robot_state)
-
-            robot_command: RobotCommand = self._transmitter.subscribe()
-
-            self._robot_driver.set_send_values(robot_command)
+            with ThreadPoolExecutor(max_workers=len(self.drivers)) as executor:
+                futures = [
+                    executor.submit(
+                        _run_driver, driver, shm.name, command_lock, state_lock
+                    )
+                    for driver in self.drivers
+                ]
+                try:
+                    for future in futures:
+                        future.result()
+                except KeyboardInterrupt:
+                    print("Stopping application...")
+                    executor.shutdown(wait=False, cancel_futures=True)
+        finally:
+            shm.close()
+            shm.unlink()

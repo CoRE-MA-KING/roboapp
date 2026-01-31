@@ -62,16 +62,6 @@ def test_global_config_websocket_port(get_resource_path: Path) -> None:
         config = Config.model_validate(tomllib.load(f))
     assert config.global_ is not None
     assert config.global_.websocket_port == 9090
-    assert config.global_.zenoh_prefix == ""
-
-
-def test_global_config_zenoh_prefix(get_resource_path: Path) -> None:
-    config_file = get_resource_path / "global_config_zenoh_prefix.toml"
-    with open(config_file, "rb") as f:
-        config = Config.model_validate(tomllib.load(f))
-    assert config.global_ is not None
-    assert config.global_.zenoh_prefix == "roboapp"
-    assert config.global_.websocket_port == 8080
 
 
 def test_gui_config_host(get_resource_path: Path) -> None:
@@ -106,3 +96,4 @@ def test_camera_config_device_width(get_resource_path: Path) -> None:
     assert config.camera.devices[0].device == "/dev/video0"
     assert config.camera.devices[0].width == 640
     assert config.camera.devices[0].height == 720  # default
+    assert config.camera.websocket  # default is True

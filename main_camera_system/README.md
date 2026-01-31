@@ -35,3 +35,42 @@ Options:
 
 - `-c` ：設定ファイルを指定します
 - `-d` ：デバッグモードを有効にします
+
+## 設定ファイル
+
+設定ファイルは `config.toml` です。
+
+### 構成
+
+#### Global (`[global]`)
+
+- `zenoh_prefix`: Zenoh の Key Expression のプレフィックス
+- `websocket_port`: WebSocket のポート番号
+
+#### Camera (`[camera]`)
+
+- `websocket`: WebSocket 配信の有効化 (デフォルト: `true`)
+- `zenoh`: Zenoh 配信の有効化 (デフォルト: `false`)
+
+**デバイス設定 (`[[camera.devices]]`)**
+
+- `device`: デバイスパス (例: `/dev/video0`)
+- `width`: 解像度 幅 (デフォルト: `1280`)
+- `height`: 解像度 高さ (デフォルト: `720`)
+
+### 設定例
+
+```toml
+[global]
+zenoh_prefix = "roboapp"
+websocket_port = 8080
+
+[camera]
+websocket = true
+zenoh = false
+
+[[camera.devices]]
+device = "/dev/video0"
+width = 1280
+height = 720
+```

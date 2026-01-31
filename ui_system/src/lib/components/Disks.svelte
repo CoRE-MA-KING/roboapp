@@ -15,11 +15,15 @@
 <script lang="ts">
 	let { id, classes, num, width, height, stroke = 5 }: RobotStatusProps = $props();
 
-	let step = (height - stroke / 2) / max_disks;
+	let step = $derived((height - stroke / 2) / max_disks);
 </script>
 
 <main {id} class={classes}>
 	<svg {width} {height} version="1.1" xmlns="http://www.w3.org/2000/svg">
+		{#if $num === 0}
+			<line x1={0} y1={0} x2={width} y2={height} stroke="red" stroke-width={stroke} />
+			<line x1={0} y1={height} x2={width} y2={0} stroke="red" stroke-width={stroke} />
+		{/if}
 		<rect
 			x={stroke / 2}
 			y={height - step * Math.min($num, max_disks)}
@@ -28,9 +32,5 @@
 			fill={$num >= max_disks / 2 ? "green" : "orange"}
 		/>
 		<rect x="0" y="0" {width} {height} stroke="black" fill="transparent" stroke-width={stroke} />
-		{#if $num === 0}
-			<line x1={0} y1={0} x2={width} y2={height} stroke="red" stroke-width={stroke} />
-			<line x1={0} y1={height} x2={width} y2={0} stroke="red" stroke-width={stroke} />
-		{/if}
 	</svg>
 </main>

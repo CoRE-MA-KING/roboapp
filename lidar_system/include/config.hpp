@@ -10,16 +10,12 @@
 
 class GlobalConfig {
  public:
-  std::string zenoh_prefix = "";
   uint16_t websocket_port = 8080;
 
   GlobalConfig() = default;
   GlobalConfig(toml::value toml_config) {
     if (toml_config.contains("global")) {
       auto global_config = toml_config.at("global");
-      if (global_config.contains("zenoh_prefix")) {
-        zenoh_prefix = toml::find<std::string>(global_config, "zenoh_prefix");
-      }
       if (global_config.contains("websocket_port")) {
         websocket_port =
             toml::get<uint16_t>(global_config.at("websocket_port"));

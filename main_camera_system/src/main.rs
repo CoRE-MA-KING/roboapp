@@ -59,24 +59,15 @@ async fn main() {
 
     let zenoh = zenoh::open(zenoh_config).await.unwrap();
 
-    let prefix: String = if global_config.zenoh_prefix.is_empty() {
-        "".to_string()
-    } else {
-        format!("{}/", global_config.zenoh_prefix)
-    };
-
     let jpg_publisher: Option<zenoh::pubsub::Publisher> = if camera_config.zenoh {
-        let topic_name = format!("{prefix}cam/jpg");
+        let topic_name = "cam/jpg";
         info!("JPEG publishing enabled at {topic_name}");
         Some(zenoh.declare_publisher(topic_name).await.unwrap())
     } else {
         None
     };
 
-    let subscriber = zenoh
-        .declare_subscriber(format!("{}cam/switch", prefix))
-        .await
-        .unwrap();
+    let subscriber = zenoh.declare_subscriber("cam/switch").await.unwrap();
 
     // WebSocket配信を有効化する場合のみサーバーを起動
     type WsClients = Arc<Mutex<Vec<tokio::sync::mpsc::UnboundedSender<Vec<u8>>>>>;
