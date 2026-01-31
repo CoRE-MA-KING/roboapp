@@ -1,6 +1,5 @@
 from copy import deepcopy
-from threading import Lock, Thread
-from time import sleep
+from threading import Lock
 from typing import Any
 
 import serial
@@ -12,6 +11,7 @@ from uart_bridge.domain.messages import (
     RobotState,
     RobotStateId,
 )
+from uart_bridge.domain.shared_memory import SharedRobotData
 
 
 class SerialRobotDriver(RobotDriver):
@@ -37,19 +37,12 @@ class SerialRobotDriver(RobotDriver):
         self._stopbits = stopbits
         self._timeout = timeout
         self._serial: serial.Serial | None = None
-        self._open_serial_port()
 
-        # 初期ロボット状態（排他制御用ロック付き）
-        self._state_lock = Lock()
+        # 初期ロボット状態
         self._robot_state = RobotState()
 
-        # 送信用の値とそのロック
-        self._send_lock = Lock()
+        # 送信用の値
         self._send_values = RobotCommand()
-
-        self._is_closed = False
-        self._thread = Thread(target=self._update_robot_state, daemon=True)
-        self._thread.start()
 
     def _open_serial_port(self) -> None:
         """シリアルポートを開く"""
@@ -65,37 +58,35 @@ class SerialRobotDriver(RobotDriver):
             print(err)
             self._serial = None
 
-    def _update_robot_state(self) -> None:
-        """10ms間隔でシリアル通信の受信と送信を実施する"""
-        while not self._is_closed:
-            if not self._serial:
-                sleep(0.01)
-                self._open_serial_port()
-                continue
+    def spin_once(self) -> None:
+        """1回分のシリアル通信の受信と送信を実施する"""
+        if not self._serial:
+            self._open_serial_port()
+            return
 
+        try:
+            buffer = self._serial.readline()
+            if buffer:
+                # print(f"read state: {buffer!r}")
+                pass
+        except Exception as err:
+            print(err)
+            if self._serial:
+                self._serial.close()
+            self._serial = None
+            return
+
+        try:
+            str_data = buffer.decode("ascii")
+        except UnicodeDecodeError as err:
+            print(err)
+            return
+
+        if "\n" in str_data:
             try:
-                buffer = self._serial.readline()
-                print(f"read state: {buffer!r}")
-            except Exception as err:
-                print(err)
-                if self._serial:
-                    self._serial.close()
-                self._serial = None
-                continue
-
-            try:
-                str_data = buffer.decode("ascii")
-            except UnicodeDecodeError as err:
-                print(err)
-                continue
-
-            if "\n" in str_data:
-                try:
-                    str_data = str_data.strip()
-                    parts = str_data.split(",")
-                    if len(parts) < 8:
-                        # 必要な項目が揃っていなければスキップ
-                        continue
+                str_data = str_data.strip()
+                parts = str_data.split(",")
+                if len(parts) >= 8:
                     new_state = RobotState(
                         state_id=RobotStateId(int(parts[0])),
                         pitch_deg=float(parts[1]) / 10.0,
@@ -110,40 +101,62 @@ class SerialRobotDriver(RobotDriver):
                         ),
                         reserved=int(parts[7]),
                     )
-                    with self._state_lock:
-                        self._robot_state = new_state
-                except ValueError as err:
-                    print(err)
-                    continue
-
-            # 受信後すぐに送信処理を実施（排他制御）
-            with self._send_lock:
-                send_str = self._send_values.to_str()
-            try:
-                self._serial.write(send_str.encode())
-                print(f"sent data: {send_str.strip()}")
-            except Exception as err:
+                    self._robot_state = new_state
+            except ValueError as err:
                 print(err)
-                if self._serial:
-                    self._serial.close()
-                self._serial = None
-                continue
 
-            sleep(0.01)  # 10ms間隔
+        # 受信後すぐに送信処理を実施
+        send_str = self._send_values.to_str()
+        try:
+            self._serial.write(send_str.encode())
+            # print(f"sent data: {send_str.strip()}")
+        except Exception as err:
+            print(err)
+            if self._serial:
+                self._serial.close()
+            self._serial = None
 
     def set_send_values(self, value: RobotCommand) -> None:
         """マイコンへ送信する整数値を更新する"""
-        with self._send_lock:
-            self._send_values = value
+        self._send_values = value
 
     def get_robot_state(self) -> RobotState:
         """最新のロボットの状態を返す"""
-        with self._state_lock:
-            return deepcopy(self._robot_state)
+        return deepcopy(self._robot_state)
 
     def close(self) -> None:
         print("closing robot driver")
-        self._is_closed = True
-        self._thread.join()
         if self._serial:
             self._serial.close()
+
+    def spin(self, shm_name: str, command_lock: Lock, state_lock: Lock) -> None:
+        self._open_serial_port()
+
+        shm = SharedRobotData(name=shm_name)
+
+        try:
+            while True:
+                # 1サイクル分のシリアル送受信
+                self.spin_once()
+
+                # ロボットの状態取得
+                state = self.get_robot_state()
+                # SHMに書き込み
+                with state_lock:
+                    shm.write_state(state)
+
+                # SHMからコマンド読み込み
+                with command_lock:
+                    command = shm.read_command()
+                # ドライバにセット
+                self.set_send_values(command)
+
+                # elapsed_time = time.time() - cycle_start_time
+                # sleep_time = 0.01 - elapsed_time
+                # if sleep_time > 0:
+                #     time.sleep(sleep_time)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            shm.close()
+            self.close()
