@@ -6,7 +6,6 @@ from pydantic import BaseModel, Field, model_validator
 class GlobalConfig(BaseModel):
     model_config = {"extra": "forbid"}
 
-    zenoh_prefix: str = Field(default="", description="Zenohのプレフィックス")
     websocket_port: int = Field(
         default=8080, gt=0, le=65535, description="WebSocketのポート番号"
     )
@@ -58,7 +57,7 @@ class CameraConfig(BaseModel):
 
     devices: list[CameraDevice] = Field(..., description="カメラデバイスの一覧")
     zenoh: bool = Field(default=False, description="Zenohの使用有無")
-    websocket: bool = Field(default=False, description="WebSocketの使用有無")
+    websocket: bool = Field(default=True, description="WebSocketの使用有無")
 
 
 class GUIConfig(BaseModel):

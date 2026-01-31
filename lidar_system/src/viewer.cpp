@@ -48,17 +48,12 @@ int main(int argc, char **argv) {
   auto visualizer = Visualizer(lidar_config_all, 600);
 
   // Zenoh Setup
-  auto prefix = global_config.zenoh_prefix;
-  if (!prefix.empty() && prefix.back() != '/') {
-    prefix += "/";
-  }
-
   auto zenoh_config = zenoh::Config::create_default();
   zenoh_config.insert_json5(Z_CONFIG_ADD_TIMESTAMP_KEY, "true");
 
   auto session = zenoh::Session(std::move(zenoh_config));
-  session.declare_background_subscriber(      //
-      zenoh::KeyExpr(prefix + "lidar/data"),  //
+  session.declare_background_subscriber(  //
+      zenoh::KeyExpr("lidar/data"),       //
       [&lidar_timestamps, &updated](const zenoh::Sample &sample) {
         auto timestamp = ntp64_to_timepoint(sample.get_timestamp()->get_time());
 
@@ -75,8 +70,8 @@ int main(int argc, char **argv) {
       },
       zenoh::closures::none);
 
-  session.declare_background_subscriber(              //
-      zenoh::KeyExpr(prefix + "lidar/force_vector"),  //
+  session.declare_background_subscriber(     //
+      zenoh::KeyExpr("lidar/force_vector"),  //
       [&vec, &updated](const zenoh::Sample &sample) {
         auto timestamp = ntp64_to_timepoint(sample.get_timestamp()->get_time());
 

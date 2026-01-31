@@ -1,6 +1,14 @@
 cmake_minimum_required(VERSION 3.10)
 project(rplidar_test)
+
+find_program(SCCACHE_PROGRAM sccache)
+if(SCCACHE_PROGRAM)
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${SCCACHE_PROGRAM}")
+    set(CMAKE_C_COMPILER_LAUNCHER "${SCCACHE_PROGRAM}")
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
 include_directories(include)

@@ -2,7 +2,7 @@ name: Configurator Check
 on:
   pull_request:
     paths:
-      - "configurator/src/**"
+      - "configurator/**"
       - ".github/workflows/configurator.yaml"
 env:
   WORKDIR: configurator

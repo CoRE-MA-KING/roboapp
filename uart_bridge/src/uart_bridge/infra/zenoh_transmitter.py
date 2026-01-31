@@ -1,7 +1,11 @@
+import time
+from threading import Lock
+
 import zenoh
 
 from uart_bridge.application.interfaces import Transmitter
 from uart_bridge.domain.messages import RobotCommand, RobotState
+from uart_bridge.domain.shared_memory import SharedRobotData
 from uart_bridge.domain.transmitter_messages import (
     CameraSwitchMessage,
     DamagePanelRecognition,
@@ -15,33 +19,10 @@ from uart_bridge.domain.transmitter_messages import (
 class ZenohTransmitter(Transmitter):
     """Transmits data using Zenoh protocol."""
 
-    def __init__(self, prefix: str = "") -> None:
-        self.zenoh_session = zenoh.open(zenoh.Config())
-
-        if prefix:
-            prefix = prefix.rstrip("/") + "/"
-        else:
-            prefix = ""
-
-        self.publishers = {}
-
+    def __init__(self) -> None:
+        self._command_mutex = Lock()
         self.robot_command = RobotCommand()
-        self.robot_state = RobotState()
-
-        self.publishers["cam/switch"] = self.zenoh_session.declare_publisher(
-            f"{prefix}cam/switch"
-        )
-
-        self.publishers["disks"] = self.zenoh_session.declare_publisher(
-            f"{prefix}disks"
-        )
-
-        self.publishers["flap"] = self.zenoh_session.declare_publisher(f"{prefix}flap")
-
-        self.zenoh_session.declare_subscriber(
-            f"{prefix}lidar/force_vector",
-            self.lidar_subscriber,
-        )
+        self.publishers: dict[str, zenoh.Publisher] = {}
 
     def publish(self, robot_state: RobotState, force: bool = False) -> None:
         """Transmit data to the specified topic."""
@@ -68,18 +49,67 @@ class ZenohTransmitter(Transmitter):
 
         pos = d.position or Position()
 
-        self.robot_command.target_x = pos.x
-        self.robot_command.target_y = pos.y
-        self.robot_command.target_distance = d.distance
+        with self._command_mutex:
+            self.robot_command.target_x = pos.x
+            self.robot_command.target_y = pos.y
+            self.robot_command.target_distance = d.distance
 
     def lidar_subscriber(self, sample: zenoh.Sample) -> None:
         m = LiDARMessage.model_validate_json(sample.payload.to_string())
-        self.robot_command.force_linear = int(m.linear)
-        self.robot_command.force_angular = int(m.angular * 10)
+        with self._command_mutex:
+            self.robot_command.force_linear = int(m.linear)
+            self.robot_command.force_angular = int(m.angular * 10)
 
     def subscribe(self) -> RobotCommand:
-        return self.robot_command
+        with self._command_mutex:
+            return self.robot_command.model_copy()
 
     def close(self) -> None:
         """Close the Zenoh session."""
-        self.zenoh_session.close()  # type: ignore
+        if hasattr(self, "zenoh_session"):
+            self.zenoh_session.close()  # type: ignore
+
+    def spin(self, shm_name: str, command_lock: Lock, state_lock: Lock) -> None:
+        self.zenoh_session = zenoh.open(zenoh.Config())
+
+        self.publishers["cam/switch"] = self.zenoh_session.declare_publisher(
+            "cam/switch"
+        )
+
+        self.publishers["disks"] = self.zenoh_session.declare_publisher("disks")
+
+        self.publishers["flap"] = self.zenoh_session.declare_publisher("flap")
+
+        self.zenoh_session.declare_subscriber(
+            "lidar/force_vector",
+            self.lidar_subscriber,
+        )
+
+        shm = SharedRobotData(name=shm_name)
+
+        last_send_time = time.time()
+
+        try:
+            while True:
+                # SHMから状態読み込み
+                with state_lock:
+                    state = shm.read_state()
+
+                if time.time() - last_send_time >= 0.1:
+                    last_send_time = time.time()
+                    # 送信
+                    self.publish(state)
+
+                # 受信
+                command = self.subscribe()
+
+                # SHMに書き込み
+                with command_lock:
+                    shm.write_command(command)
+                # ループ頻度調整（適当に早く回す）
+                time.sleep(0.01)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            shm.close()
+            self.close()

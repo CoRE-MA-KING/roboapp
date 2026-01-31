@@ -28,3 +28,29 @@
 
 - `uv run python3 example/state.py` でデータを受信します
 - `ui_system` で受信したデータを表示することもできます
+
+## 設定ファイル
+
+設定ファイルは `config.toml` です。
+
+### 構成
+
+#### Global (`[global]`)
+
+- `zenoh_prefix`: Zenoh の Key Expression のプレフィックス
+- `websocket_port`: WebSocket のポート番号
+
+#### UART (`[uart]`)
+
+- `device`: デバイスパス (例: `/dev/ttyUSB0`)
+
+### 設定例
+
+```toml
+[global]
+zenoh_prefix = "roboapp"
+websocket_port = 8080
+
+[uart]
+device = "/dev/ttyUSB1"
+```

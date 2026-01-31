@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
+from threading import Lock
 from typing import Any, Self
 
 from uart_bridge.domain.messages import RobotCommand, RobotState
+from uart_bridge.domain.shared_memory import SharedRobotData
 
 
 class ApplicationInterface(ABC):
@@ -12,14 +14,38 @@ class ApplicationInterface(ABC):
         pass
 
 
-class RobotDriver(ABC):
-    """Interface for communicating with robot"""
+class RoboappBridgeDriver(ABC):
+    def pre_spin(self, shm_name: str, command_lock: Lock, state_lock: Lock) -> None:
+        self.shm = SharedRobotData(name=shm_name)
+        self.command_lock = command_lock
+        self.state_lock = state_lock
 
     def __enter__(self) -> Self:
         return self
 
     def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
         self.close()
+
+    @abstractmethod
+    def close(self) -> None:
+        pass
+
+    @abstractmethod
+    def spin(self, shm_name: str, command_lock: Lock, state_lock: Lock) -> None:
+        pass
+
+
+class RobotDriver(RoboappBridgeDriver):
+    """Interface for communicating with robot"""
+
+    @abstractmethod
+    def raw_to_RobotState(self, data: Any) -> RobotState:
+        pass
+
+    @abstractmethod
+    def RobotCommand_to_raw(self, data: RobotCommand) -> Any:
+        """Perform one cycle of serial communication (receive and send)."""
+        pass
 
     @abstractmethod
     def get_robot_state(self) -> RobotState:
@@ -30,19 +56,9 @@ class RobotDriver(ABC):
         """Set values to be sent to the robot."""
         pass
 
-    @abstractmethod
-    def close(self) -> None:
-        pass
 
-
-class Transmitter(ABC):
+class Transmitter(RoboappBridgeDriver):
     """Interface for communicating with robot"""
-
-    def __enter__(self) -> Self:
-        return self
-
-    def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
-        self.close()
 
     @abstractmethod
     def publish(self, robot_state: RobotState) -> None:
@@ -51,8 +67,4 @@ class Transmitter(ABC):
     @abstractmethod
     def subscribe(self) -> RobotCommand:
         """Subscribe to receive commands or data."""
-        pass
-
-    @abstractmethod
-    def close(self) -> None:
         pass
