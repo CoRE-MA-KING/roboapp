@@ -104,7 +104,7 @@ class ZenohTransmitter(Transmitter):
                 with command_lock:
                     shm.write_command(command)
                 # ループ頻度調整（適当に早く回す）
-                time.sleep(0.001)
+                time.sleep(0.01)
         except KeyboardInterrupt:
             pass
         finally:
