@@ -65,7 +65,8 @@ uv run python3 src/configurator/check.py
 | uart_bridge            | flap               | FlapMessage            |
 | damage_panel_recog     | damagepanel        | DamagePanelRecognition |
 | lidar_system/sender    | lidar/data         | LiDARData              |
-| lidar_system/processor | lidar/force_vector | LiDARMessage           |
+| lidar_system/sender    | lidar/range        | LiDARRangeMessage      |
+| lidar_system/processor | lidar/force_vector | LiDARVectorMessage     |
 
 ### ネットワーク
 
@@ -94,5 +95,6 @@ uv run python3 src/configurator/check.py
     LS1 -- lidar/data --> LP
     LS2 -- lidar/data --> LP
     LP -- lidar/force_vector --> U
+    LP -- lidar/range --> T
     LP -- lidar/force_vector --> LV
 ```
