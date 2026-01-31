@@ -231,6 +231,7 @@
       id: "common-limits",
       messages: ["put"],
       rules: [
+        { key_expr: "cam/switch", freq: 100 },
         { key_expr: "disks", freq: 10 },
         { key_expr: "flap", freq: 10 },
         { key_expr: "lidar/range", freq: 30 },
