@@ -65,10 +65,15 @@ class SharedRobotData:
             state.reserved,
         )
         # 先頭からSTATE_SIZE分に書き込み
+        if self._shm.buf is None:
+            raise RuntimeError("共有メモリのバッファが取得できません")
         self._shm.buf[0 : self._STATE_SIZE] = data
 
     def read_state(self) -> RobotState:
         """RobotStateを共有メモリから読み込む"""
+
+        if self._shm.buf is None:
+            raise RuntimeError("共有メモリのバッファが取得できません")
         data = self._shm.buf[0 : self._STATE_SIZE]
         unpacked = struct.unpack(self._STATE_FMT, data)
         # unpacked: id, pitch, yaw, left, right, video, flags, reserved
@@ -111,12 +116,16 @@ class SharedRobotData:
         # STATEの直後に書き込み
         start = self._STATE_SIZE
         end = start + self._CMD_SIZE
+        if self._shm.buf is None:
+            raise RuntimeError("共有メモリのバッファが取得できません")
         self._shm.buf[start:end] = data
 
     def read_command(self) -> RobotCommand:
         """RobotCommandを共有メモリから読み込む"""
         start = self._STATE_SIZE
         end = start + self._CMD_SIZE
+        if self._shm.buf is None:
+            raise RuntimeError("共有メモリのバッファが取得できません")
         data = self._shm.buf[start:end]
         unpacked = struct.unpack(self._CMD_FMT, data)
 
