@@ -29,6 +29,5 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--hz", type=float, help="Publishing frequency in Hz")
     args = parser.parse_args()
-
     publisher = LiDARRangePub(key_expr, args.hz)
     publisher.run()
