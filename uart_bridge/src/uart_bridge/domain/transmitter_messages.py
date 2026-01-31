@@ -1,4 +1,13 @@
+from typing import Literal
+
 from pydantic import BaseModel, Field
+
+from uart_bridge.domain.messages import RobotStateId
+
+
+class RobotStateMessage(BaseModel):
+    state: int = Field(default=RobotStateId.UNKNOWN.value)
+    color: Literal["blue", "red"] = Field(default="blue")
 
 
 class CameraSwitchMessage(BaseModel):
