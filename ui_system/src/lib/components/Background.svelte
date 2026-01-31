@@ -27,7 +27,7 @@
 	$effect(() => {
 		let unlistenPromise = listen("damagepanel", (event) => {
 			let msg = JSON.parse(event.payload as string) as DamagePanelMessage;
-			damagePanelStore.set(msg.position);
+			damagePanelStore.set(msg.target);
 		});
 		return () => {
 			unlistenPromise.then((unlisten) => unlisten());
