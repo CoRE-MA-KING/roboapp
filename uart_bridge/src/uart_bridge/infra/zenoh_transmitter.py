@@ -18,6 +18,11 @@ from uart_bridge.domain.transmitter_messages import (
 class ZenohTransmitter(Transmitter):
     """Transmits data using Zenoh protocol."""
 
+    def __init__(self) -> None:
+        self._command_mutex = Lock()
+        self.robot_command = RobotCommand()
+        self.publishers: dict[str, zenoh.Publisher] = {}
+
     def publish(self, robot_state: RobotState, force: bool = False) -> None:
         """Transmit data to the specified topic."""
         self.publishers["cam/switch"].put(
@@ -41,29 +46,28 @@ class ZenohTransmitter(Transmitter):
     def damagepanel_subscriber(self, sample: zenoh.Sample) -> None:
         d = DamagePanelRecognition.model_validate_json(sample.payload.to_string())
 
-        self.robot_command.target_x = d.target_x
-        self.robot_command.target_y = d.target_y
-        self.robot_command.target_distance = d.target_distance
+        with self._command_mutex:
+            self.robot_command.target_x = d.target_x
+            self.robot_command.target_y = d.target_y
+            self.robot_command.target_distance = d.target_distance
 
     def lidar_subscriber(self, sample: zenoh.Sample) -> None:
         m = LiDARMessage.model_validate_json(sample.payload.to_string())
-        self.robot_command.force_linear = int(m.linear)
-        self.robot_command.force_angular = int(m.angular * 10)
+        with self._command_mutex:
+            self.robot_command.force_linear = int(m.linear)
+            self.robot_command.force_angular = int(m.angular * 10)
 
     def subscribe(self) -> RobotCommand:
-        return self.robot_command
+        with self._command_mutex:
+            return self.robot_command.model_copy()
 
     def close(self) -> None:
         """Close the Zenoh session."""
-        self.zenoh_session.close()  # type: ignore
+        if hasattr(self, "zenoh_session"):
+            self.zenoh_session.close()  # type: ignore
 
     def spin(self, shm_name: str, command_lock: Lock, state_lock: Lock) -> None:
         self.zenoh_session = zenoh.open(zenoh.Config())
-
-        self.publishers = {}
-
-        self.robot_command = RobotCommand()
-        self.robot_state = RobotState()
 
         self.publishers["cam/switch"] = self.zenoh_session.declare_publisher(
             "cam/switch"
@@ -93,7 +97,7 @@ class ZenohTransmitter(Transmitter):
                     # 送信
                     self.publish(state)
 
-                # 受信 (ZenohTransmitter内でsubscribeコールバックが動いている前提)
+                # 受信
                 command = self.subscribe()
 
                 # SHMに書き込み
