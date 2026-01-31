@@ -59,7 +59,7 @@ depends = [
   "//uart_bridge:lint",
   "//ui_system:lint",
   "//lidar_system:lint",
-  "//:mdlint",
+  "//:markdown_lint",
   "//:action_lint",
 ]
 
@@ -71,7 +71,7 @@ depends = [
   "//uart_bridge:format",
   "//ui_system:format",
   "//lidar_system:format",
-  "//:mdformat",
+  "//:markdown_format",
   "//:action_format",
 ]
 
