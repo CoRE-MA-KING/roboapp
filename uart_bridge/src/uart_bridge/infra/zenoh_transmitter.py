@@ -47,7 +47,7 @@ class ZenohTransmitter(Transmitter):
         self.publishers["robotstate"].put(
             RobotStateMessage(
                 state=robot_state.state_id.value,
-                color=("blue", "red")[robot_state.flags.is_red],
+                color="red" if robot_state.flags.is_red else "blue",
             ).model_dump_json()
         )
 
