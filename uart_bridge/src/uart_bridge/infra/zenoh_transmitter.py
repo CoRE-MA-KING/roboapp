@@ -12,7 +12,7 @@ from uart_bridge.domain.transmitter_messages import (
     DisksMessage,
     FlapMessage,
     LiDARMessage,
-    Position,
+    Target,
 )
 
 
@@ -47,12 +47,12 @@ class ZenohTransmitter(Transmitter):
     def damagepanel_subscriber(self, sample: zenoh.Sample) -> None:
         d = DamagePanelRecognition.model_validate_json(sample.payload.to_string())
 
-        pos = d.position or Position()
+        target = d.target if d.target else Target()
 
         with self._command_mutex:
-            self.robot_command.target_x = pos.x
-            self.robot_command.target_y = pos.y
-            self.robot_command.target_distance = d.distance
+            self.robot_command.target_x = target.x
+            self.robot_command.target_y = target.y
+            self.robot_command.target_distance = target.distance
 
     def lidar_subscriber(self, sample: zenoh.Sample) -> None:
         m = LiDARMessage.model_validate_json(sample.payload.to_string())

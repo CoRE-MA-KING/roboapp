@@ -5,25 +5,32 @@ import time
 
 import zenoh
 
-from uart_bridge.domain.transmitter_messages import DamagePanelRecognition, Position
+from uart_bridge.domain.transmitter_messages import DamagePanelRecognition, Target
 
 key_expr = "damagepanel"
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--hz", type=float, help="Publishing frequency in Hz")
+    parser.add_argument(
+        "-n", action="store_true", help="Send empty target (None) if specified"
+    )
     args = parser.parse_args()
 
     with zenoh.open(zenoh.Config()) as session:
         pub = session.declare_publisher(key_expr)
 
         while True:
-            msg = DamagePanelRecognition(
-                position=Position(
-                    x=random.randint(0, 1280),
-                    y=random.randint(0, 720),
-                ),
-                distance=random.randint(0, 100),
-            )
+            if args.n:
+                msg = DamagePanelRecognition(target=None)
+            else:
+                msg = DamagePanelRecognition(
+                    target=Target(
+                        x=random.randint(0, 1280),
+                        y=random.randint(0, 720),
+                        distance=random.randint(0, 100),
+                    )
+                )
 
             print(
                 f"[{datetime.datetime.now().strftime('%H:%M:%S.%f')[:-3]}] Publishing : {key_expr}: {msg}"

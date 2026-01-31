@@ -5,14 +5,14 @@ class CameraSwitchMessage(BaseModel):
     camera_id: int
 
 
-class Position(BaseModel):
-    x: int = 640
-    y: int = 360
+class Target(BaseModel):
+    x: int = Field(default=640, ge=0, le=3840)
+    y: int = Field(default=360, ge=0, le=2160)
+    distance: int = 0
 
 
 class DamagePanelRecognition(BaseModel):
-    position: Position | None = None
-    distance: int = 0
+    target: Target | None = Target()
 
 
 class LiDARMessage(BaseModel):
