@@ -29,4 +29,8 @@ if __name__ == "__main__":
             if args.hz is None:
                 break
 
-            time.sleep(1.0 / args.hz)
+            if args.hz > 0:
+                time.sleep(1.0 / args.hz)
+            else:
+                print(f"Error: --hz must be a positive number, but got {args.hz}. Exiting.")
+                break
