@@ -39,3 +39,5 @@ class Application(ApplicationInterface):
             robot_command: RobotCommand = self._transmitter.subscribe()
 
             self._robot_driver.set_send_values(robot_command)
+
+            time.sleep(0.01)
