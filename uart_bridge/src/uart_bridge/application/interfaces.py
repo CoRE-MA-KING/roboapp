@@ -39,6 +39,15 @@ class RobotDriver(RoboappBridgeDriver):
     """Interface for communicating with robot"""
 
     @abstractmethod
+    def raw_to_RobotState(self, data: Any) -> RobotState:
+        pass
+
+    @abstractmethod
+    def RobotCommand_to_raw(self, data: RobotCommand) -> Any:
+        """Perform one cycle of serial communication (receive and send)."""
+        pass
+
+    @abstractmethod
     def get_robot_state(self) -> RobotState:
         pass
 

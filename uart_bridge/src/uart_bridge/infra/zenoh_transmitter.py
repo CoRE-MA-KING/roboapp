@@ -18,9 +18,6 @@ from uart_bridge.domain.transmitter_messages import (
 class ZenohTransmitter(Transmitter):
     """Transmits data using Zenoh protocol."""
 
-    def __init__(self) -> None:
-        pass
-
     def publish(self, robot_state: RobotState, force: bool = False) -> None:
         """Transmit data to the specified topic."""
         self.publishers["cam/switch"].put(

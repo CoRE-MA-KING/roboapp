@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from copy import deepcopy
 from threading import Lock
 from typing import Any
@@ -58,6 +59,34 @@ class SerialRobotDriver(RobotDriver):
             print(err)
             self._serial = None
 
+    def raw_to_RobotState(self, data: Sequence[str]) -> RobotState:
+        new_state = RobotState(
+            state_id=RobotStateId(int(data[0])),
+            pitch_deg=float(data[1]) / 10.0,
+            yaw_deg=float(data[2]) / 10.0,
+            left_disks=int(data[3]),
+            right_disks=int(data[4]),
+            video_id=int(data[5]),
+            flags=RobotFlags(
+                is_red=bool((int(data[6]) >> 3) & 0b00000001),
+                record_video=bool((int(data[6]) >> 1) & 0b00000001),
+                ready_to_fire=bool((int(data[6]) >> 0) & 0b00000001),
+            ),
+            reserved=int(data[7]),
+        )
+        return new_state
+
+    def RobotCommand_to_raw(self, data: RobotCommand) -> str:
+        values = (
+            data.target_x,
+            data.target_y,
+            data.target_distance,
+            data.force_linear,
+            data.force_angular,
+            data.dummy,
+        )
+        return ",".join(map(str, values)) + "\n"
+
     def spin_once(self) -> None:
         """1回分のシリアル通信の受信と送信を実施する"""
         if not self._serial:
@@ -87,26 +116,12 @@ class SerialRobotDriver(RobotDriver):
                 str_data = str_data.strip()
                 parts = str_data.split(",")
                 if len(parts) >= 8:
-                    new_state = RobotState(
-                        state_id=RobotStateId(int(parts[0])),
-                        pitch_deg=float(parts[1]) / 10.0,
-                        yaw_deg=float(parts[2]) / 10,
-                        left_disks=int(parts[3]),
-                        right_disks=int(parts[4]),
-                        video_id=int(parts[5]),
-                        flags=RobotFlags(
-                            is_red=bool((int(parts[6]) >> 3) & 0b00000001),
-                            record_video=bool((int(parts[6]) >> 1) & 0b00000001),
-                            ready_to_fire=bool((int(parts[6]) >> 0) & 0b00000001),
-                        ),
-                        reserved=int(parts[7]),
-                    )
-                    self._robot_state = new_state
+                    self._robot_state = self.raw_to_RobotState(parts)
             except ValueError as err:
                 print(err)
 
         # 受信後すぐに送信処理を実施
-        send_str = self._send_values.to_str()
+        send_str = self.RobotCommand_to_raw(self._send_values)
         try:
             self._serial.write(send_str.encode())
             # print(f"sent data: {send_str.strip()}")
@@ -136,25 +151,16 @@ class SerialRobotDriver(RobotDriver):
 
         try:
             while True:
-                # 1サイクル分のシリアル送受信
                 self.spin_once()
 
-                # ロボットの状態取得
                 state = self.get_robot_state()
-                # SHMに書き込み
                 with state_lock:
                     shm.write_state(state)
 
-                # SHMからコマンド読み込み
                 with command_lock:
                     command = shm.read_command()
-                # ドライバにセット
                 self.set_send_values(command)
 
-                # elapsed_time = time.time() - cycle_start_time
-                # sleep_time = 0.01 - elapsed_time
-                # if sleep_time > 0:
-                #     time.sleep(sleep_time)
         except KeyboardInterrupt:
             pass
         finally:
