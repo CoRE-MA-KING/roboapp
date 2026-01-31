@@ -5,19 +5,19 @@ from collections import deque
 import zenoh
 
 # 監視対象のトピック
-TOPICS = [
+TOPICS = (
     "lidar/force_vector",
     "cam/switch",
     "damagepanel",
     "flap",
     "disks",
-]
+)
 
 
 def main(stdscr: "curses.window") -> None:
     # 受信時刻を保持する辞書
     # key: topic_name, value: deque of timestamps
-    topic_data :dict[str, deque[float]] = {topic: deque() for topic in TOPICS}
+    topic_data: dict[str, deque[float]] = {topic: deque() for topic in TOPICS}
 
     def callback(sample: zenoh.Sample) -> None:
         key = str(sample.key_expr)

@@ -3,7 +3,7 @@ uv = "0.9"
 prettier = "latest"
 
 [tasks.deps]
-description = "Install dependency"
+description = "Install and sync Python dependencies using uv"
 run = "uv sync"
 alias = "build"
 sources = [
@@ -15,7 +15,7 @@ outputs = { auto = true }
 
 [tasks.lint_python]
 depends = ["deps"]
-description = "Run Python linter"
+description = "Run Python linters and type checkers (ruff, mypy)"
 run = ["uv run task lint", "uv run task check"]
 
 [tasks.lint_json5]
@@ -39,15 +39,16 @@ run = ["prettier --write '**/*.json5'"]
 
 [tasks.format]
 depends = ["format_python", "format_json5"]
-description = "Run Formatter"
+description = "Format Python code using ruff"
+run = "uv run task format"
 
 [tasks.test]
 depends = ["deps"]
-description = "Run tests"
+description = "Execute Python unit tests using pytest"
 run = "uv run task test"
 
 [tasks.configurator]
 alias = "start"
 depends = ["deps"]
-description = "Start Application"
+description = "Start the configurator application"
 run = "uv run python3 src/configurator/main.py"

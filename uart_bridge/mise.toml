@@ -2,7 +2,7 @@
 uv = "0.9"
 
 [tasks.deps]
-description = "Install dependency"
+description = "Install and sync Python dependencies using uv for uart_bridge"
 run = "uv sync"
 alias = "build"
 sources = [
@@ -13,20 +13,20 @@ outputs = { auto = true }
 
 [tasks.lint]
 depends = ["deps"]
-description = "Run linter"
+description = "Run Python linters and type checkers for uart_bridge"
 run = ["uv run task lint", "uv run task check"]
 
 [tasks.format]
 depends = ["deps"]
-description = "Run Formatter"
+description = "Format Python code in uart_bridge using ruff"
 run = "uv run task format"
 
 [tasks.test]
 depends = ["deps"]
-description = "Run tests"
+description = "Execute Python tests for uart_bridge"
 run = "uv run task test"
 
 [tasks.start]
 depends = ["deps"]
-description = "Start Application"
+description = "Start the uart_bridge application"
 run = "uv run python3 src/uart_bridge/main.py"

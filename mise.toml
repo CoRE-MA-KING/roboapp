@@ -20,29 +20,29 @@ node = "lts"
 yamlfmt = "latest"
 
 [tasks.configurator]
-description = "Run roboapp configurator"
+description = "Execute the roboapp configuration and management tool"
 depends = [
   "//configurator:configurator",
 ]
 
 [tasks.action_lint]
-description = "Lint GitHub Actions workflow files"
+description = "Perform static analysis on GitHub Actions workflow files using actionlint and yamlfmt"
 run = ["yamlfmt -lint .github", "actionlint"]
 
 [tasks.action_format]
-description = "Format GitHub Actions workflow files"
+description = "Automatically format GitHub Actions workflow files using yamlfmt"
 run = "yamlfmt .github"
 
-[tasks.mdlint]
-description = "Run markdownlint-cli2 linter"
+[tasks.markdown_lint]
+description = "Lint all Markdown files in the repository, excluding environment and build directories"
 run = 'markdownlint-cli2 "**/*.md" "#**/.venv" "#**/node_modules" "#**/target" "#**/build" "#**/3rdparty"'
 
-[tasks.mdformat]
-description = "Run markdownlint-cli2 formatter"
+[tasks.markdown_format]
+description = "Automatically format and fix issues in all Markdown files"
 run = 'markdownlint-cli2 "**/*.md" "#**/.venv" "#**/node_modules" "#**/target" "#**/build" "#**/3rdparty" --fix'
 
 [tasks.build]
-description = "Build all projects"
+description = "Build all sub-projects (configurator, camera, uart, ui, lidar) in the correct order"
 depends = [
   "//configurator:build",
   "//main_camera_system:build",
@@ -52,31 +52,31 @@ depends = [
 ]
 
 [tasks.lint]
-description = "Run linters for all projects"
+description = "Run all linters (code, markdown, actions) across the entire monorepo"
 depends = [
   "//configurator:lint",
   "//main_camera_system:lint",
   "//uart_bridge:lint",
   "//ui_system:lint",
   "//lidar_system:lint",
-  "//:mdlint",
+  "//:markdown_lint",
   "//:action_lint",
 ]
 
 [tasks.format]
-description = "Run formatters for all projects"
+description = "Run all formatters across the entire monorepo to ensure consistent code style"
 depends = [
   "//configurator:format",
   "//main_camera_system:format",
   "//uart_bridge:format",
   "//ui_system:format",
   "//lidar_system:format",
-  "//:mdformat",
+  "//:markdown_format",
   "//:action_format",
 ]
 
 [tasks.test]
-description = "Run tests for all projects"
+description = "Run all unit and integration tests for all sub-projects"
 depends = [
   "//configurator:test",
   "//main_camera_system:test",

@@ -32,16 +32,20 @@ class RobotState(BaseModel):
     """マイコンと通信して取得したロボットの状態"""
 
     state_id: RobotStateId = RobotStateId.UNKNOWN
-    pitch_deg: float = Field(default=0.0, description="フラップのピッチ角度")
-    yaw_deg: float = Field(default=0.0, description="フラップのヨー角度")
-    left_disks: int = 0  # 枚
-    right_disks: int = 0  # 枚
-    video_id: int = 0  # 表示するカメラ 0 RealSense, 1 前方, 2 後方
+    pitch_deg: float = Field(
+        default=0.0, ge=0, le=100, description="フラップのピッチ角度"
+    )
+    yaw_deg: float = Field(default=0.0, ge=0, le=100, description="フラップのヨー角度")
+    left_disks: int = Field(default=0, ge=0, le=100, description="左ディスクの枚数")
+    right_disks: int = Field(default=0, ge=0, le=100, description="右ディスクの枚数")
+    video_id: int = Field(
+        default=0, ge=0, le=3, description="表示するカメラ 0 RealSense, 1 前方, 2 後方"
+    )
     # 複数のフラグを1バイトでまとめて(bit: [2]自動照準 [1]録画 [0]射出可否)
     flags: RobotFlags = Field(
         default_factory=RobotFlags, description="ロボットの各種フラグ"
     )
-    reserved: int = 0  # 未使用
+    reserved: int = Field(default=0, ge=0, le=100, description="未使用")
 
 
 class RobotCommand(BaseModel):
@@ -53,14 +57,3 @@ class RobotCommand(BaseModel):
     force_linear: int = 0
     force_angular: int = 0
     dummy: int = 0  # 未使用
-
-    def to_str(self) -> str:
-        values = (
-            self.target_x,
-            self.target_y,
-            self.target_distance,
-            self.force_linear,
-            self.force_angular,
-            self.dummy,
-        )
-        return ",".join(map(str, values)) + "\n"

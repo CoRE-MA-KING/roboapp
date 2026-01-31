@@ -7,6 +7,8 @@ on:
 env:
   CARGO_TERM_COLOR: always
   WORKDIR: main_camera_system
+  SCCACHE_GHA_ENABLED: "true"
+  RUSTC_WRAPPER: "sccache"
 jobs:
   MainCameraSystem_Check:
     runs-on: ubuntu-latest
@@ -15,6 +17,8 @@ jobs:
         working-directory: ${{ env.WORKDIR }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       - uses: ./.github/actions/mise
         with:
           workdir: ${{ env.WORKDIR }}
