@@ -1,5 +1,6 @@
 [tools]
 just = "latest"
+sccache = "latest"
 
 [tasks.deps]
 description = "Generate Build Files"

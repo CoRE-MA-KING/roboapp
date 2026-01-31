@@ -2,7 +2,9 @@
 set -euo pipefail
 
 echo "Cloning Submodules"
-git submodule update --init --recursive
+if [ "${GITHUB_ACTIONS:-}" != "true" ]; then
+    git submodule update --init --recursive
+fi
 
 sudo echo "Install Dependencies"
 sudo mkdir -p /etc/apt/keyrings
@@ -34,4 +36,5 @@ sudo apt-get install -y \
 
 # Lidar System
 sudo apt-get install -y \
-	libgflags-dev libopencv-dev nlohmann-json3-dev
+	libgflags-dev libopencv-dev nlohmann-json3-dev \
+	clang-tidy clang-format
