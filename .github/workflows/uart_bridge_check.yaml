@@ -2,7 +2,7 @@ name: UART Bridge Check
 on:
   pull_request:
     paths:
-      - "uart_bridge/src/**"
+      - "uart_bridge/**"
       - ".github/workflows/uart_bridge_check.yaml"
 env:
   WORKDIR: uart_bridge
