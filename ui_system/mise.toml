@@ -1,7 +1,11 @@
+[env]
+RUSTC_WRAPPER = "sccache"
+
 [tools]
 node = "22"
 pnpm = "10"
-rust = { version = "1.91", components="rust-analyzer"}
+rust = { version = "1.91", components="rust-analyzer" }
+sccache = "latest"
 
 [tasks.deps_node]
 description = "Install Node.js dependencies"

@@ -33,11 +33,11 @@ run = ["yamlfmt -lint .github", "actionlint"]
 description = "Format GitHub Actions workflow files"
 run = "yamlfmt .github"
 
-[tasks.mdlint]
+[tasks.markdown_lint]
 description = "Run markdownlint-cli2 linter"
 run = 'markdownlint-cli2 "**/*.md" "#**/.venv" "#**/node_modules" "#**/target" "#**/build" "#**/3rdparty"'
 
-[tasks.mdformat]
+[tasks.markdown_format]
 description = "Run markdownlint-cli2 formatter"
 run = 'markdownlint-cli2 "**/*.md" "#**/.venv" "#**/node_modules" "#**/target" "#**/build" "#**/3rdparty" --fix'
 
