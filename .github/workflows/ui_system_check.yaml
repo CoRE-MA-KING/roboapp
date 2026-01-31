@@ -7,6 +7,8 @@ on:
 env:
   CARGO_TERM_COLOR: always
   WORKDIR: ui_system
+  SCCACHE_GHA_ENABLED: "true"
+  RUSTC_WRAPPER: "sccache"
 jobs:
   UI_System_Check_Rust:
     runs-on: ubuntu-latest
