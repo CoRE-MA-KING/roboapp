@@ -28,6 +28,8 @@ class Application(ApplicationInterface):
     def spin(self) -> None:
         last_send_time = time.time()
         while True:
+            cycle_start_time = time.time()
+
             # ロボットの状態取得
             robot_state: RobotState = self._robot_driver.get_robot_state()
 
@@ -40,4 +42,7 @@ class Application(ApplicationInterface):
 
             self._robot_driver.set_send_values(robot_command)
 
-            time.sleep(0.01)
+            elapsed_time = time.time() - cycle_start_time
+            sleep_time = 0.01 - elapsed_time
+            if sleep_time > 0:
+                time.sleep(sleep_time)
