@@ -6,7 +6,7 @@ rust = { version = "1.91", components="rust-analyzer" }
 sccache = "latest"
 
 [tasks.deps]
-description = "Install dependency"
+description = "Fetch Rust dependencies using cargo"
 run = ["cargo fetch"]
 sources = [
     "Cargo.toml",
@@ -16,7 +16,7 @@ outputs = { auto = true }
 
 [tasks.build]
 depends = ["deps"]
-description = "Build Application"
+description = "Build the main-camera-system Rust application in release mode"
 run = "cargo build --release"
 sources = [
     "Cargo.toml",
@@ -28,20 +28,20 @@ outputs = ["./target/release/main-camera-system"]
 
 [tasks.lint]
 depends = ["deps"]
-description = "Run linter"
+description = "Run Rust linter (clippy) and treat warnings as errors"
 run = "cargo clippy --all-targets --all-features -- -D warnings"
 
 [tasks.format]
 depends = ["deps"]
-description = "Run Formatter"
+description = "Format Rust code using cargo fmt"
 run = "cargo fmt --all"
 
 [tasks.test]
 depends = ["deps"]
-description = "Run tests"
+description = "Execute Rust unit and integration tests"
 run = "cargo test"
 
 [tasks.start]
 depends = ["build"]
-description = "Start Application"
+description = "Run the compiled main-camera-system binary"
 run = "./target/release/main-camera-system"
