@@ -14,4 +14,4 @@ jobs:
           workdir: .
       - name: Install Dependencies
         run: |
-          mise //:mdlint
+          mise //:markdown_lint
