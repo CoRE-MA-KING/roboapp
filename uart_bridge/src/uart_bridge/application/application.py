@@ -43,11 +43,15 @@ class Application(ApplicationInterface):
                     for driver in self.drivers
                 ]
                 try:
-                    for future in futures:
-                        future.result()
+                    import time
+
+                    while any(f.running() for f in futures):
+                        time.sleep(0.1)
                 except KeyboardInterrupt:
-                    print("Stopping application...")
-                    executor.shutdown(wait=False, cancel_futures=True)
+                    print("\nStopping application...")
+                    for driver in self.drivers:
+                        driver.stop()
+                    executor.shutdown(wait=True)
         finally:
             shm.close()
             shm.unlink()

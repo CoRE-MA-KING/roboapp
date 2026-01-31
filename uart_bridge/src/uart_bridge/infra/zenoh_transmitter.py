@@ -24,6 +24,7 @@ class ZenohTransmitter(Transmitter):
     """Transmits data using Zenoh protocol."""
 
     def __init__(self) -> None:
+        super().__init__()
         self._command_mutex = Lock()
         self.robot_command = RobotCommand()
         self.publishers: dict[str, zenoh.Publisher] = {}
@@ -92,7 +93,7 @@ class ZenohTransmitter(Transmitter):
         last_send_time = time.time()
 
         try:
-            while True:
+            while self._running:
                 # SHMから状態読み込み
                 with state_lock:
                     state = shm.read_state()

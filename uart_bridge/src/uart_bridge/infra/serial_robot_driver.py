@@ -33,6 +33,7 @@ class SerialRobotDriver(RobotDriver):
         stopbits: Any = serial.STOPBITS_ONE,
         timeout: float = 0.01,  # 10ms timeout
     ) -> None:
+        super().__init__()
         self._port = port
         self._baudrate = baudrate
         self._parity = parity
@@ -149,7 +150,7 @@ class SerialRobotDriver(RobotDriver):
         shm = SharedRobotData(name=shm_name)
 
         try:
-            while True:
+            while self._running:
                 self.spin_once()
 
                 state = self.get_robot_state()
