@@ -1,5 +1,9 @@
+[env]
+RUSTC_WRAPPER = "sccache"
+
 [tools]
 rust = { version = "1.91", components="rust-analyzer" }
+sccache = "latest"
 
 [tasks.deps]
 description = "Fetch Rust dependencies using cargo"

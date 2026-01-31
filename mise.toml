@@ -33,11 +33,11 @@ run = ["yamlfmt -lint .github", "actionlint"]
 description = "Automatically format GitHub Actions workflow files using yamlfmt"
 run = "yamlfmt .github"
 
-[tasks.mdlint]
+[tasks.markdown_lint]
 description = "Lint all Markdown files in the repository, excluding environment and build directories"
 run = 'markdownlint-cli2 "**/*.md" "#**/.venv" "#**/node_modules" "#**/target" "#**/build" "#**/3rdparty"'
 
-[tasks.mdformat]
+[tasks.markdown_format]
 description = "Automatically format and fix issues in all Markdown files"
 run = 'markdownlint-cli2 "**/*.md" "#**/.venv" "#**/node_modules" "#**/target" "#**/build" "#**/3rdparty" --fix'
 
@@ -59,7 +59,7 @@ depends = [
   "//uart_bridge:lint",
   "//ui_system:lint",
   "//lidar_system:lint",
-  "//:mdlint",
+  "//:markdown_lint",
   "//:action_lint",
 ]
 
@@ -71,7 +71,7 @@ depends = [
   "//uart_bridge:format",
   "//ui_system:format",
   "//lidar_system:format",
-  "//:mdformat",
+  "//:markdown_format",
   "//:action_format",
 ]
 

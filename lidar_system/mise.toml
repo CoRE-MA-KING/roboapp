@@ -1,5 +1,10 @@
+[env]
+CMAKE_CXX_COMPILER_LAUNCHER = "sccache"
+CMAKE_C_COMPILER_LAUNCHER = "sccache"
+
 [tools]
 just = "latest"
+sccache = "latest"
 
 [tasks.deps]
 description = "Generate CMake build files using just and ninja"
