@@ -27,7 +27,7 @@ def run_application(
         SerialRobotDriver(robot_port) as robot_driver,
         ZenohTransmitter() as transmitter,
     ):
-        app = Application(robot_driver, transmitter)
+        app = Application((robot_driver, transmitter))
         app.spin()
 
 
