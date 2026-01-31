@@ -13,18 +13,17 @@ TOPICS = [
     "disks",
 ]
 
-# 受信時刻を保持する辞書
-# key: topic_name, value: deque of timestamps
-topic_data = {topic: deque() for topic in TOPICS}
-
-
-def callback(sample: zenoh.Sample) -> None:
-    key = str(sample.key_expr)
-    if key in topic_data:
-        topic_data[key].append(time.time())
-
 
 def main(stdscr: "curses.window") -> None:
+    # 受信時刻を保持する辞書
+    # key: topic_name, value: deque of timestamps
+    topic_data = {topic: deque() for topic in TOPICS}
+
+    def callback(sample: zenoh.Sample) -> None:
+        key = str(sample.key_expr)
+        if key in topic_data:
+            topic_data[key].append(time.time())
+
     # Curses設定
     curses.curs_set(0)  # カーソル非表示
     stdscr.nodelay(True)  # 入力待ちしない
