@@ -97,14 +97,16 @@ int main(int argc, char **argv) {
       }
 
       // Vectorを出力
-      auto vec = collision_avoidance.calcRepulsiveForce(data);
+      nlohmann::json vec = collision_avoidance.calcRepulsiveForce(data);
       // ロボット用に回転方向を反転
-      vec.angular = std::fmod(360.f - vec.angular, 360);
+      vec["angular"] = std::fmod(360.f - vec["angular"].get<float>(), 360);
       vec_publisher.put(vec.dump());
 
       // Rangeを出力
-      auto dist = rangeSeparater(data, 32, lidar_config_all.influence_range);
-      range_publisher.put(dist.dump());
+      nlohmann::json range_msg =
+          rangeSeparater(data, 32, lidar_config_all.influence_range);
+
+      range_publisher.put(range_msg.dump());
     }
 
     updated = false;

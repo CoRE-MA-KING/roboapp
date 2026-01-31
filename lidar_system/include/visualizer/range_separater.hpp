@@ -4,18 +4,18 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
-#include "lidar_types/near_distances.hpp"
+#include "lidar_types/lidar_range.hpp"
 
-inline NearDistances rangeSeparater(const std::vector<cv::Point2d> &data,
-                                    const uint32_t num = 4,
-                                    const float max_distance = 5000.0) {
+inline LiDARRangeMessage rangeSeparater(const std::vector<cv::Point2d> &data,
+                                        const uint32_t num = 4,
+                                        const float max_distance = 5000.0) {
   float angle_step = 360.0f / num;
 
-  NearDistances near;
+  LiDARRangeMessage near;
 
   for (auto i = 0; i < num; ++i) {
     near.data.push_back(
-        NearRange(i * angle_step, (i + 1) * angle_step, max_distance));
+        LiDARRange(i * angle_step, (i + 1) * angle_step, max_distance));
   }
 
   for (const auto &point : data) {
