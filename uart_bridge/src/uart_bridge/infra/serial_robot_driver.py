@@ -97,10 +97,9 @@ class SerialRobotDriver(RobotDriver):
         try:
             buffer = self._serial.readline()
             if buffer:
-                # print(f"read state: {buffer!r}")
                 pass
         except Exception as err:
-            print(err)
+            logging.error("Error reading from serial port: %s", err)
             if self._serial:
                 self._serial.close()
             self._serial = None
@@ -109,7 +108,7 @@ class SerialRobotDriver(RobotDriver):
         try:
             str_data = buffer.decode("ascii")
         except UnicodeDecodeError as err:
-            print(err)
+            logging.warning("UnicodeDecodeError on serial data: %s", err)
             return
 
         if "\n" in str_data:
@@ -119,15 +118,14 @@ class SerialRobotDriver(RobotDriver):
                 if len(parts) >= 8:
                     self._robot_state = self.raw_to_RobotState(parts)
             except ValueError as err:
-                print(err)
+                logging.warning("ValueError parsing serial data: %s", err)
 
         # 受信後すぐに送信処理を実施
         send_str = self.RobotCommand_to_raw(self._send_values)
         try:
             self._serial.write(send_str.encode())
-            # print(f"sent data: {send_str.strip()}")
         except Exception as err:
-            print(err)
+            logging.error("Error writing to serial port: %s", err)
             if self._serial:
                 self._serial.close()
             self._serial = None
