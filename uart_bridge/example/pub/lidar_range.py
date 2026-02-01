@@ -6,7 +6,7 @@ from uart_bridge.domain.transmitter_messages import (
     LiDARRangeMessage,
 )
 
-key_expr = "lidar/force_vector"
+key_expr = "lidar/range"
 
 
 class LiDARRangePub(ExamplePub):
@@ -16,7 +16,7 @@ class LiDARRangePub(ExamplePub):
                 LiDARRange(
                     min_degree=30 * _,
                     max_degree=30 * (_ + 1),
-                    distance=random.uniform(0.0, 10_000.0),
+                    distance=random.uniform(15.0, 5_000.0),
                 )
                 for _ in range(12)
             ]
