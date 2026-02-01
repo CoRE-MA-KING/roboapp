@@ -4,6 +4,7 @@ from threading import Lock
 import zenoh
 
 from uart_bridge.application.interfaces import Transmitter
+from uart_bridge.domain.config import get_config_path
 from uart_bridge.domain.messages import RobotCommand, RobotState
 from uart_bridge.domain.shared_memory import SharedRobotData
 from uart_bridge.domain.transmitter_messages import (
@@ -16,10 +17,15 @@ from uart_bridge.domain.transmitter_messages import (
 )
 
 
+def create_zenoh_session() -> zenoh.Session:
+    return zenoh.open(zenoh.Config.from_file(get_config_path() / "zenoh.json5"))
+
+
 class ZenohTransmitter(Transmitter):
     """Transmits data using Zenoh protocol."""
 
     def __init__(self) -> None:
+        super().__init__()
         self._command_mutex = Lock()
         self.robot_command = RobotCommand()
         self.publishers: dict[str, zenoh.Publisher] = {}
@@ -75,7 +81,7 @@ class ZenohTransmitter(Transmitter):
             self.zenoh_session.close()  # type: ignore
 
     def spin(self, shm_name: str, command_lock: Lock, state_lock: Lock) -> None:
-        self.zenoh_session = zenoh.open(zenoh.Config())
+        self.zenoh_session = create_zenoh_session()
 
         self.publishers["cam/switch"] = self.zenoh_session.declare_publisher(
             "cam/switch"
@@ -99,7 +105,7 @@ class ZenohTransmitter(Transmitter):
         last_send_time = time.time()
 
         try:
-            while True:
+            while self._running:
                 # SHMから状態読み込み
                 with state_lock:
                     state = shm.read_state()

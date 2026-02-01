@@ -2,8 +2,9 @@ import datetime
 import time
 from abc import ABC, abstractmethod
 
-import zenoh
 from pydantic import BaseModel
+
+from uart_bridge.infra.zenoh_transmitter import create_zenoh_session
 
 
 class ExamplePub(ABC):
@@ -11,7 +12,7 @@ class ExamplePub(ABC):
         if hz and hz <= 0:
             raise ValueError("hz must be a non-negative number")
 
-        self.session = zenoh.open(zenoh.Config())
+        self.session = create_zenoh_session()
         self.publisher = self.session.declare_publisher(key)
         self.hz = hz
 

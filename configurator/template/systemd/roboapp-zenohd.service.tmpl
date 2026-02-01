@@ -1,0 +1,20 @@
+[Unit]
+Description = Eclipse Zenoh Router
+Documentation=https://zenoh.io/docs/getting-started/key-concepts/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+Environment="RUST_LOG=info" "ZENOH_HOME=%h/.local/share/zenohd"
+ExecStart = /usr/bin/zenohd
+KillMode=mixed
+KillSignal=SIGINT
+RestartKillSignal=SIGINT
+Restart=always
+RestartSec=3
+SyslogIdentifier=zenohd
+
+[Install]
+WantedBy=default.target
+

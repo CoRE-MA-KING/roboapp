@@ -49,17 +49,15 @@ class Config(BaseModel):
     uart: UartConfig | None = None
 
 
+def get_config_path() -> Path:
+    """設定ファイルのパスを取得する"""
+    return Path(os.getenv("XDG_CONFIG_HOME", Path.home() / ".config")) / "roboapp"
+
+
 def load_config(file_path: Path | str | None = None) -> dict[str, Any]:
     """設定ファイルを読み込む"""
 
-    file = (
-        Path(file_path)
-        if file_path
-        else (
-            Path(os.getenv("XDG_CONFIG_HOME", Path.home() / ".config"))
-            / "roboapp/config.toml"
-        )
-    )
+    file = Path(file_path) if file_path else (get_config_path() / "config.toml")
 
     if not file.exists():
         raise FileNotFoundError(f"設定ファイルが見つかりません: {file}")

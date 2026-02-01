@@ -4,19 +4,23 @@ use dirs;
 use std::env;
 use std::path::PathBuf;
 
-fn parse_configpath(path: Option<PathBuf>) -> PathBuf {
+pub fn get_config_path() -> PathBuf {
+    match env::var("XDG_CONFIG_HOME") {
+        Ok(path) => PathBuf::from(path).join("roboapp"),
+        Err(_) => match dirs::home_dir() {
+            Some(home) => home.join(".config").join("roboapp"),
+            None => panic!("ホームディレクトリが取得できませんでした"),
+        },
+    }
+}
+
+fn get_config_file(path: Option<PathBuf>) -> PathBuf {
     match path {
         Some(p) => match p.canonicalize() {
             Ok(abs) => abs,
             Err(_) => p, // 解決できなければそのまま使う
         },
-        None => match env::var("XDG_CONFIG_HOME") {
-            Ok(path) => PathBuf::from(path).join("roboapp/config.toml"),
-            Err(_) => match dirs::home_dir() {
-                Some(home) => home.join(".config").join("roboapp/config.toml"),
-                None => panic!("ホームディレクトリが取得できませんでした"),
-            },
-        },
+        None => get_config_path().join("config.toml"),
     }
 }
 
@@ -84,7 +88,7 @@ pub struct Config {
 }
 
 pub fn load_config(path: Option<PathBuf>) -> Result<Config, Box<dyn std::error::Error>> {
-    let config_path = parse_configpath(path);
+    let config_path = get_config_file(path);
     let content = std::fs::read_to_string(config_path)?;
     let config: Config = toml::from_str(&content)?;
     Ok(config)
