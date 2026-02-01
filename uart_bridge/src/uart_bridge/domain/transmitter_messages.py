@@ -22,9 +22,23 @@ class DamagePanelRecognition(BaseModel):
     target_distance: int = 0
 
 
-class LiDARMessage(BaseModel):
+class LiDARVectorMessage(BaseModel):
     linear: float = Field(description="壁の斥力")
     angular: float = Field(description="壁の角度（度単位）")
+
+
+class LiDARRange(BaseModel):
+    min_degree: float = Field(
+        ge=0, le=360, description="LiDARデータの最小角度（度単位）"
+    )
+    max_degree: float = Field(
+        ge=0, le=360, description="LiDARデータの最大角度（度単位）"
+    )
+    distance: float = Field(ge=0, le=10_000, description="LiDARデータの距離（mm単位）")
+
+
+class LiDARRangeMessage(BaseModel):
+    data: list[LiDARRange] = Field(description="LiDARデータ (角度: 距離)")
 
 
 class DisksMessage(BaseModel):

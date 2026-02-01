@@ -7,6 +7,7 @@ import zenoh
 # 監視対象のトピック
 TOPICS = (
     "lidar/force_vector",
+    "lidar/range",
     "cam/switch",
     "damagepanel",
     "flap",

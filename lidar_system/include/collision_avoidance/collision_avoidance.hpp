@@ -19,14 +19,11 @@ struct RepulsiveForceVector {
     j.at("linear").get_to(this->linear);
     j.at("angular").get_to(this->angular);
   }
-
-  std::string dump() const {
-    nlohmann::json j;
-    j["linear"] = linear;
-    j["angular"] = angular;
-    return j.dump();
-  }
 };
+
+inline void to_json(nlohmann::json& j, const RepulsiveForceVector& rfv) {
+  j = nlohmann::json{{"linear", rfv.linear}, {"angular", rfv.angular}};
+}
 
 class CollisionAvoidance {
  public:

@@ -49,8 +49,8 @@
 	});
 
 	$effect(() => {
-		let unlistenPromise = listen("lidar/force_vector", (event) => {
-			lidarMessageStore.set(JSON.parse(event.payload as string) as LiDARMessage);
+		let unlistenPromise = listen("flap", (event) => {
+			flapMessageStore.set(JSON.parse(event.payload as string) as FlapMessage);
 		});
 		return () => {
 			unlistenPromise.then((unlisten) => unlisten());
@@ -58,8 +58,8 @@
 	});
 
 	$effect(() => {
-		let unlistenPromise = listen("flap", (event) => {
-			flapMessageStore.set(JSON.parse(event.payload as string) as FlapMessage);
+		let unlistenPromise = listen("lidar/range", (event) => {
+			lidarMessageStore.set(JSON.parse(event.payload as string) as LiDARMessage);
 		});
 		return () => {
 			unlistenPromise.then((unlisten) => unlisten());
