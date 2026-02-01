@@ -12,6 +12,7 @@ from uart_bridge.domain.transmitter_messages import (
     DisksMessage,
     FlapMessage,
     LiDARVectorMessage,
+    RobotStateMessage,
 )
 
 
@@ -40,6 +41,13 @@ class ZenohTransmitter(Transmitter):
         self.publishers["flap"].put(
             FlapMessage(
                 pitch=robot_state.pitch_deg, yaw=robot_state.yaw_deg
+            ).model_dump_json()
+        )
+
+        self.publishers["robotstate"].put(
+            RobotStateMessage(
+                state=robot_state.state_id.value,
+                color="red" if robot_state.flags.is_red else "blue",
             ).model_dump_json()
         )
 
@@ -76,6 +84,10 @@ class ZenohTransmitter(Transmitter):
         self.publishers["disks"] = self.zenoh_session.declare_publisher("disks")
 
         self.publishers["flap"] = self.zenoh_session.declare_publisher("flap")
+
+        self.publishers["robotstate"] = self.zenoh_session.declare_publisher(
+            "robotstate"
+        )
 
         self.zenoh_session.declare_subscriber(
             "lidar/force_vector",
