@@ -12,7 +12,7 @@ def main(port: str) -> None:
     Arduino の dummy_fw_arduino.ino と同等のデータを標準出力に書き出すスクリプト。
     10ms間隔で CSV 形式のセンサーデータを生成します。
     """
-    interval_ms = 0.01  # 10ms
+    interval_sec = 0.01  # 10ms
 
     with serial.Serial(port=port) as myserial:
         while True:
