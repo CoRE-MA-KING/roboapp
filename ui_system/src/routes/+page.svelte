@@ -6,7 +6,6 @@
 	import RobotStatus from "$lib/components/RobotStatus.svelte";
 	import { cameraIdStore } from "$lib/store/cameraid.svelte";
 	import { leftDiskStore, rightDiskStore } from "$lib/store/disks.svelte";
-	import { lidarMessageStore } from "$lib/store/lidar.svelte";
 	import { invoke } from "@tauri-apps/api/core";
 	import { getMatches } from "@tauri-apps/plugin-cli";
 	import { onMount } from "svelte";
@@ -38,19 +37,19 @@
 
 <main>
 	<Background />
-	<div class="absolute w-full h-full">
-		<ImageViewer {host} {port} />
-	</div>
-	<div class="absolute w-full h-full bottom-0">
-		<LiDARRange />
-	</div>
-
 	<p>
 		"Camera ID: {$cameraIdStore}"
 	</p>
-	<p>
-		"LiDAR: {$lidarMessageStore?.data.length ?? 0} points"
-	</p>
+	<div class="absolute w-full h-full">
+		<ImageViewer {host} {port} />
+	</div>
+
+	{#if $cameraIdStore == 0}
+		<div class="absolute w-full h-full bottom-0">
+			<LiDARRange />
+		</div>
+	{/if}
+
 	<div class="absolute top-[30vh] w-[5vw] h-[20vh] left-[5vw]">
 		<Disks id="left-disk" classes="" num={leftDiskStore} width={50} height={400} stroke={5} />
 	</div>
