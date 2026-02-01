@@ -16,7 +16,7 @@ class LiDARRangePub(ExamplePub):
                 LiDARRange(
                     min_degree=30 * _,
                     max_degree=30 * (_ + 1),
-                    distance=random.uniform(15.0, 5_000.0),
+                    distance=random.uniform(15.0, 2_000.0),
                 )
                 for _ in range(12)
             ]

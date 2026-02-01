@@ -56,6 +56,7 @@ class SerialRobotDriver(RobotDriver):
                 stopbits=self._stopbits,
                 parity=self._parity,
                 timeout=self._timeout,
+                write_timeout=0,
             )
         except serial.SerialException as err:
             logging.error("Failed to open serial port: %s", err)
@@ -96,9 +97,26 @@ class SerialRobotDriver(RobotDriver):
             return
 
         try:
-            buffer = self._serial.readline()
-            if buffer:
-                pass
+            # 1. 最低1行読み込む（タイムアウトまで待機）
+            line = self._serial.readline()
+
+            # 2. バッファに溜まっている残りのデータを全て読み込み、最新の行に更新する
+            # これにより処理が遅れた際のラグを防止する
+            if self._serial.in_waiting > 0:
+                remaining_data = self._serial.read(self._serial.in_waiting)
+                # 最後の改行の位置を探す
+                last_newline_idx = remaining_data.rfind(b"\n")
+                if last_newline_idx != -1:
+                    # 最後の改行以前のデータを分割し、末尾（最新の完全な行）を取得
+                    lines = remaining_data[:last_newline_idx].split(b"\n")
+                    if lines:
+                        line = lines[-1]
+
+            if line:
+                str_data = line.decode("ascii", errors="ignore").strip()
+                parts = str_data.split(",")
+                if len(parts) >= 8:
+                    self._robot_state = self.raw_to_RobotState(parts)
         except Exception as err:
             logging.error("Error reading from serial port: %s", err)
             if self._serial:
@@ -106,25 +124,12 @@ class SerialRobotDriver(RobotDriver):
             self._serial = None
             return
 
-        try:
-            str_data = buffer.decode("ascii")
-        except UnicodeDecodeError as err:
-            logging.warning("UnicodeDecodeError on serial data: %s", err)
-            return
-
-        if "\n" in str_data:
-            try:
-                str_data = str_data.strip()
-                parts = str_data.split(",")
-                if len(parts) >= 8:
-                    self._robot_state = self.raw_to_RobotState(parts)
-            except ValueError as err:
-                logging.warning("ValueError parsing serial data: %s", err)
-
         # 受信後すぐに送信処理を実施
         send_str = self.RobotCommand_to_raw(self._send_values)
         try:
             self._serial.write(send_str.encode())
+        except serial.SerialTimeoutException:
+            pass
         except Exception as err:
             logging.error("Error writing to serial port: %s", err)
             if self._serial:
@@ -155,10 +160,12 @@ class SerialRobotDriver(RobotDriver):
 
                 state = self.get_robot_state()
                 with state_lock:
+                    # print(f"Send:\t{state}",end="\t")
                     shm.write_state(state)
 
                 with command_lock:
                     command = shm.read_command()
+                    # print(f"Receive:\t{command}")
                 self.set_send_values(command)
 
         except KeyboardInterrupt:

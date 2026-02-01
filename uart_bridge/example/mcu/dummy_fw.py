@@ -14,7 +14,7 @@ def main(port: str) -> None:
     """
     interval_sec = 0.01  # 10ms
 
-    with serial.Serial(port=port) as myserial:
+    with serial.Serial(port=port, write_timeout=0) as myserial:
         while True:
             start_time = time.perf_counter()
 
@@ -29,8 +29,18 @@ def main(port: str) -> None:
             reserved = 0  # 7: 予備 (常に0)
 
             # CSV形式で出力
+
             data = f"{robot_status},{pitch},{yaw},{left_frisbee},{right_frisbee},{camera_id},{flags},{reserved}\n"
-            myserial.write(data.encode())
+            try:
+                # 送信
+                myserial.write(data.encode())
+                print(f"{time.time()}: {data}", end="")
+                # 受信バッファを空にする（読み捨て）
+            except serial.SerialTimeoutException:
+                pass  # バッファがいっぱいの場合はデータを捨てる
+
+            if myserial.in_waiting > 0:
+                myserial.read(myserial.in_waiting)
 
             # 10ms 間隔を維持するための調整
             elapsed = time.perf_counter() - start_time
