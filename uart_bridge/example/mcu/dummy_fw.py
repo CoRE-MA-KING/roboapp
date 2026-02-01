@@ -34,7 +34,7 @@ def main(port: str) -> None:
 
             # 10ms 間隔を維持するための調整
             elapsed = time.perf_counter() - start_time
-            sleep_time = interval_ms - elapsed
+            sleep_time = interval_sec - elapsed
             if sleep_time > 0:
                 time.sleep(sleep_time)
 

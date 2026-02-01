@@ -1,4 +1,5 @@
 import os
+import platform
 import tomllib
 from pathlib import Path
 from typing import Any
@@ -12,7 +13,13 @@ def get_dummy_port() -> tuple[Path, Path]:
 
     Returns:
         tuple[Path, Path]: (MCU側のポートパス, Bridge側のポートパス)
+
+    Raises:
+        NotImplementedError: Linux 以外の環境で実行された場合。
     """
+    if platform.system() != "Linux":
+        raise NotImplementedError("Dummy port feature is only supported on Linux.")
+
     base_dir = Path(os.getenv("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}"))
     mcu_port = base_dir / "roboapp_mcu"
     bridge_port = base_dir / "roboapp_bridge"
