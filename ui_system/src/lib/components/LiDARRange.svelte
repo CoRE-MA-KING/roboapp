@@ -8,7 +8,7 @@
 	let viewBox = `0 0 ${image_width} ${image_height}`;
 
 	let dvs = new SvelteMap<number, number>();
-	let near_distance = 150; // in mm
+	let near_distance = 1_000; // in mm
 
 	lidarMessageStore.subscribe((value) => {
 		dvs.clear();
