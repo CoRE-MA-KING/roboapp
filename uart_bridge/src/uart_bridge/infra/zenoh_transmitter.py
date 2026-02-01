@@ -12,7 +12,8 @@ from uart_bridge.domain.transmitter_messages import (
     DamagePanelRecognition,
     DisksMessage,
     FlapMessage,
-    LiDARMessage,
+    LiDARVectorMessage,
+    RobotStateMessage,
 )
 
 
@@ -49,6 +50,13 @@ class ZenohTransmitter(Transmitter):
             ).model_dump_json()
         )
 
+        self.publishers["robotstate"].put(
+            RobotStateMessage(
+                state=robot_state.state_id.value,
+                color="red" if robot_state.flags.is_red else "blue",
+            ).model_dump_json()
+        )
+
     def damagepanel_subscriber(self, sample: zenoh.Sample) -> None:
         d = DamagePanelRecognition.model_validate_json(sample.payload.to_string())
 
@@ -58,7 +66,7 @@ class ZenohTransmitter(Transmitter):
             self.robot_command.target_distance = d.target_distance
 
     def lidar_subscriber(self, sample: zenoh.Sample) -> None:
-        m = LiDARMessage.model_validate_json(sample.payload.to_string())
+        m = LiDARVectorMessage.model_validate_json(sample.payload.to_string())
         with self._command_mutex:
             self.robot_command.force_linear = int(m.linear)
             self.robot_command.force_angular = int(m.angular * 10)
@@ -73,7 +81,7 @@ class ZenohTransmitter(Transmitter):
             self.zenoh_session.close()  # type: ignore
 
     def spin(self, shm_name: str, command_lock: Lock, state_lock: Lock) -> None:
-        self.zenoh_session = zenoh.open(zenoh.Config())
+        self.zenoh_session = create_zenoh_session()
 
         self.publishers["cam/switch"] = self.zenoh_session.declare_publisher(
             "cam/switch"
@@ -82,6 +90,10 @@ class ZenohTransmitter(Transmitter):
         self.publishers["disks"] = self.zenoh_session.declare_publisher("disks")
 
         self.publishers["flap"] = self.zenoh_session.declare_publisher("flap")
+
+        self.publishers["robotstate"] = self.zenoh_session.declare_publisher(
+            "robotstate"
+        )
 
         self.zenoh_session.declare_subscriber(
             "lidar/force_vector",

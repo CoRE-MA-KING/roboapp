@@ -6,10 +6,12 @@ from uart_bridge.infra.zenoh_transmitter import create_zenoh_session
 
 key_expr = (
     "lidar/force_vector",
+    "lidar/range",
     "cam/switch",
     "damagepanel",
     "flap",
     "disks",
+    "robotstate",
 )
 
 
