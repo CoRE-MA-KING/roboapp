@@ -10,14 +10,12 @@ export type CameraSwitchMessage = {
 };
 
 export type LiDARRange = {
-	min_degree: number;
-	max_degree: number;
-	distance: number;
+	left: number;
+	rear_left: number;
+	rear_right: number;
+	rear: number;
 };
 
-export type LiDARMessage = {
-	data: LiDARRange[];
-};
 
 export type DisksMessage = {
 	left: number;
