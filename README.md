@@ -45,6 +45,10 @@ uv run python3 src/configurator/check.py
 
 - main camera system で出力した画像を受信するサンプルです
 
+### lidar_system
+
+- LiDARを用いて、障害物回避のための力ベクトルを算出します
+
 ### ui_system
 
 - データをUIに描画し、GUIで表示します
@@ -63,36 +67,40 @@ uv run python3 src/configurator/check.py
 | uart_bridge            | cam/switch         | CameraSwitchMessage    |
 | uart_bridge            | disks              | DisksMessage           |
 | uart_bridge            | flap               | FlapMessage            |
+| uart_bridge            | robotstate         | RobotStateMessage      |
 | damage_panel_recog     | damagepanel        | DamagePanelRecognition |
 | lidar_system/sender    | lidar/data         | LiDARData              |
-| lidar_system/processor | lidar/force_vector | LiDARMessage           |
+| lidar_system/sender    | lidar/range        | LiDARRangeMessage      |
+| lidar_system/processor | lidar/force_vector | LiDARVectorMessage     |
 
 ### ネットワーク
 
 ```mermaid
     flowchart LR
 
-    C[main_camera_system]
-    T[UI System]
-    M{{STM32}}
-    U[Uart Bridge]
-    D[Damage Panel Recognition]
     LS1(LiDARSystem/Sender1)
     LS2(LiDARSystem/Sender2)
     LP(LiDARSystem/Processor)
-    LV(LiDARSystem/Veiwer)
+    LV(LiDARSystem/Viewer)
+    M{{STM32}}
+    C[main_camera_system]
+    U[Uart Bridge]
+    T[UI System]
+    D[Damage Panel Recognition]
 
+    LS1 -- lidar/data --> LP
+    LS2 -- lidar/data --> LP
+    LP -- lidar/force_vector --> U
+    LP -- lidar/force_vector --> LV
+    LP -- lidar/range --> T
     C -- （WebSocket）--> T
     U -- cam/switch --> T
     U -- cam/switch --> C
     U -- disks --> T
     U -- flap --> T
+    U -- robotstate --> T
     U -- （UART：RobotCommand） --> M
     M -- （UART：RobotState） --> U
     D -- damagepanel --> U
     D -- damagepanel --> T
-    LS1 -- lidar/data --> LP
-    LS2 -- lidar/data --> LP
-    LP -- lidar/force_vector --> U
-    LP -- lidar/force_vector --> LV
 ```

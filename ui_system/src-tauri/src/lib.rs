@@ -104,7 +104,13 @@ fn get_config_port(global_config: State<'_, Mutex<config::GlobalConfig>>) -> Res
 async fn zenoh_sub(app: AppHandle) {
     zenoh::init_log_from_env_or("error");
 
-    let session = zenoh_client::create_zenoh_session();
+    let session = match zenoh_client::create_zenoh_session() {
+        Ok(session) => session,
+        Err(e) => {
+            eprintln!("Failed to create Zenoh session: {}", e);
+            return;
+        }
+    };
 
     let app = Arc::new(app);
 
@@ -112,7 +118,8 @@ async fn zenoh_sub(app: AppHandle) {
     declare_and_emit(&session, Arc::clone(&app), "damagepanel").await;
     declare_and_emit(&session, Arc::clone(&app), "disks").await;
     declare_and_emit(&session, Arc::clone(&app), "flap").await;
-    declare_and_emit(&session, Arc::clone(&app), "lidar/force_vector").await;
+    declare_and_emit(&session, Arc::clone(&app), "lidar/range").await;
+    declare_and_emit(&session, Arc::clone(&app), "robotstate").await;
 
     loop {
         tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;

@@ -1,6 +1,7 @@
 <script module lang="ts">
 	import { pitch_to_pixel } from "$lib/functions/flap_calc";
 	import { yaw_to_pixel } from "$lib/functions/flap_calc";
+	import { cameraIdStore } from "$lib/store/cameraid.svelte";
 	import { damagePanelStore } from "$lib/store/damagepanel.svelte";
 	import { flapMessageStore } from "$lib/store/flap.svelte";
 	import {
@@ -68,60 +69,62 @@
 		class="absolute top-0 left-0 w-full h-full object-contain"
 		alt="受信した画像がここに表示されます"
 	/>
-	<svg
-		baseProfile="full"
-		{viewBox}
-		class="absolute top-0 left-0 pointer-events-none"
-		xmlns="http://www.w3.org/2000/svg"
-		xmlns:xlink="http://www.w3.org/1999/xlink"
-	>
-		<!-- Damage Panel -->
-		{#if $damagePanelStore}
-			<rect
-				height={target_height}
-				width={target_width}
-				x={$damagePanelStore.x - target_width / 2}
-				y={$damagePanelStore.y - target_height / 2}
-				fill-opacity="0.0"
-				stroke="red"
+	{#if $cameraIdStore == 0}
+		<svg
+			baseProfile="full"
+			{viewBox}
+			class="absolute top-0 left-0 pointer-events-none"
+			xmlns="http://www.w3.org/2000/svg"
+			xmlns:xlink="http://www.w3.org/1999/xlink"
+		>
+			<!-- Damage Panel -->
+			{#if $damagePanelStore}
+				<rect
+					height={target_height}
+					width={target_width}
+					x={$damagePanelStore.x - target_width / 2}
+					y={$damagePanelStore.y - target_height / 2}
+					fill-opacity="0.0"
+					stroke="red"
+					stroke-width="4"
+				/>
+			{/if}
+			<!-- Center Crosshair -->
+			<line
+				x1={image_width / 2 - crosshair_size / 2}
+				y1={image_height / 2}
+				x2={image_width / 2 + crosshair_size / 2}
+				y2={image_height / 2}
+				stroke="gray"
 				stroke-width="4"
 			/>
-		{/if}
-		<!-- Center Crosshair -->
-		<line
-			x1={image_width / 2 - crosshair_size / 2}
-			y1={image_height / 2}
-			x2={image_width / 2 + crosshair_size / 2}
-			y2={image_height / 2}
-			stroke="gray"
-			stroke-width="4"
-		/>
-		<line
-			x1={image_width / 2}
-			y1={image_height / 2 - crosshair_size / 2}
-			x2={image_width / 2}
-			y2={image_height / 2 + crosshair_size / 2}
-			stroke="gray"
-			stroke-width="4"
-		/>
-		<!-- Target Center Crosshair -->
-		{#if $flapMessageStore}
 			<line
-				x1={yaw_to_pixel($flapMessageStore.yaw) + image_width / 2 - crosshair_size / 2}
-				x2={yaw_to_pixel($flapMessageStore.yaw) + image_width / 2 + crosshair_size / 2}
-				y1={-pitch_to_pixel($flapMessageStore.pitch) + image_height / 2}
-				y2={-pitch_to_pixel($flapMessageStore.pitch) + image_height / 2}
-				stroke="red"
-				stroke-width="8"
+				x1={image_width / 2}
+				y1={image_height / 2 - crosshair_size / 2}
+				x2={image_width / 2}
+				y2={image_height / 2 + crosshair_size / 2}
+				stroke="gray"
+				stroke-width="4"
 			/>
-			<line
-				x1={yaw_to_pixel($flapMessageStore.yaw) + image_width / 2}
-				x2={yaw_to_pixel($flapMessageStore.yaw) + image_width / 2}
-				y1={-pitch_to_pixel($flapMessageStore.pitch) + image_height / 2 - crosshair_size / 2}
-				y2={-pitch_to_pixel($flapMessageStore.pitch) + image_height / 2 + crosshair_size / 2}
-				stroke="red"
-				stroke-width="8"
-			/>
-		{/if}
-	</svg>
+			<!-- Target Center Crosshair -->
+			{#if $flapMessageStore}
+				<line
+					x1={yaw_to_pixel($flapMessageStore.yaw) + image_width / 2 - crosshair_size / 2}
+					x2={yaw_to_pixel($flapMessageStore.yaw) + image_width / 2 + crosshair_size / 2}
+					y1={-pitch_to_pixel($flapMessageStore.pitch) + image_height / 2}
+					y2={-pitch_to_pixel($flapMessageStore.pitch) + image_height / 2}
+					stroke="red"
+					stroke-width="8"
+				/>
+				<line
+					x1={yaw_to_pixel($flapMessageStore.yaw) + image_width / 2}
+					x2={yaw_to_pixel($flapMessageStore.yaw) + image_width / 2}
+					y1={-pitch_to_pixel($flapMessageStore.pitch) + image_height / 2 - crosshair_size / 2}
+					y2={-pitch_to_pixel($flapMessageStore.pitch) + image_height / 2 + crosshair_size / 2}
+					stroke="red"
+					stroke-width="8"
+				/>
+			{/if}
+		</svg>
+	{/if}
 </div>

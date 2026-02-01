@@ -4,19 +4,23 @@ use dirs;
 use std::env;
 use std::path::PathBuf;
 
+pub fn get_config_path() -> PathBuf {
+    match env::var("XDG_CONFIG_HOME") {
+        Ok(path) => PathBuf::from(path).join("roboapp"),
+        Err(_) => match dirs::home_dir() {
+            Some(home) => home.join(".config").join("roboapp"),
+            None => panic!("ホームディレクトリが取得できませんでした"),
+        },
+    }
+}
+
 fn get_config_file(file_path: Option<&str>) -> PathBuf {
     match file_path {
         Some(p2) => match PathBuf::from(p2).canonicalize() {
             Ok(abs) => abs,
             Err(_) => panic!("不明なファイルです"),
         },
-        None => match env::var("XDG_CONFIG_HOME") {
-            Ok(path) => PathBuf::from(path).join("roboapp/config.toml"),
-            Err(_) => match dirs::home_dir() {
-                Some(home) => home.join(".config").join("roboapp/config.toml"),
-                None => panic!("ホームディレクトリが取得できませんでした"),
-            },
-        },
+        None => get_config_path().join("config.toml"),
     }
 }
 

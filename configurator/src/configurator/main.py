@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 
 from prompt_toolkit.shortcuts import (
@@ -38,6 +39,10 @@ if __name__ == "__main__":
                 exit(0)
             check(Path(target))
         case "install":
+            shutil.copy2(
+                Path(__file__).parents[2] / "template" / "zenoh.json5",
+                get_default_config_path("zenoh.json5"),
+            )
             place_systemd()
         case "start":
             res_start: bool | None = radiolist_dialog(

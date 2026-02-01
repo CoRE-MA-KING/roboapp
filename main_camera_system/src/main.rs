@@ -2,7 +2,7 @@ use clap::Parser;
 use futures_util::{SinkExt, StreamExt};
 use log::{debug, error, info};
 use main_camera_system::camera_wrapper::create_camera_stream;
-use main_camera_system::config::load_config;
+use main_camera_system::config::{get_config_path, load_config};
 use main_camera_system::messages::CameraSwitchMessage;
 use std::env;
 use std::path::PathBuf;
@@ -52,12 +52,28 @@ async fn main() {
 
     // Initialize Zenoh client
 
-    let mut zenoh_config = zenoh::config::Config::default();
-    zenoh_config
-        .insert_json5("timestamping/enabled", "true")
-        .unwrap();
+    let zenoh_config = match zenoh::config::Config::from_file(get_config_path().join("zenoh.json5"))
+    {
+        Ok(config) => config,
+        Err(e) => {
+            error!(
+                "Failed to load zenoh.json5 configuration file: {}. Please ensure it exists or run the configurator.",
+                e
+            );
+            std::process::exit(1);
+        }
+    };
 
-    let zenoh = zenoh::open(zenoh_config).await.unwrap();
+    let zenoh = match zenoh::open(zenoh_config).await {
+        Ok(session) => session,
+        Err(e) => {
+            error!(
+                "Failed to open Zenoh session: {}. Please check if zenohd is running.",
+                e
+            );
+            std::process::exit(1);
+        }
+    };
 
     let jpg_publisher: Option<zenoh::pubsub::Publisher> = if camera_config.zenoh {
         let topic_name = "cam/jpg";

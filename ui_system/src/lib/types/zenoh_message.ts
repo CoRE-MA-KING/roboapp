@@ -1,12 +1,22 @@
 export type cameraID = number;
 
+export type RobotStateMessage = {
+	state: number;
+	color: string;
+};
+
 export type CameraSwitchMessage = {
 	camera_id: cameraID;
 };
 
+export type LiDARRange = {
+	min_degree: number;
+	max_degree: number;
+	distance: number;
+};
+
 export type LiDARMessage = {
-	linear: number;
-	angular: number;
+	data: LiDARRange[];
 };
 
 export type DisksMessage = {

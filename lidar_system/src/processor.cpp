@@ -9,8 +9,8 @@
 
 #include "collision_avoidance/collision_avoidance.hpp"
 #include "config.hpp"
+#include "visualizer/range_separater.hpp"
 #include "zenoh.hxx"
-
 DEFINE_string(
     c, "", "config file path: Default `$XDG_CONFIG_DIR/roboapp/config.toml`");
 
@@ -48,8 +48,8 @@ int main(int argc, char **argv) {
       lidar_config_all.repulsive_gain, lidar_config_all.influence_range);
 
   // Zenoh Setup
-  auto zenoh_config = zenoh::Config::create_default();
-  zenoh_config.insert_json5(Z_CONFIG_ADD_TIMESTAMP_KEY, "true");
+  auto zenoh_config =
+      zenoh::Config::from_file((get_default_path() / "zenoh.json5").string());
 
   auto session = zenoh::Session(std::move(zenoh_config));
   session.declare_background_subscriber(  //
@@ -72,6 +72,8 @@ int main(int argc, char **argv) {
 
   auto vec_publisher =
       session.declare_publisher(zenoh::KeyExpr("lidar/force_vector"));
+  auto range_publisher =
+      session.declare_publisher(zenoh::KeyExpr("lidar/range"));
 
   while (true) {
     auto now = std::chrono::system_clock::now();
@@ -94,14 +96,17 @@ int main(int argc, char **argv) {
         data.insert(data.end(), p.begin(), p.end());
       }
 
-      auto vec = collision_avoidance.calcRepulsiveForce(data);
-
+      // Vectorを出力
+      nlohmann::json vec = collision_avoidance.calcRepulsiveForce(data);
       // ロボット用に回転方向を反転
-      vec.angular = std::fmod(360.f - vec.angular, 360);
-
+      vec["angular"] = std::fmod(360.f - vec["angular"].get<float>(), 360);
       vec_publisher.put(vec.dump());
 
-      std::cout << vec.dump() << std::endl;
+      // Rangeを出力
+      nlohmann::json range_msg =
+          rangeSeparater(data, 32, lidar_config_all.influence_range);
+
+      range_publisher.put(range_msg.dump());
     }
 
     updated = false;

@@ -15,10 +15,16 @@ class ApplicationInterface(ABC):
 
 
 class RoboappBridgeDriver(ABC):
+    def __init__(self) -> None:
+        self._running = True
+
     def pre_spin(self, shm_name: str, command_lock: Lock, state_lock: Lock) -> None:
         self.shm = SharedRobotData(name=shm_name)
         self.command_lock = command_lock
         self.state_lock = state_lock
+
+    def stop(self) -> None:
+        self._running = False
 
     def __enter__(self) -> Self:
         return self
