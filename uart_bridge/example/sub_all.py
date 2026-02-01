@@ -8,6 +8,7 @@ key_expr = (
     "damagepanel",
     "flap",
     "disks",
+    "robotstate",
 )
 
 

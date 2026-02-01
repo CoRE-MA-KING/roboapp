@@ -11,6 +11,7 @@ TOPICS = (
     "damagepanel",
     "flap",
     "disks",
+    "robotstate",
 )
 
 

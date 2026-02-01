@@ -1,5 +1,10 @@
 export type cameraID = number;
 
+export type RobotStateMessage = {
+	state: number;
+	color: string;
+};
+
 export type CameraSwitchMessage = {
 	camera_id: cameraID;
 };
