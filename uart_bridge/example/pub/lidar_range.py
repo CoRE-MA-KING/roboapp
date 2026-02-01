@@ -3,23 +3,18 @@ import random
 from uart_bridge.application.example import ExamplePub
 from uart_bridge.domain.transmitter_messages import (
     LiDARRange,
-    LiDARRangeMessage,
 )
 
 key_expr = "lidar/range"
 
 
 class LiDARRangePub(ExamplePub):
-    def create_message(self) -> LiDARRangeMessage:
-        return LiDARRangeMessage(
-            data=[
-                LiDARRange(
-                    min_degree=30 * _,
-                    max_degree=30 * (_ + 1),
-                    distance=random.uniform(15.0, 2_000.0),
-                )
-                for _ in range(12)
-            ]
+    def create_message(self) -> LiDARRange:
+        return LiDARRange(
+            left=random.uniform(15.0, 2_000.0),
+            rear_left=random.uniform(15.0, 2_000.0),
+            rear_right=random.uniform(15.0, 2_000.0),
+            right=random.uniform(15.0, 2_000.0),
         )
 
 
