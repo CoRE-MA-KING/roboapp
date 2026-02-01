@@ -104,7 +104,7 @@ int main(int argc, char **argv) {
 
       // Rangeを出力
       nlohmann::json range_msg =
-          rangeSeparater(data, 32, lidar_config_all.influence_range);
+          rangeSeparater(data, lidar_config_all.influence_range);
 
       range_publisher.put(range_msg.dump());
     }

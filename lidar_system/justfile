@@ -2,6 +2,9 @@
 
 target := './include ./src -regex ".*\.\(c\|h\|cpp\|hpp\)$"'
 
+target:
+    find {{ target }} -type f;
+
 deps:
     cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 
