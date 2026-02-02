@@ -13,9 +13,8 @@ export type LiDARRange = {
 	left: number;
 	rear_left: number;
 	rear_right: number;
-	rear: number;
+	right: number;
 };
-
 
 export type DisksMessage = {
 	left: number;

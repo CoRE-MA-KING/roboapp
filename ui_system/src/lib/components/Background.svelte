@@ -11,7 +11,7 @@
 		DamagePanelMessage,
 		DisksMessage,
 		FlapMessage,
-		LiDARMessage,
+		LiDARRange,
 		RobotStateMessage
 	} from "$lib/types/zenoh_message";
 	import { listen } from "@tauri-apps/api/event";
@@ -59,7 +59,8 @@
 
 	$effect(() => {
 		let unlistenPromise = listen("lidar/range", (event) => {
-			lidarMessageStore.set(JSON.parse(event.payload as string) as LiDARMessage);
+			lidarMessageStore.set(JSON.parse(event.payload as string) as LiDARRange);
+			console.log("LiDAR range message received", event.payload as string);
 		});
 		return () => {
 			unlistenPromise.then((unlisten) => unlisten());
