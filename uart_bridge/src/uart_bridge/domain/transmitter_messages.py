@@ -30,17 +30,14 @@ class LiDARVectorMessage(BaseModel):
 
 
 class LiDARRange(BaseModel):
-    min_degree: float = Field(
-        ge=0, le=360, description="LiDARデータの最小角度（度単位）"
+    left: float = Field(ge=0, le=10_000, description="左LiDARデータの距離（mm単位）")
+    rear_left: float = Field(
+        ge=0, le=10_000, description="左後方LiDARデータの距離（mm単位）"
     )
-    max_degree: float = Field(
-        ge=0, le=360, description="LiDARデータの最大角度（度単位）"
+    rear_right: float = Field(
+        ge=0, le=10_000, description="右後方LiDARデータの距離（mm単位）"
     )
-    distance: float = Field(ge=0, le=10_000, description="LiDARデータの距離（mm単位）")
-
-
-class LiDARRangeMessage(BaseModel):
-    data: list[LiDARRange] = Field(description="LiDARデータ (角度: 距離)")
+    right: float = Field(ge=0, le=10_000, description="右LiDARデータの距離（mm単位）")
 
 
 class DisksMessage(BaseModel):
