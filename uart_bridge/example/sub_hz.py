@@ -2,8 +2,9 @@ import curses
 import time
 from collections import deque
 
-from uart_bridge.infra.zenoh_transmitter import create_zenoh_session
 import zenoh
+
+from uart_bridge.infra.zenoh_transmitter import create_zenoh_session
 
 # 監視対象のトピック
 TOPICS = (
