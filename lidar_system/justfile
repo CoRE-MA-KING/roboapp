@@ -9,7 +9,7 @@ deps:
     cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 
 clang-tidy:
-    run-clang-tidy -p ./build -header-filter='^(include|src)/' '^src/.*' '^include/.*';
+    run-clang-tidy -quiet -p ./build -header-filter='^(include|src)/' '^src/.*' '^include/.*';
 
 format:
     find {{ target }} -exec clang-format -i {} +;

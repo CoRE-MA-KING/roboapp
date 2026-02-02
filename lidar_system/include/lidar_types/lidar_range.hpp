@@ -1,5 +1,6 @@
 #ifndef NEAR_DISTANCES_HPP
 #define NEAR_DISTANCES_HPP
+#include <limits>
 #include <nlohmann/json.hpp>
 #include <vector>
 
@@ -10,13 +11,11 @@ class LiDARRange {
   float rear_left;
   float rear_right;
 
-  LiDARRange() = default;
-  LiDARRange(float left_val, float right_val, float rear_left_val,
-             float rear_right_val)
-      : left(left_val),
-        right(right_val),
-        rear_left(rear_left_val),
-        rear_right(rear_right_val) {}
+  LiDARRange()
+      : left(std::numeric_limits<float>::max()),
+        rear_left(std::numeric_limits<float>::max()),
+        rear_right(std::numeric_limits<float>::max()),
+        right(std::numeric_limits<float>::max()){};
 };
 
 inline void to_json(nlohmann::json& j, const LiDARRange& nr) {

@@ -1,17 +1,18 @@
 #ifndef RANGE_SEPARATER_HPP_
 #define RANGE_SEPARATER_HPP_
 
+#include <algorithm>
 #include <opencv2/opencv.hpp>
 #include <vector>
 
 #include "lidar_types/lidar_range.hpp"
 
-inline LiDARRange rangeSeparater(const std::vector<cv::Point2d> &data,
-                                 const float max_distance = 5000.0) {
-  LiDARRange range(max_distance, max_distance, max_distance, max_distance);
+inline LiDARRange rangeSeparater(const std::vector<cv::Point2d> &data) {
+  LiDARRange range;
 
   for (const auto &point : data) {
-    float distance = std::sqrt(point.x * point.x + point.y * point.y);
+    float distance =
+        std::max(0.0, std::sqrt(point.x * point.x + point.y * point.y));
     float degree = std::fmod(
         (std::atan2(point.y, point.x) * 180.0f / CV_PI) + 360.0f, 360.0f);
 

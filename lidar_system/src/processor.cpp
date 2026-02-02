@@ -103,8 +103,7 @@ int main(int argc, char **argv) {
       vec_publisher.put(vec.dump());
 
       // Rangeを出力
-      nlohmann::json range_msg =
-          rangeSeparater(data, lidar_config_all.influence_range);
+      nlohmann::json range_msg = rangeSeparater(data);
 
       range_publisher.put(range_msg.dump());
     }
