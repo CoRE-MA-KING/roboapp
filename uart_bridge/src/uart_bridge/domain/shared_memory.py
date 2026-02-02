@@ -26,7 +26,7 @@ class SharedRobotData:
     def __init__(self, name: str | None = None, create: bool = False) -> None:
         self._total_size = self._STATE_SIZE + self._CMD_SIZE
         if create:
-            self._shm = SharedMemory(create=True, size=self._total_size)
+            self._shm = SharedMemory(name=name, create=True, size=self._total_size)
         else:
             self._shm = SharedMemory(name=name)
 

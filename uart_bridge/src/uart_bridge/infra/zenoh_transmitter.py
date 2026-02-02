@@ -1,6 +1,8 @@
+import logging
 import time
 from threading import Lock
 
+import pydantic
 import zenoh
 
 from uart_bridge.application.interfaces import Transmitter
@@ -59,7 +61,11 @@ class ZenohTransmitter(Transmitter):
         )
 
     def damagepanel_subscriber(self, sample: zenoh.Sample) -> None:
-        d = DamagePanelRecognition.model_validate_json(sample.payload.to_string())
+        try:
+            d = DamagePanelRecognition.model_validate_json(sample.payload.to_string())
+        except pydantic.ValidationError as e:
+            logging.error(f"Failed to validate DamagePanelRecognition: {e}")
+            return
 
         target = d.target if d.target else Target()
 
@@ -69,7 +75,12 @@ class ZenohTransmitter(Transmitter):
             self.robot_command.target_distance = target.distance
 
     def lidar_subscriber(self, sample: zenoh.Sample) -> None:
-        m = LiDARVectorMessage.model_validate_json(sample.payload.to_string())
+        try:
+            m = LiDARVectorMessage.model_validate_json(sample.payload.to_string())
+        except pydantic.ValidationError as e:
+            logging.error(f"Failed to validate LiDARVectorMessage: {e}")
+            return
+
         with self._command_mutex:
             self.robot_command.force_linear = int(m.linear)
             self.robot_command.force_angular = int(m.angular * 10)
@@ -110,8 +121,12 @@ class ZenohTransmitter(Transmitter):
         try:
             while self._running:
                 # SHMから状態読み込み
-                with state_lock:
-                    state = shm.read_state()
+                try:
+                    with state_lock:
+                        state = shm.read_state()
+                except pydantic.ValidationError as e:
+                    logging.error(f"Failed to read state from shared memory: {e}")
+                    continue
 
                 if time.time() - last_send_time >= 0.1:
                     last_send_time = time.time()
