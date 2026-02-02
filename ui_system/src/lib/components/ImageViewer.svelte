@@ -82,8 +82,8 @@
 				<rect
 					height={target_height}
 					width={target_width}
-					x={$damagePanelStore.target_x - target_width / 2}
-					y={$damagePanelStore.target_y - target_height / 2}
+					x={$damagePanelStore.x - target_width / 2}
+					y={$damagePanelStore.y - target_height / 2}
 					fill-opacity="0.0"
 					stroke="red"
 					stroke-width="4"

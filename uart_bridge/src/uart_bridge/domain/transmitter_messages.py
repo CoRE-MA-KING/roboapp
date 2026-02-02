@@ -14,12 +14,14 @@ class CameraSwitchMessage(BaseModel):
     camera_id: int
 
 
-class DamagePanelRecognition(BaseModel):
-    """ダメージパネル認識結果"""
+class Target(BaseModel):
+    x: int = Field(default=640, ge=0, le=3840)
+    y: int = Field(default=360, ge=0, le=2160)
+    distance: int = 0
 
-    target_x: int = 640
-    target_y: int = 360
-    target_distance: int = 0
+
+class DamagePanelRecognition(BaseModel):
+    target: Target | None = Target()
 
 
 class LiDARVectorMessage(BaseModel):
