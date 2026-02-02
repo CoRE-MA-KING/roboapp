@@ -35,12 +35,11 @@ def main(port: str) -> None:
                 # 送信
                 myserial.write(data.encode())
                 print(f"{time.time()}: {data}", end="")
-                # 受信バッファを空にする（読み捨て）
             except serial.SerialTimeoutException:
                 pass  # バッファがいっぱいの場合はデータを捨てる
 
-            if myserial.in_waiting > 0:
-                myserial.read(myserial.in_waiting)
+            # 受信バッファを空にする（読み捨て）
+            myserial.read_all()
 
             # 10ms 間隔を維持するための調整
             elapsed = time.perf_counter() - start_time

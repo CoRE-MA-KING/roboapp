@@ -4,6 +4,7 @@ from copy import deepcopy
 from threading import Lock
 from typing import Any
 
+import pydantic
 import serial
 
 from uart_bridge.application.interfaces import RobotDriver
@@ -102,8 +103,8 @@ class SerialRobotDriver(RobotDriver):
 
             # 2. バッファに溜まっている残りのデータを全て読み込み、最新の行に更新する
             # これにより処理が遅れた際のラグを防止する
-            if self._serial.in_waiting > 0:
-                remaining_data = self._serial.read(self._serial.in_waiting)
+            remaining_data = self._serial.read_all()
+            if remaining_data:
                 # 最後の改行の位置を探す
                 last_newline_idx = remaining_data.rfind(b"\n")
                 if last_newline_idx != -1:
@@ -116,7 +117,10 @@ class SerialRobotDriver(RobotDriver):
                 str_data = line.decode("ascii", errors="ignore").strip()
                 parts = str_data.split(",")
                 if len(parts) >= 8:
-                    self._robot_state = self.raw_to_RobotState(parts)
+                    try:
+                        self._robot_state = self.raw_to_RobotState(parts)
+                    except pydantic.ValidationError as e:
+                        logging.error(f"Failed to validate RobotState from serial: {e}")
         except Exception as err:
             logging.error("Error reading from serial port: %s", err)
             if self._serial:
@@ -163,10 +167,14 @@ class SerialRobotDriver(RobotDriver):
                     # print(f"Send:\t{state}",end="\t")
                     shm.write_state(state)
 
-                with command_lock:
-                    command = shm.read_command()
-                    # print(f"Receive:\t{command}")
-                self.set_send_values(command)
+                try:
+                    with command_lock:
+                        command = shm.read_command()
+                        # print(f"Receive:\t{command}")
+                    self.set_send_values(command)
+                except pydantic.ValidationError as e:
+                    logging.error(f"Failed to read command from shared memory: {e}")
+                    continue
 
         except KeyboardInterrupt:
             pass

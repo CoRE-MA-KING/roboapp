@@ -2,6 +2,7 @@ import curses
 import time
 from collections import deque
 
+from uart_bridge.infra.zenoh_transmitter import create_zenoh_session
 import zenoh
 
 # 監視対象のトピック
@@ -32,8 +33,7 @@ def main(stdscr: "curses.window") -> None:
     stdscr.timeout(100)  # getchのタイムアウト(ms) -> 更新周期
 
     # Zenohセッション開始
-    conf = zenoh.Config()
-    with zenoh.open(conf) as session:
+    with create_zenoh_session() as session:
         # サブスクライバ登録
         _subs = []
         for topic in TOPICS:
