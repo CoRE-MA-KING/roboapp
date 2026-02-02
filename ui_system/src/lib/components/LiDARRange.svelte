@@ -28,8 +28,8 @@
 		xmlns="http://www.w3.org/2000/svg"
 		xmlns:xlink="http://www.w3.org/1999/xlink"
 	>
-		<!-- Left -->
 		{#if $lidarMessageStore}
+			<!-- Left -->
 			<polygon
 				fill="red"
 				fill-opacity={0.9 * farlogic($lidarMessageStore.left)}
@@ -41,10 +41,8 @@
             0,{image_height * 0.1}
             "
 			/>
-		{/if}
 
-		<!-- Rear Left -->
-		{#if $lidarMessageStore}
+			<!-- Rear Left -->
 			<polygon
 				fill="red"
 				fill-opacity={0.9 * farlogic($lidarMessageStore.rear_left)}
@@ -56,10 +54,8 @@
             0,{image_height}
             "
 			/>
-		{/if}
 
-		<!-- Rear Right -->
-		{#if $lidarMessageStore}
+			<!-- Rear Right -->
 			<polygon
 				fill="red"
 				fill-opacity={0.9 * farlogic($lidarMessageStore.rear_right)}
@@ -71,10 +67,8 @@
             {image_width},{image_height}
             "
 			/>
-		{/if}
 
-		<!-- Right -->
-		{#if $lidarMessageStore}
+			<!-- Right -->
 			<polygon
 				fill="red"
 				fill-opacity={0.9 * farlogic($lidarMessageStore.right)}
