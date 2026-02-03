@@ -9,6 +9,7 @@
 #include "config.hpp"
 #include "generate_color.hpp"
 #include "lidar_types/lidar_data.hpp"
+#include "lidar_types/lidar_vector.hpp"
 
 inline cv::Mat singleVisualize(const LiDARDataWrapper &data,
                                const std::string window_name,
@@ -60,6 +61,6 @@ class Visualizer {
  public:
   Visualizer(const LiDARConfig &lidar_config, uint32_t image_size);
   cv::Mat multipleVisualize(const std::vector<cv::Point2d> &data,
-                            const RepulsiveForceVector &vec);
+                            const lidar_vector &vec);
 };
 #endif  // VISUALIZER_HPP_

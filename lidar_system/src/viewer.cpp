@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
            std::tuple<std::chrono::system_clock::time_point, LiDARDataWrapper>>
       lidar_timestamps;
 
-  RepulsiveForceVector vec;
+  lidar_vector vec;
   auto config_file = get_config_file(FLAGS_c);
   auto global_config = GlobalConfig(config_file);
   auto lidar_config_all = LiDARConfig(config_file);
@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
 
         auto id = sample.get_timestamp()->get_id().to_string();
         auto data = sample.get_payload().as_string();
-        vec = RepulsiveForceVector(data);
+        vec = lidar_vector(data);
 
         updated = true;
       },

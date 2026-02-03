@@ -118,7 +118,7 @@ Visualizer::Visualizer(const LiDARConfig &lidar_config, uint32_t image_size)
 }
 
 cv::Mat Visualizer::multipleVisualize(const std::vector<cv::Point2d> &data,
-                                      const RepulsiveForceVector &vec) {
+                                      const lidar_vector &vec) {
   cv::Mat img = baseImage.clone();
   auto center = image_size / 2;
 
