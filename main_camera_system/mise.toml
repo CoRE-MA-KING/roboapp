@@ -2,29 +2,33 @@
 RUSTC_WRAPPER = "sccache"
 
 [tools]
-rust = { version = "1.91", components="rust-analyzer" }
+rust = { version = "1.91", components = "rust-analyzer" }
 sccache = "latest"
+protoc = "29.3"
 
-[tasks.deps]
-description = "Fetch Rust dependencies using cargo"
-run = ["cargo fetch"]
-sources = [
-    "Cargo.toml",
-    "Cargo.lock",
-]
-outputs = { auto = true }
+[tasks.generate_proto]
+description = "Generate Rust code from Protobuf files"
+run = """
+rm -f src/proto/*.rs
+protoc \
+  --plugin=protoc-gen-rust_protobuf=$(which protoc-gen-rs) \
+  --rust_protobuf_out=src/proto \
+  --proto_path=../message/proto \
+  $(find ../message/proto -name "*.proto")
+"""
+sources = ["../message/proto/**/*.proto"]
+outputs = ["src/proto/*.rs"]
 
 [tasks.build]
-depends = ["deps"]
+depends = ["deps", "generate_proto"]
 description = "Build the main-camera-system Rust application in release mode"
 run = "cargo build --release"
 sources = [
-    "Cargo.toml",
-    "Cargo.lock",
-    "src/**",
+  "Cargo.toml",
+  "Cargo.lock",
+  "src/**",
 ]
 outputs = ["./target/release/main-camera-system"]
-
 
 [tasks.lint]
 depends = ["deps"]

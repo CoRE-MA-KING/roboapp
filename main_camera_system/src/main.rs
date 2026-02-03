@@ -3,7 +3,8 @@ use futures_util::{SinkExt, StreamExt};
 use log::{debug, error, info};
 use main_camera_system::camera_wrapper::create_camera_stream;
 use main_camera_system::config::{get_config_path, load_config};
-use main_camera_system::messages::CameraSwitchMessage;
+use main_camera_system::proto::camera_switch::CameraSwitchMessage;
+use protobuf::Message as ProtoMessage;
 use std::env;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
@@ -138,19 +139,15 @@ async fn main() {
     tokio::spawn(async move {
         loop {
             if let Ok(sample) = subscriber.recv_async().await {
-                if let Some(msg) = sample
-                    .payload()
-                    .try_to_string()
-                    .ok()
-                    .and_then(|s| serde_json::from_str::<CameraSwitchMessage>(&s).ok())
-                {
-                    let new_value: usize = msg.camera_id;
-                    let _ = switch_tx.send(new_value);
-                } else {
-                    error!(
-                        "Failed to parse CameraSwitchMessage from payload: {:?}",
-                        sample.payload()
-                    );
+                let payload = sample.payload();
+                match CameraSwitchMessage::parse_from_bytes(payload.to_bytes().as_ref()) {
+                    Ok(msg) => {
+                        let new_value = msg.camera_id as usize;
+                        let _ = switch_tx.send(new_value);
+                    }
+                    Err(e) => {
+                        error!("Failed to parse CameraSwitchMessage from payload: {:?}", e);
+                    }
                 }
             }
         }
