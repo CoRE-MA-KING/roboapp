@@ -3,24 +3,24 @@ import { z } from "zod";
 export type cameraID = number;
 
 export const CameraSwitchSchema = z.object({
-	camera_id: z.number()
+	camera_id: z.number().int()
 });
 
 export const RobotStateSchema = z.object({
-	state: z.number(),
-	color: z.string()
+	state: z.number().int(),
+	color: z.enum(["blue", "red"])
 });
 
 export const LiDARRangeSchema = z.object({
-	left: z.number(),
-	rear_left: z.number(),
-	rear_right: z.number(),
-	right: z.number()
+	left: z.number().min(0).max(10000),
+	rear_left: z.number().min(0).max(10000),
+	rear_right: z.number().min(0).max(10000),
+	right: z.number().min(0).max(10000)
 });
 
 export const DisksSchema = z.object({
-	left: z.number(),
-	right: z.number()
+	left: z.number().int().min(0),
+	right: z.number().int().min(0)
 });
 
 export const FlapSchema = z.object({
@@ -29,9 +29,9 @@ export const FlapSchema = z.object({
 });
 
 export const TargetSchema = z.object({
-	x: z.number(),
-	y: z.number(),
-	distance: z.number()
+	x: z.number().int().min(0).max(3840),
+	y: z.number().int().min(0).max(2160),
+	distance: z.number().int()
 });
 
 export const DamagePanelSchema = z.object({
