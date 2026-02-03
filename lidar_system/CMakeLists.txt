@@ -26,8 +26,15 @@ include_directories(3rdparty/toml11/include)
 find_package(gflags REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(OpenCV REQUIRED)
+find_package(Protobuf REQUIRED)
 find_package(zenohc REQUIRED)
 find_package(zenohcxx REQUIRED)
+
+# Protobuf generated files
+include_directories(src/proto)
+file(GLOB_RECURSE PROTO_SRCS src/proto/*.pb.cc)
+add_library(RoboappProtoLib ${PROTO_SRCS})
+target_link_libraries(RoboappProtoLib PUBLIC protobuf::libprotobuf)
 
 # GoolgeTest
 include(FetchContent)
@@ -103,13 +110,13 @@ target_link_libraries(VisualizerLib CollisionAvoidanceLib ${OpenCV_LIBS})
 
 
 add_executable(sender src/sender.cpp)
-target_link_libraries(sender gflags toml11::toml11 zenohcxx::zenohc)
+target_link_libraries(sender gflags toml11::toml11 zenohcxx::zenohc RoboappProtoLib)
 target_link_libraries(sender LidarDeviceLib)
 
 add_executable(processor src/processor.cpp )
-target_link_libraries(processor gflags ${OpenCV_LIBS} pthread toml11::toml11 zenohcxx::zenohc)
+target_link_libraries(processor gflags ${OpenCV_LIBS} pthread toml11::toml11 zenohcxx::zenohc RoboappProtoLib)
 target_link_libraries(processor CollisionAvoidanceLib LidarTypesLib)
 
 add_executable(viewer src/viewer.cpp )
-target_link_libraries(viewer gflags ${OpenCV_LIBS} pthread toml11::toml11 zenohcxx::zenohc)
+target_link_libraries(viewer gflags ${OpenCV_LIBS} pthread toml11::toml11 zenohcxx::zenohc RoboappProtoLib)
 target_link_libraries(viewer CollisionAvoidanceLib LidarTypesLib VisualizerLib)

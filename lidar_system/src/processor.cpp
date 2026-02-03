@@ -9,6 +9,8 @@
 
 #include "collision_avoidance/collision_avoidance.hpp"
 #include "config.hpp"
+#include "proto/roboapp/lidar_range.pb.h"
+#include "proto/roboapp/lidar_vector.pb.h"
 #include "visualizer/range_separater.hpp"
 #include "zenoh.hxx"
 DEFINE_string(
@@ -99,13 +101,20 @@ int main(int argc, char **argv) {
       // Vectorを出力
       nlohmann::json vec = collision_avoidance.calcRepulsiveForce(data);
       // ロボット用に回転方向を反転
-      vec["angular"] = std::fmod(360.f - vec["angular"].get<float>(), 360);
-      vec_publisher.put(vec.dump());
+      roboapp::LiDARVector vec_msg;
+      vec_msg.set_linear(vec["linear"].get<float>());
+      vec_msg.set_angular(std::fmod(360.f - vec["angular"].get<float>(), 360));
+      vec_publisher.put(vec_msg.SerializeAsString());
 
       // Rangeを出力
       nlohmann::json range_msg = rangeSeparater(data);
+      roboapp::LiDARRange range_pb;
+      range_pb.set_left(range_msg["left"]);
+      range_pb.set_right(range_msg["right"]);
+      range_pb.set_rear_left(range_msg["rear_left"]);
+      range_pb.set_rear_right(range_msg["rear_right"]);
 
-      range_publisher.put(range_msg.dump());
+      range_publisher.put(range_pb.SerializeAsString());
     }
 
     updated = false;
