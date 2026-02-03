@@ -18,7 +18,8 @@
 		"@tauri-apps/api": "2.6.0",
 		"@tauri-apps/plugin-cli": "2.4.0",
 		"@tauri-apps/plugin-log": "2.6.0",
-		"@tauri-apps/plugin-opener": "2.4.0"
+		"@tauri-apps/plugin-opener": "2.4.0",
+		"zod": "^4.3.6"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.4.1",
@@ -30,9 +31,9 @@
 		"@tailwindcss/vite": "^4.1.18",
 		"@tauri-apps/cli": "2.6.2",
 		"@trivago/prettier-plugin-sort-imports": "^6.0.2",
+		"eslint": "^9.39.2",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.14.0",
-		"eslint": "^9.39.2",
 		"globals": "^16.5.0",
 		"jiti": "^2.6.1",
 		"prettier": "^3.8.0",
