@@ -45,7 +45,7 @@
 			<!-- Rear Left -->
 			<polygon
 				fill="red"
-				fill-opacity={0.9 * farlogic($lidarMessageStore.rear_left)}
+				fill-opacity={0.9 * farlogic($lidarMessageStore.rearLeft)}
 				points="
             0,{image_height}
             {image_width * 0.5},{image_height}
@@ -58,7 +58,7 @@
 			<!-- Rear Right -->
 			<polygon
 				fill="red"
-				fill-opacity={0.9 * farlogic($lidarMessageStore.rear_right)}
+				fill-opacity={0.9 * farlogic($lidarMessageStore.rearRight)}
 				points="
             {image_width},{image_height}
             {image_width * 0.5},{image_height}

@@ -28,7 +28,7 @@
 
 	let viewBox = `0 0 ${image_width} ${image_height}`;
 
-	let reconnectTimer: number | null = null;
+	let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
 	function connect() {
 		ws = new WebSocket(`ws://${host ? host : "localhost"}:${port ? port : "8080"}`);
