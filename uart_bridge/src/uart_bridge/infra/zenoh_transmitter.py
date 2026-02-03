@@ -8,15 +8,14 @@ import zenoh
 from uart_bridge.application.interfaces import Transmitter
 from uart_bridge.domain.config import get_config_path
 from uart_bridge.domain.messages import RobotCommand, RobotState
+from uart_bridge.domain.proto.roboapp.camera_switch_pb2 import CameraSwitchMessage
+from uart_bridge.domain.proto.roboapp.damage_panel_pb2 import DamagePanelMessage, Target
+from uart_bridge.domain.proto.roboapp.disks_pb2 import DisksMessage
+from uart_bridge.domain.proto.roboapp.flap_pb2 import FlapMessage
+from uart_bridge.domain.proto.roboapp.robot_state_pb2 import RobotStateMessage
 from uart_bridge.domain.shared_memory import SharedRobotData
 from uart_bridge.domain.transmitter_messages import (
-    CameraSwitchMessage,
-    DamagePanelRecognition,
-    DisksMessage,
-    FlapMessage,
     LiDARVectorMessage,
-    RobotStateMessage,
-    Target,
 )
 
 
@@ -38,36 +37,36 @@ class ZenohTransmitter(Transmitter):
         self.publishers["cam/switch"].put(
             CameraSwitchMessage(
                 camera_id=robot_state.video_id,
-            ).model_dump_json()
+            ).SerializeToString()
         )
 
         self.publishers["disks"].put(
             DisksMessage(
                 left=robot_state.left_disks, right=robot_state.right_disks
-            ).model_dump_json()
+            ).SerializeToString()
         )
 
         self.publishers["flap"].put(
             FlapMessage(
                 pitch=robot_state.pitch_deg, yaw=robot_state.yaw_deg
-            ).model_dump_json()
+            ).SerializeToString()
         )
 
         self.publishers["robotstate"].put(
             RobotStateMessage(
                 state=robot_state.state_id.value,
                 color="red" if robot_state.flags.is_red else "blue",
-            ).model_dump_json()
+            ).SerializeToString()
         )
 
     def damagepanel_subscriber(self, sample: zenoh.Sample) -> None:
         try:
-            d = DamagePanelRecognition.model_validate_json(sample.payload.to_string())
-        except pydantic.ValidationError as e:
-            logging.error(f"Failed to validate DamagePanelRecognition: {e}")
+            d = DamagePanelMessage.FromString(sample.payload.to_bytes())
+        except Exception as e:
+            logging.error(f"Failed to validate DamagePanelMessage: {e}")
             return
 
-        target = d.target if d.target else Target()
+        target = d.target if d.HasField("target") else Target()
 
         with self._command_mutex:
             self.robot_command.target_x = target.x
