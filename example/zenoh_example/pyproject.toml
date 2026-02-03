@@ -1,0 +1,36 @@
+[project]
+name = "zenoh-example"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "motty", email = "motty.mio2@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "eclipse-zenoh==1.6.2",
+    "opencv-python>=4.13.0.90",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.28,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.19.1",
+    "ruff>=0.14.14",
+    "taskipy>=1.14.1",
+]
+
+[tool.mypy]
+strict = true
+
+[tool.ruff.lint]
+extend-select = ["I", "TC", "UP", "W"]
+
+[tool.taskipy.tasks]
+check = "mypy . --strict"
+lint = "ruff check ."
+format = "ruff check . --fix && ruff format ."
+test = "pytest --cov --cov-report=html test/"
