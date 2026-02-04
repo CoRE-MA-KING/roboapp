@@ -11,8 +11,7 @@ inline LiDARRange rangeSeparater(const std::vector<cv::Point2d> &data) {
   LiDARRange range;
 
   for (const auto &point : data) {
-    float distance =
-        std::max(0.0, std::sqrt(point.x * point.x + point.y * point.y));
+    float distance = std::hypot(point.x, point.y);
     float degree = std::fmod(
         (std::atan2(point.y, point.x) * 180.0f / CV_PI) + 360.0f, 360.0f);
 

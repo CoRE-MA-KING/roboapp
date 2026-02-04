@@ -103,7 +103,8 @@ int main(int argc, char **argv) {
         data.insert(data.end(), p.begin(), p.end());
       }
 
-      cv::imshow("multiple", visualizer.multipleVisualize(data, vec));
+      cv::imshow("multiple",
+                 visualizer.multipleVisualize(data, vec.linear, vec.angular));
       cv::waitKey(1);
       updated = false;
     } else {

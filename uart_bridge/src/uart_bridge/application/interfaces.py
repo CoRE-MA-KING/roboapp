@@ -3,7 +3,6 @@ from threading import Lock
 from typing import Any, Self
 
 from uart_bridge.domain.messages import RobotCommand, RobotState
-from uart_bridge.domain.shared_memory import SharedRobotData
 
 
 class ApplicationInterface(ABC):
@@ -17,11 +16,6 @@ class ApplicationInterface(ABC):
 class RoboappBridgeDriver(ABC):
     def __init__(self) -> None:
         self._running = True
-
-    def pre_spin(self, shm_name: str, command_lock: Lock, state_lock: Lock) -> None:
-        self.shm = SharedRobotData(name=shm_name)
-        self.command_lock = command_lock
-        self.state_lock = state_lock
 
     def stop(self) -> None:
         self._running = False
@@ -68,9 +62,4 @@ class Transmitter(RoboappBridgeDriver):
 
     @abstractmethod
     def publish(self, robot_state: RobotState) -> None:
-        pass
-
-    @abstractmethod
-    def subscribe(self) -> RobotCommand:
-        """Subscribe to receive commands or data."""
         pass
