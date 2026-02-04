@@ -29,7 +29,7 @@ void run_lidar_thread(std::string name, LiDARDeviceConfig config,
   auto publisher = session.declare_publisher(  //
       zenoh::KeyExpr("lidar/data"));
 
-  auto data = LiDARDataWrapper(config.x, config.y);
+  auto data = LiDARDataWrapper(name, config.x, config.y);
   const int max_consecutive_errors = 10;
 
   std::unique_ptr<MockLiDAR> lidar;
