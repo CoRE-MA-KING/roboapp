@@ -31,7 +31,10 @@ dev = [
 
 [tool.mypy]
 strict = true
-exclude = ["src/uart_bridge/domain/proto/"]
+
+[[tool.mypy.overrides]]
+module = [".*uart_bridge.domain.proto.*"]
+ignore_errors = true
 
 [tool.ruff]
 exclude = ["src/uart_bridge/domain/proto/"]
