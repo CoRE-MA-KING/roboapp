@@ -61,6 +61,6 @@ class Visualizer {
  public:
   Visualizer(const LiDARConfig &lidar_config, uint32_t image_size);
   cv::Mat multipleVisualize(const std::vector<cv::Point2d> &data,
-                            const lidar_vector &vec);
+                            const float &linear, const float &angular);
 };
 #endif  // VISUALIZER_HPP_

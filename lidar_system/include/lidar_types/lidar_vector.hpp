@@ -29,4 +29,9 @@ inline void to_json(nlohmann::json& j, const lidar_vector& rfv) {
   j = nlohmann::json{{"linear", rfv.linear}, {"angular", rfv.angular}};
 }
 
+inline void from_json(const nlohmann::json& j, lidar_vector& rfv) {
+  j.at("linear").get_to(rfv.linear);
+  j.at("angular").get_to(rfv.angular);
+}
+
 #endif  // LIDAR_VECTOR_HPP
