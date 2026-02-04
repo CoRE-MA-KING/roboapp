@@ -2,6 +2,8 @@
 #include <rplidar.h>
 #include <signal.h>
 
+#include <chrono>
+#include <future>
 #include <iostream>
 #include <limits>
 #include <memory>
@@ -23,95 +25,58 @@ volatile sig_atomic_t ctrl_c_pressed = 0;
 void ctrlc_handler(int) { ctrl_c_pressed = 1; }
 
 void run_lidar_thread(std::string name, LiDARDeviceConfig config,
-
                       zenoh::Session& session) {
   auto publisher = session.declare_publisher(  //
-
       zenoh::KeyExpr("lidar/data"));
 
   auto data = LiDARDataWrapper(config.x, config.y);
-
   const int max_consecutive_errors = 10;
 
+  std::unique_ptr<MockLiDAR> lidar;
+
+  if (config.backend == "rplidar") {
+    std::cout << "Starting RPLIDAR: " << name << std::endl;
+    lidar = std::make_unique<RplidarWrapper>(
+        config.device.value(), config.max_distance, config.min_degree,
+        config.max_degree, config.rotation);
+  } else if (config.backend == "random") {
+    std::cout << "Starting RandomLiDAR: " << name << std::endl;
+    lidar =
+        std::make_unique<RandomLiDAR>(config.max_distance, config.min_degree,
+                                      config.max_degree, config.rotation);
+  } else {
+    throw std::runtime_error("Unknown backend: " + config.backend);
+  }
+
+  std::cout << "LiDAR " << name << " initialized successfully." << std::endl;
+
+  int consecutive_errors = 0;
   while (!ctrl_c_pressed) {
+    data.clear();
+
     try {
-      std::unique_ptr<MockLiDAR> lidar;
-
-      if (config.backend == "rplidar") {
-        std::cout << "Starting RPLIDAR: " << name << std::endl;
-
-        lidar = std::make_unique<RplidarWrapper>(
-
-            config.device.value(), config.max_distance, config.min_degree,
-
-            config.max_degree, config.rotation);
-
-      } else if (config.backend == "random") {
-        std::cout << "Starting RandomLiDAR: " << name << std::endl;
-
-        lidar = std::make_unique<RandomLiDAR>(
-
-            config.max_distance, config.min_degree, config.max_degree,
-
-            config.rotation);
-
+      if (lidar && lidar->get(data)) {
+        publisher.put(data.dump());
+        consecutive_errors = 0;
       } else {
-        std::cerr << "Unknown backend for " << name << ": " << config.backend
-
-                  << std::endl;
-
-        // Non-recoverable configuration error, exit thread
-
-        return;
-      }
-
-      int consecutive_errors = 0;
-
-      std::cout << "LiDAR " << name << " initialized successfully."
-
-                << std::endl;
-
-      while (!ctrl_c_pressed) {
-        data.clear();
-
-        if (lidar && lidar->get(data)) {
-          publisher.put(data.dump());
-
-          consecutive_errors = 0;  // Reset error count on success
-
-        } else {
-          consecutive_errors++;
-
-          if (consecutive_errors >= max_consecutive_errors) {
-            std::cerr << "LiDAR " << name
-
-                      << " failed too many times. Restarting..." << std::endl;
-
-            break;  // Break inner loop to trigger restart
-          }
-
-          std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        consecutive_errors++;
+        if (consecutive_errors >= max_consecutive_errors) {
+          throw std::runtime_error("Too many consecutive errors");
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
       }
-
     } catch (const std::exception& e) {
-      std::cerr << "Exception in LiDAR thread " << name << ": " << e.what()
-
-                << std::endl;
-
-    } catch (...) {
-      std::cerr << "Unknown exception in LiDAR thread " << name << std::endl;
-    }
-
-    if (!ctrl_c_pressed) {
-      std::cerr << "Restarting LiDAR " << name << " in 1 second..."
-
-                << std::endl;
-
-      std::this_thread::sleep_for(std::chrono::seconds(1));
+      // Re-throw to be caught by the supervisor
+      throw;
     }
   }
 }
+
+struct LidarTask {
+  std::string name;
+  LiDARDeviceConfig config;
+  std::future<void> handle;
+};
 
 int main(int argc, char* argv[]) {
   // Flag Setup
@@ -127,20 +92,45 @@ int main(int argc, char* argv[]) {
   // Zenoh Setup
   auto zenoh_config =
       zenoh::Config::from_file((get_default_path() / "zenoh.json5").string());
-
   auto session = zenoh::Session(std::move(zenoh_config));
 
-  std::vector<std::thread> threads;
+  // Initialize tasks
+  std::vector<LidarTask> tasks;
   for (const auto& [name, config] : lidar_config_all.devices) {
-    threads.emplace_back(run_lidar_thread, name, config, std::ref(session));
+    tasks.push_back({name, config,
+                     std::async(std::launch::async, run_lidar_thread, name,
+                                config, std::ref(session))});
   }
 
-  std::cout << "Started " << threads.size() << " LiDAR threads." << std::endl;
+  std::cout << "Started " << tasks.size() << " LiDAR threads." << std::endl;
 
-  for (auto& t : threads) {
-    if (t.joinable()) {
-      t.join();
+  // Supervisor Loop
+  while (!ctrl_c_pressed) {
+    for (auto& task : tasks) {
+      if (task.handle.valid() && task.handle.wait_for(std::chrono::seconds(
+                                     0)) == std::future_status::ready) {
+        try {
+          task.handle.get();  // Retrieve potential exceptions
+        } catch (const std::exception& e) {
+          std::cerr << "Task " << task.name << " failed: " << e.what()
+                    << std::endl;
+        } catch (...) {
+          std::cerr << "Task " << task.name << " failed with unknown error."
+                    << std::endl;
+        }
+
+        std::cout << "Restarting task: " << task.name << " in 1 second..."
+                  << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+
+        // Respawn
+        task.handle = std::async(std::launch::async, run_lidar_thread,
+                                 task.name, task.config, std::ref(session));
+      }
     }
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
+
+  std::cout << "Stopping..." << std::endl;
   return 0;
 }
