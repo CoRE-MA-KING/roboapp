@@ -25,26 +25,6 @@ fn get_config_file(path: Option<PathBuf>) -> PathBuf {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct GlobalConfig {
-    #[serde(default = "GlobalConfig::default_websocket_port")]
-    pub websocket_port: u16,
-}
-
-impl Default for GlobalConfig {
-    fn default() -> Self {
-        Self {
-            websocket_port: Self::default_websocket_port(),
-        }
-    }
-}
-
-impl GlobalConfig {
-    fn default_websocket_port() -> u16 {
-        8080
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
 pub struct CameraDevice {
     pub device: String,
     #[serde(default = "CameraDevice::default_width")]
@@ -66,6 +46,8 @@ impl CameraDevice {
 pub struct CameraConfig {
     #[serde(default = "CameraConfig::default_websocket")]
     pub websocket: bool,
+    #[serde(default = "CameraConfig::default_websocket_port")]
+    pub websocket_port: u16,
     #[serde(default = "CameraConfig::default_zenoh")]
     pub zenoh: bool,
     pub devices: Vec<CameraDevice>,
@@ -75,6 +57,9 @@ impl CameraConfig {
     fn default_websocket() -> bool {
         true
     }
+    fn default_websocket_port() -> u16 {
+        8080
+    }
     fn default_zenoh() -> bool {
         false
     }
@@ -83,7 +68,6 @@ impl CameraConfig {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
     #[serde(default)]
-    pub global: GlobalConfig,
     pub camera: Option<CameraConfig>,
 }
 
@@ -97,28 +81,6 @@ pub fn load_config(path: Option<PathBuf>) -> Result<Config, Box<dyn std::error::
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_parse_globalconfig_empty() {
-        let config = load_config(Some(PathBuf::from(
-            "test/resources/global_config_empty.toml",
-        )))
-        .expect("cameraセクションがなくてもパースは成功すべき");
-
-        assert!(config.camera.is_none());
-        assert_eq!(config.global.websocket_port, 8080);
-    }
-
-    #[test]
-    fn test_parse_globalconfig_websocket_port() {
-        let config = load_config(Some(PathBuf::from(
-            "test/resources/global_config_websocket_port.toml",
-        )))
-        .expect("cameraセクションがなくてもパースは成功すべき");
-
-        assert!(config.camera.is_none());
-        assert_eq!(config.global.websocket_port, 9090);
-    }
 
     #[test]
     fn test_parse_cameraconfig() {

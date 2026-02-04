@@ -28,10 +28,6 @@
 
 ## コンポーネント一覧
 
-- **Configurator**
-  - 説明: 設定ファイルの検証や systemd サービスのセットアップを行う Python ツールです。
-  - パス: `configurator/`
-
 - **LiDAR System**
   - 説明: LiDAR データの処理、障害物回避計算、可視化を行う C++ システムです。`sender`, `processor`, `viewer` で構成されます。
   - パス: `lidar_system/`

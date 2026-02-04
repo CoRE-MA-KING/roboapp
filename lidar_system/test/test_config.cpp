@@ -2,22 +2,6 @@
 
 #include "config.hpp"
 
-// Global Config
-TEST(ConfigTest, LoadEmptyConfigFile) {
-  auto root = get_config_file("../test/resources/global_config_empty.toml");
-  auto config = GlobalConfig(root);
-
-  EXPECT_EQ(config.websocket_port, 8080);
-}
-
-TEST(ConfigTest, LoadWebsocketPortFromToml) {
-  auto root =
-      get_config_file("../test/resources/global_config_websocket_port.toml");
-  auto config = GlobalConfig(root);
-
-  EXPECT_EQ(config.websocket_port, 9090);
-}
-
 // LiDAR Config
 // Parameter
 

@@ -25,26 +25,6 @@ fn get_config_file(file_path: Option<&str>) -> PathBuf {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct GlobalConfig {
-    #[serde(default = "GlobalConfig::default_websocket_port")]
-    pub websocket_port: u16,
-}
-
-impl Default for GlobalConfig {
-    fn default() -> Self {
-        Self {
-            websocket_port: Self::default_websocket_port(),
-        }
-    }
-}
-
-impl GlobalConfig {
-    fn default_websocket_port() -> u16 {
-        8080
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
 pub struct GUIConfig {
     #[serde(default = "GUIConfig::default_host")]
     pub host: String,
@@ -67,7 +47,6 @@ impl GUIConfig {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
     #[serde(default)]
-    pub global: GlobalConfig,
     pub gui: Option<GUIConfig>,
 }
 
@@ -81,24 +60,6 @@ pub fn load_config(path: Option<&str>) -> Result<Config, Box<dyn std::error::Err
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_parse_globalconfig() {
-        let g = load_config(Some("test/resources/global_config_empty.toml"))
-            .unwrap()
-            .global;
-
-        assert_eq!(g.websocket_port, 8080);
-    }
-
-    #[test]
-    fn test_parse_globalconfig_websocket_port() {
-        let g = load_config(Some("test/resources/global_config_websocket_port.toml"))
-            .unwrap()
-            .global;
-
-        assert_eq!(g.websocket_port, 9090);
-    }
 
     #[test]
     fn test_parse_guiconfig_empty() {

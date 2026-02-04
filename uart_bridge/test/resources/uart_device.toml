@@ -1,1 +1,2 @@
-../../../configurator/test/resources/uart_device.toml
+[uart]
+device = "/tmp/roboapp_test_uart"
