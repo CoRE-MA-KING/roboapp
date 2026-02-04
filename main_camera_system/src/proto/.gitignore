@@ -1,4 +1,3 @@
 *
 !.gitignore
 !mod.rs
-!./roboapp/mod.rs

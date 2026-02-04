@@ -1,47 +1,68 @@
+// In your build.rs file
+use prost_build::Config;
 use protocheck_build::compile_protos_with_validators;
-use tonic_prost_build::Config;
+use std::path::PathBuf;
 
-// ref: https://github.com/Rick-Phoenix/protocheck-tonic-svelte-example/blob/main/server/build.rs
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("cargo:rerun-if-changed=proto/");
 
-    let out_dir = std::path::PathBuf::from("src/proto/");
-    // let out_dir =
-    //     std::path::PathBuf::from(std::env::var("OUT_DIR").expect("Could not find OUT_DIR"));
-    let final_descriptor_path = out_dir.join("tonic_descriptor.bin");
+    let out_dir = PathBuf::from("src/proto");
 
-    println!("{}", out_dir.display());
-
-    let mut config = Config::new();
-    config
-        .file_descriptor_set_path(final_descriptor_path.clone())
-        .bytes(["."])
-        .out_dir(out_dir.clone());
+    let descriptor_path = out_dir.join("file_descriptor_set.bin");
 
     let proto_include_paths = &["../message/proto"];
 
-    let proto_files = &[
+    // Use the helper to get all proto files recursively in a directory
+    // let proto_files = get_proto_files_recursive("proto")?;
+    let proto_files = [
         "../message/proto/roboapp/camera_port.proto",
         "../message/proto/roboapp/camera_switch.proto",
+        // 必要なprotoファイル
     ];
 
-    compile_protos_with_validators(
-        &mut config,
-        proto_files,
-        proto_include_paths,
-        &["user.v1", "weather.v1"],
-    )?;
+    let mut config = Config::new();
+    config
+        .file_descriptor_set_path(&descriptor_path)
+        // Enable the use of bytes::Bytes for `bytes` fields
+        .bytes(["."])
+        .out_dir(&out_dir);
+
+    // Call the build helper
+    compile_protos_with_validators(&mut config, &proto_files, proto_include_paths, &["roboapp"])?;
 
     // Compile protos
-    tonic_prost_build::configure()
-        .build_client(false)
-        .compile_with_config(config, proto_files, proto_include_paths)?;
+    config.compile_protos(&proto_files, proto_include_paths)?;
 
     // Set the env for the file descriptor location
     println!(
         "cargo:rustc-env=PROTO_DESCRIPTOR_SET={}",
-        final_descriptor_path.display()
+        descriptor_path.display()
     );
 
     Ok(())
 }
+
+// use prost_build::Config;
+// use protocheck_build::compile_protos_with_validators;
+
+// fn main() {
+//     let proto_files = [
+//         "../message/proto/roboapp/camera_port.proto",
+//         "../message/proto/roboapp/camera_switch.proto",
+//         // 必要なprotoファイル
+//     ];
+//     let proto_include_paths = &["../message/proto"];
+
+//     // validator対象のパッケージ名リスト
+//     let validator_packages = &["roboapp"];
+
+//     let mut config = Config::new();
+//     config.out_dir("src/proto/roboapp");
+//     compile_protos_with_validators(
+//         &mut config,
+//         &proto_files,
+//         proto_include_paths,
+//         validator_packages,
+//     )
+//     .expect("Failed to compile protos with protocheck_build");
+// }

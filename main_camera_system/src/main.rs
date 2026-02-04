@@ -3,7 +3,7 @@ use futures_util::{SinkExt, StreamExt};
 use log::{debug, error, info};
 use main_camera_system::camera_wrapper::create_camera_stream;
 use main_camera_system::config::{get_config_path, load_config};
-use main_camera_system::proto::roboapp::roboapp::CameraSwitchMessage;
+use main_camera_system::proto::camera_switch::CameraSwitchMessage;
 use prost::Message;
 use std::env;
 use std::path::PathBuf;
@@ -14,7 +14,6 @@ use tokio_tungstenite::accept_async;
 use tokio_tungstenite::tungstenite::Message as WsMessage;
 use v4l::io::mmap::Stream;
 use v4l::io::traits::CaptureStream;
-
 #[derive(Parser, Debug)]
 struct Args {
     #[arg(short, long)]
@@ -144,6 +143,10 @@ async fn main() {
                 let payload = sample.payload();
                 match CameraSwitchMessage::decode(payload.to_bytes().as_ref()) {
                     Ok(msg) => {
+                        if let Err(e) = msg.validate() {
+                            error!("CameraSwitchMessage validation failed: {:?}", e);
+                            continue;
+                        }
                         let new_value = msg.camera_id as usize;
                         let _ = switch_tx.send(new_value);
                     }

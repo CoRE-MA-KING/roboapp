@@ -10,6 +10,7 @@ protoc = "29.3"
 run = "cargo fetch"
 
 [tasks.generate_proto]
+depends = ["deps"]
 description = "Generate Rust code from Protobuf files"
 run = """
 rm -f src/proto/*.rs
