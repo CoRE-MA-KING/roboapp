@@ -39,8 +39,7 @@ run = ["prettier --write '**/*.json5'"]
 
 [tasks.format]
 depends = ["format_python", "format_json5"]
-description = "Format Python code using ruff"
-run = "uv run task format"
+description = "Format Python and JSON5 code"
 
 [tasks.test]
 depends = ["deps"]
