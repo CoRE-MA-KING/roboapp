@@ -45,6 +45,7 @@ Options:
 #### Camera (`[camera]`)
 
 - `websocket`: WebSocket 配信の有効化 (デフォルト: `true`)
+- `websocket_port`: WebSocket のポート番号 (デフォルト: `8080`)
 - `zenoh`: Zenoh 配信の有効化 (デフォルト: `false`)
 
 **デバイス設定 (`[[camera.devices]]`)**
