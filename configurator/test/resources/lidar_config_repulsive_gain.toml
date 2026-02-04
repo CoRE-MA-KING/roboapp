@@ -1,3 +1,0 @@
-[lidar]
-devices = { random = { backend = "random" } }
-repulsive_gain = 1.2

@@ -1,2 +1,0 @@
-[lidar]
-devices = { rplidar = { backend = "rplidar" } }
