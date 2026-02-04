@@ -3,15 +3,15 @@ use futures_util::{SinkExt, StreamExt};
 use log::{debug, error, info};
 use main_camera_system::camera_wrapper::create_camera_stream;
 use main_camera_system::config::{get_config_path, load_config};
-use main_camera_system::proto::camera_switch::CameraSwitchMessage;
-use protobuf::Message as ProtoMessage;
+use main_camera_system::proto::roboapp::roboapp::CameraSwitchMessage;
+use prost::Message;
 use std::env;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener;
 use tokio::sync::mpsc;
 use tokio_tungstenite::accept_async;
-use tokio_tungstenite::tungstenite::Message;
+use tokio_tungstenite::tungstenite::Message as WsMessage;
 use v4l::io::mmap::Stream;
 use v4l::io::traits::CaptureStream;
 
@@ -110,7 +110,11 @@ async fn main() {
                     // 送信タスク
                     let send_task = tokio::spawn(async move {
                         while let Some(data) = rx.recv().await {
-                            if ws_sender.send(Message::Binary(data.into())).await.is_err() {
+                            if ws_sender
+                                .send(WsMessage::Binary(data.into()))
+                                .await
+                                .is_err()
+                            {
                                 break;
                             }
                         }
@@ -138,7 +142,7 @@ async fn main() {
         loop {
             if let Ok(sample) = subscriber.recv_async().await {
                 let payload = sample.payload();
-                match CameraSwitchMessage::parse_from_bytes(payload.to_bytes().as_ref()) {
+                match CameraSwitchMessage::decode(payload.to_bytes().as_ref()) {
                     Ok(msg) => {
                         let new_value = msg.camera_id as usize;
                         let _ = switch_tx.send(new_value);

@@ -6,6 +6,9 @@ rust = { version = "1.91", components = "rust-analyzer" }
 sccache = "latest"
 protoc = "29.3"
 
+[tasks.deps]
+run = "cargo fetch"
+
 [tasks.generate_proto]
 description = "Generate Rust code from Protobuf files"
 run = """

@@ -1,0 +1,14 @@
+version: v2
+inputs:
+  - directory: ../message/proto
+plugins:
+  - remote: buf.build/community/neoeinstein-prost:v0.5.0
+    out: src/proto
+    opt:
+      - compile_well_known_types
+      - extern_path=.google.protobuf=::pbjson_types
+  - remote: buf.build/community/neoeinstein-tonic:v0.5.0
+    out: src/proto
+    opt:
+      - compile_well_known_types
+      - extern_path=.google.protobuf=::pbjson_types
