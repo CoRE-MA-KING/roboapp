@@ -64,17 +64,26 @@ class SerialRobotDriver(RobotDriver):
             self._serial = None
 
     def raw_to_RobotState(self, data: Sequence[str]) -> RobotState:
+        try:
+            state_id = RobotStateId(int(data[0]))
+        except (ValueError, IndexError):
+            logging.warning(
+                "Invalid state_id value received. Fallback to UNKNOWN.",
+            )
+            state_id = RobotStateId.UNKNOWN
+        flags_val = int(data[6])
+
         new_state = RobotState(
-            state_id=RobotStateId(int(data[0])),
+            state_id=state_id,
             pitch_deg=float(data[1]) / 10.0,
             yaw_deg=float(data[2]) / 10.0,
             left_disks=int(data[3]),
             right_disks=int(data[4]),
             video_id=int(data[5]),
             flags=RobotFlags(
-                is_red=bool((int(data[6]) >> 3) & 0b00000001),
-                record_video=bool((int(data[6]) >> 1) & 0b00000001),
-                ready_to_fire=bool((int(data[6]) >> 0) & 0b00000001),
+                is_red=bool((flags_val >> 3) & 0b00000001),
+                record_video=bool((flags_val >> 1) & 0b00000001),
+                ready_to_fire=bool((flags_val >> 0) & 0b00000001),
             ),
             reserved=int(data[7]),
         )
@@ -119,8 +128,10 @@ class SerialRobotDriver(RobotDriver):
                 if len(parts) >= 8:
                     try:
                         self._robot_state = self.raw_to_RobotState(parts)
-                    except pydantic.ValidationError as e:
-                        logging.error(f"Failed to validate RobotState from serial: {e}")
+                    except (pydantic.ValidationError, ValueError, IndexError) as e:
+                        logging.error(
+                            f"Failed to parse or validate RobotState from serial: {e}"
+                        )
         except Exception as err:
             logging.error("Error reading from serial port: %s", err)
             if self._serial:
