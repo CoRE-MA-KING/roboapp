@@ -39,9 +39,8 @@ int main(int argc, char **argv) {
            std::tuple<std::chrono::system_clock::time_point, LiDARDataWrapper>>
       lidar_timestamps;
 
-  RepulsiveForceVector vec;
+  lidar_vector vec;
   auto config_file = get_config_file(FLAGS_c);
-  auto global_config = GlobalConfig(config_file);
   auto lidar_config_all = LiDARConfig(config_file);
 
   bool updated = true;
@@ -109,7 +108,8 @@ int main(int argc, char **argv) {
         data.insert(data.end(), p.begin(), p.end());
       }
 
-      cv::imshow("multiple", visualizer.multipleVisualize(data, vec));
+      cv::imshow("multiple",
+                 visualizer.multipleVisualize(data, vec.linear, vec.angular));
       cv::waitKey(1);
       updated = false;
     } else {

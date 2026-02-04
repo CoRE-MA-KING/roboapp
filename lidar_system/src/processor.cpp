@@ -39,7 +39,6 @@ int main(int argc, char **argv) {
       timestamps;
 
   auto config_file = get_config_file(FLAGS_c);
-  auto global_config = GlobalConfig(config_file);
   auto lidar_config_all = LiDARConfig(config_file);
 
   bool updated = true;
@@ -98,12 +97,10 @@ int main(int argc, char **argv) {
         data.insert(data.end(), p.begin(), p.end());
       }
 
-      // Vectorを出力
-      nlohmann::json vec = collision_avoidance.calcRepulsiveForce(data);
-      // ロボット用に回転方向を反転
+      auto [lin, ang] = collision_avoidance.calcRepulsiveForce(data);
       roboapp::LiDARVector vec_msg;
-      vec_msg.set_linear(vec["linear"].get<float>());
-      vec_msg.set_angular(std::fmod(360.f - vec["angular"].get<float>(), 360));
+      vec_msg.set_linear(lin);
+      vec_msg.set_angular(std::fmod(360.f - ang, 360));
       vec_publisher.put(vec_msg.SerializeAsString());
 
       // Rangeを出力

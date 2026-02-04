@@ -13,26 +13,11 @@ def get_resource_path() -> Path:
     return Path(__file__).parents[1] / "resources"
 
 
-def test_read_empty_global_config(get_resource_path: Path) -> None:
-    config_file = get_resource_path / "empty.toml"
-    c = load_and_parse_config(config_file).global_
-
-    assert c.websocket_port == 8080
-
-
 def test_read_empty_uart_config(get_resource_path: Path) -> None:
     config_file = get_resource_path / "empty.toml"
 
     config = load_and_parse_config(config_file)
     assert config.uart is None
-
-
-def test_read_global_config_websocket_port(get_resource_path: Path) -> None:
-    config_file = get_resource_path / "global_config_websocket_port.toml"
-
-    c = load_and_parse_config(config_file).global_
-
-    assert c.websocket_port == 9090
 
 
 def test_read_uart_config_with_not_exist(get_resource_path: Path) -> None:

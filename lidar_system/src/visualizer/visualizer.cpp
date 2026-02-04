@@ -118,7 +118,8 @@ Visualizer::Visualizer(const LiDARConfig &lidar_config, uint32_t image_size)
 }
 
 cv::Mat Visualizer::multipleVisualize(const std::vector<cv::Point2d> &data,
-                                      const RepulsiveForceVector &vec) {
+                                      const float &linear,
+                                      const float &angular) {
   cv::Mat img = baseImage.clone();
   auto center = image_size / 2;
 
@@ -129,10 +130,9 @@ cv::Mat Visualizer::multipleVisualize(const std::vector<cv::Point2d> &data,
 
   cv::arrowedLine(
       img, cv::Point2d(center, center),
-      cv::Point2d(center + vec.linear * 100 * zoom *
-                               std::cos(vec.angular * CV_PI / 180.0),
-                  center - vec.linear * 100 * zoom *
-                               std::sin(vec.angular * CV_PI / 180.0)),
+      cv::Point2d(
+          center + linear * 100 * zoom * std::cos(angular * CV_PI / 180.0),
+          center - linear * 100 * zoom * std::sin(angular * CV_PI / 180.0)),
       cv::Scalar(0, 255, 255), 2);
 
   //  cv::flip(img, img, 0);

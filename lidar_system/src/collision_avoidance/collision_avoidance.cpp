@@ -16,7 +16,7 @@ CollisionAvoidance::CollisionAvoidance(double robot_width, double robot_length,
               cv::Point2d(-robot_width_ / 2.0, robot_length_ / 2.0)};
 }
 
-RepulsiveForceVector CollisionAvoidance::calcRepulsiveForce(
+std::pair<double, double> CollisionAvoidance::calcRepulsiveForce(
     const std::vector<cv::Point2d>& lidar_points) {
   // 合成斥力
   cv::Point2d total_force{0.0, 0.0};
@@ -76,5 +76,5 @@ RepulsiveForceVector CollisionAvoidance::calcRepulsiveForce(
 
   angular = std::fmod(angular + 360.0f, 360.0f);
 
-  return RepulsiveForceVector(linear, angular);
+  return std::pair(linear, angular);
 }

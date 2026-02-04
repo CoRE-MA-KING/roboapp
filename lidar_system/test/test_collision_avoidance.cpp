@@ -20,10 +20,10 @@ TEST(CollisionAvoidanceTest, ObstacleFront)
     std::vector<cv::Point2d> lidar_points = { {0.22, 0.0} };
     auto result = ca.calcRepulsiveForce(lidar_points);
     // 後方に斥力が発生する
-    EXPECT_GT(result.linear, 0.0);
+    EXPECT_GT(result.first, 0.0);
     // angularが[π/2, π]または[-π, -π/2]の範囲にあることを確認
-    EXPECT_TRUE((90 <= result.angular && result.angular <= 180) || 
-                (180 <= result.angular && result.angular <= 270));
+    EXPECT_TRUE((90 <= result.second && result.second <= 180) || 
+                (180 <= result.second && result.second <= 270));
 }
 
 TEST(CollisionAvoidanceTest, ObstacleSide)
@@ -33,8 +33,8 @@ TEST(CollisionAvoidanceTest, ObstacleSide)
     std::vector<cv::Point2d> lidar_points = { {0.0, 0.22} };
     auto result = ca.calcRepulsiveForce(lidar_points);
     // 側方に斥力が発生する
-    EXPECT_GT(result.linear, 0.0);
-    EXPECT_TRUE(180 <= result.angular && result.angular <= 360);
+    EXPECT_GT(result.first, 0.0);
+    EXPECT_TRUE(180 <= result.second && result.second <= 360);
 }
 
 TEST(CollisionAvoidanceTest, ObstacleDiagonalFrontRight)
@@ -44,9 +44,9 @@ TEST(CollisionAvoidanceTest, ObstacleDiagonalFrontRight)
     std::vector<cv::Point2d> lidar_points = { {0.22, 0.22} };
     auto result = ca.calcRepulsiveForce(lidar_points);
     // 右後方方向に斥力が発生する
-    EXPECT_GT(result.linear, 0.0);
+    EXPECT_GT(result.first, 0.0);
     // 角度は右後方（3象限）になるはず：-π < angular < -π/2
-    EXPECT_TRUE(180 <= result.angular && result.angular <= 270);
+    EXPECT_TRUE(180 <= result.second && result.second <= 270);
 }
 
 TEST(CollisionAvoidanceTest, ObstacleNearFrontRightCorner)
@@ -56,7 +56,7 @@ TEST(CollisionAvoidanceTest, ObstacleNearFrontRightCorner)
     std::vector<cv::Point2d> lidar_points = { {0.15, 0.15} };
     auto result = ca.calcRepulsiveForce(lidar_points);
     // 斥力発生しない
-    EXPECT_NEAR(result.linear, 0.0, 1e-6);
+    EXPECT_NEAR(result.first, 0.0, 1e-6);
 }
 
 std::vector<cv::Point2d> generateRectanglePoints(double x_min, double x_max, double y_min, double y_max, double spacing = 0.05)
@@ -89,7 +89,7 @@ TEST(CollisionAvoidanceTest, RobotInsideRectangle)
     auto result = ca.calcRepulsiveForce(lidar_points);
     
     // 四方から斥力を受けるため、合成斥力はほぼゼロになるはず
-    EXPECT_NEAR(result.linear, 0.0, 0.1);
+    EXPECT_NEAR(result.first, 0.0, 0.1);
 }
 
 TEST(CollisionAvoidanceTest, RobotInsideRectangleOffCenter)
@@ -100,11 +100,11 @@ TEST(CollisionAvoidanceTest, RobotInsideRectangleOffCenter)
     auto result = ca.calcRepulsiveForce(lidar_points);
     
     // 右側の壁が近いため、左方向の斥力が発生
-    EXPECT_GT(result.linear, 0.0);
+    EXPECT_GT(result.first, 0.0);
     // 角度は左方向（0付近または±π付近）
-    EXPECT_TRUE((315 <= result.angular && result.angular <= 360) || 
-                (0 <= result.angular && result.angular <= 45) || 
-                (std::abs(result.angular) >= 3*45));
+    EXPECT_TRUE((315 <= result.second && result.second <= 360) || 
+                (0 <= result.second && result.second <= 45) || 
+                (std::abs(result.second) >= 3*45));
 }
 
 TEST(CollisionAvoidanceTest, RobotInsideNarrowCorridor)
@@ -115,7 +115,7 @@ TEST(CollisionAvoidanceTest, RobotInsideNarrowCorridor)
     auto result = ca.calcRepulsiveForce(lidar_points);
     
     // 左右から斥力を受けるが、前後は開いているため、合成はほぼゼロ
-    EXPECT_LT(result.linear, 0.3);
+    EXPECT_LT(result.first, 0.3);
 }
 
 TEST(CollisionAvoidanceTest, RobotNearCornerInside)
@@ -126,9 +126,9 @@ TEST(CollisionAvoidanceTest, RobotNearCornerInside)
     auto result = ca.calcRepulsiveForce(lidar_points);
     
     // 左上の角が近いため、右上方向への斥力が発生
-    EXPECT_GT(result.linear, 0.0);
+    EXPECT_GT(result.first, 0.0);
     // 角度は右上方向（-π < angular < -π/2）
-    EXPECT_TRUE(180 <= result.angular && result.angular <= 270);
+    EXPECT_TRUE(180 <= result.second && result.second <= 270);
 }
 
 

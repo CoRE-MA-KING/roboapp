@@ -38,10 +38,6 @@
 設定ファイルは `config.toml` です。
 
 ```toml
-[global]
-# WebSocket のポート番号
-websocket_port = 8080
-
 [lidar]
 # ロボットの幅（左右） (mm)
 robot_width = 800

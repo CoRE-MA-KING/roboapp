@@ -32,12 +32,10 @@ async fn main() {
     env_logger::init();
 
     let config = load_config(args.config_file).expect("Failed to load configuration");
-    let global_config = config.global;
     let camera_config = config
         .camera
         .expect("設定ファイルに [camera] セクションが見つかりません");
 
-    debug!("Global Config: {:?}", global_config);
     debug!("Camera Config: {:?}", camera_config);
 
     let mut device_index: usize = 0;
@@ -93,12 +91,12 @@ async fn main() {
         let ws_clients: WsClients = Arc::new(Mutex::new(Vec::new()));
         let ws_clients_clone = ws_clients.clone();
         tokio::spawn(async move {
-            let listener = TcpListener::bind(format!("0.0.0.0:{}", global_config.websocket_port))
+            let listener = TcpListener::bind(format!("0.0.0.0:{}", camera_config.websocket_port))
                 .await
                 .expect("Failed to bind WebSocket port");
             info!(
                 "WebSocket server listening on ws://0.0.0.0:{}",
-                global_config.websocket_port
+                camera_config.websocket_port
             );
             while let Ok((stream, _)) = listener.accept().await {
                 let ws_clients_inner = ws_clients_clone.clone();
