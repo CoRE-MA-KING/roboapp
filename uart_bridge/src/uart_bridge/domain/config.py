@@ -27,10 +27,6 @@ def get_dummy_port() -> tuple[Path, Path]:
     return (mcu_port, bridge_port)
 
 
-class GlobalConfig(BaseModel):
-    websocket_port: int = Field(default=8080, description="WebSocket Port")
-
-
 class UartConfig(BaseModel):
     device: str = Field(str(get_dummy_port()[1]), description="UARTポートのパス")
 
@@ -45,7 +41,6 @@ class UartConfig(BaseModel):
 
 
 class Config(BaseModel):
-    global_: GlobalConfig = Field(default_factory=GlobalConfig, alias="global")
     uart: UartConfig | None = None
 
 

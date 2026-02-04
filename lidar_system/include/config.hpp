@@ -8,22 +8,6 @@
 #include "gflags/gflags.h"
 #include "toml.hpp"
 
-class GlobalConfig {
- public:
-  uint16_t websocket_port = 8080;
-
-  GlobalConfig() = default;
-  GlobalConfig(toml::value toml_config) {
-    if (toml_config.contains("global")) {
-      auto global_config = toml_config.at("global");
-      if (global_config.contains("websocket_port")) {
-        websocket_port =
-            toml::get<uint16_t>(global_config.at("websocket_port"));
-      }
-    }
-  }
-};
-
 class LiDARDeviceConfig {
  public:
   std::string backend;

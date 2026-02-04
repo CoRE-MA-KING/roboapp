@@ -42,11 +42,6 @@ Options:
 
 ### 構成
 
-#### Global (`[global]`)
-
-- `zenoh_prefix`: Zenoh の Key Expression のプレフィックス
-- `websocket_port`: WebSocket のポート番号
-
 #### Camera (`[camera]`)
 
 - `websocket`: WebSocket 配信の有効化 (デフォルト: `true`)
@@ -61,10 +56,6 @@ Options:
 ### 設定例
 
 ```toml
-[global]
-zenoh_prefix = "roboapp"
-websocket_port = 8080
-
 [camera]
 websocket = true
 zenoh = false

@@ -13,12 +13,11 @@ pub mod config;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .manage(Mutex::new(config::GlobalConfig::default()))
         .manage(Mutex::new(config::GUIConfig::default()))
         .plugin(tauri_plugin_cli::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_log::Builder::new().build())
-        .invoke_handler(tauri::generate_handler![get_config_host, get_config_port])
+        .invoke_handler(tauri::generate_handler![get_config_host])
         .setup(|app| {
             let args = match app.cli().matches() {
                 Ok(matches) => matches.args,
@@ -38,21 +37,13 @@ pub fn run() {
             };
 
             let config = load_config(config_file).expect("Failed to load configuration");
-            let global_config = config.global;
             let gui_config = config
                 .gui
                 .expect("設定ファイルに [gui] セクションが見つかりません");
 
-            println!("Using config file: {:?}", gui_config);
-            println!("Using config file: {:?}", global_config);
-
-            let state_global_config = app.state::<Mutex<config::GlobalConfig>>();
             let state_gui_config = app.state::<Mutex<config::GUIConfig>>();
 
-            let mut global_config_lock = state_global_config.lock().unwrap();
             let mut gui_config_lock = state_gui_config.lock().unwrap();
-
-            global_config_lock.websocket_port = global_config.websocket_port;
 
             gui_config_lock.host = gui_config.host.clone();
 
@@ -90,15 +81,6 @@ async fn declare_and_emit(session: &zenoh::Session, app: Arc<AppHandle>, event_n
 #[tauri::command]
 fn get_config_host(gui_config: State<'_, Mutex<config::GUIConfig>>) -> Result<String, String> {
     Ok(gui_config.lock().unwrap().host.clone())
-}
-
-#[tauri::command]
-fn get_config_port(global_config: State<'_, Mutex<config::GlobalConfig>>) -> Result<u16, String> {
-    println!(
-        "call port: {}",
-        global_config.lock().unwrap().websocket_port
-    );
-    Ok(global_config.lock().unwrap().websocket_port)
 }
 
 async fn zenoh_sub(app: AppHandle) {

@@ -3,14 +3,6 @@ from typing import Literal, Self
 from pydantic import BaseModel, Field, model_validator
 
 
-class GlobalConfig(BaseModel):
-    model_config = {"extra": "forbid"}
-
-    websocket_port: int = Field(
-        default=8080, gt=0, le=65535, description="WebSocketのポート番号"
-    )
-
-
 class LidarDevice(BaseModel):
     model_config = {"extra": "forbid"}
 
@@ -75,7 +67,6 @@ class UARTConfig(BaseModel):
 class Config(BaseModel):
     model_config = {"extra": "forbid"}
 
-    global_: GlobalConfig | None = Field(None, alias="global")
     lidar: LidarConfig | None = Field(None, alias="lidar")
     camera: CameraConfig | None = Field(None, alias="camera")
     gui: GUIConfig | None = Field(None, alias="gui")

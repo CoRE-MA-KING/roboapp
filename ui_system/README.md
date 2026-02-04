@@ -28,11 +28,6 @@
 
 ### 構成
 
-#### Global (`[global]`)
-
-- `zenoh_prefix`: Zenoh の Key Expression のプレフィックス
-- `websocket_port`: WebSocket のポート番号
-
 #### GUI (`[gui]`)
 
 - `host`: ホスト名 (デフォルト: `localhost`)
@@ -40,10 +35,6 @@
 ### 設定例
 
 ```toml
-[global]
-zenoh_prefix = "roboapp"
-websocket_port = 8080
-
 [gui]
 host = "localhost"
 ```

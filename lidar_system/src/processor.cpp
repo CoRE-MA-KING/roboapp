@@ -38,7 +38,6 @@ int main(int argc, char **argv) {
       timestamps;
 
   auto config_file = get_config_file(FLAGS_c);
-  auto global_config = GlobalConfig(config_file);
   auto lidar_config_all = LiDARConfig(config_file);
 
   bool updated = true;
