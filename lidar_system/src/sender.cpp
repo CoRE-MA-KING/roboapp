@@ -30,7 +30,7 @@ void run_lidar_thread(std::string name, LiDARDeviceConfig config,
       zenoh::KeyExpr("lidar/data"));
 
   auto data = LiDARDataWrapper(name, config.x, config.y);
-  const int max_consecutive_errors = 10;
+  const int max_consecutive_errors = 3;
 
   std::unique_ptr<MockLiDAR> lidar;
 
@@ -58,9 +58,12 @@ void run_lidar_thread(std::string name, LiDARDeviceConfig config,
       if (lidar && lidar->get(data)) {
         publisher.put(data.dump());
         consecutive_errors = 0;
+        std::this_thread::yield();
       } else {
         consecutive_errors++;
         if (consecutive_errors >= max_consecutive_errors) {
+          std::cerr << "LiDAR " << name << " timed out " << consecutive_errors
+                    << " times in a row. Restarting..." << std::endl;
           throw std::runtime_error("Too many consecutive errors");
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
