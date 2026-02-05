@@ -30,8 +30,7 @@ RplidarWrapper::RplidarWrapper(std::string device, float max_distance,
   auto op_result = lidar->connect(channel.get());
 
   if (!SL_IS_OK(op_result)) {
-    fprintf(stderr, "Failed to connect to LIDAR %08x\r\n", op_result);
-    // Explicitly release resources before throwing
+    std::cerr << "Failed to connect to LIDAR " << std::hex << op_result << std::dec << std::endl;
     lidar.reset();
     channel.reset();
     throw std::runtime_error("Failed to connect to LIDAR");
