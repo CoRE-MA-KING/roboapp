@@ -45,8 +45,7 @@ RplidarWrapper::RplidarWrapper(std::string device, float max_distance,
   op_result = lidar->startScan(0, 1);
 
   if (!SL_IS_OK(op_result)) {
-    fprintf(stderr, "Failed to start scan: %08x\n", op_result);
-    lidar.reset();
+    std::cerr << "Failed to start scan: " << std::hex << op_result << std::dec << std::endl;
     channel.reset();
     throw std::runtime_error("Failed to start scan");
   }
