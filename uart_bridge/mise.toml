@@ -4,19 +4,16 @@ uv = "0.9"
 [tasks.generate_proto]
 description = "Generate Python code from Protobuf files"
 run = """
-rm -f src/uart_bridge/domain/proto/*_pb2.py
-rm -f src/uart_bridge/domain/proto/*_pb2.pyi
+mkdir -p src/roboapp src/buf/validate
 protoc \
-  --python_out=src/uart_bridge/domain/proto \
-  --pyi_out=src/uart_bridge/domain/proto \
+  --python_out=src \
+  --pyi_out=src \
   --proto_path=../utils/proto \
-  ../utils/proto/roboapp/*.proto
+  $(find ../utils/proto -name "*.proto")
+touch src/roboapp/__init__.py src/buf/__init__.py src/buf/validate/__init__.py
 """
-sources = ["../utils/proto/roboapp/*.proto"]
-outputs = [
-  "src/uart_bridge/domain/proto/*_pb2.py",
-  "src/uart_bridge/domain/proto/*_pb2.pyi"
-]
+sources = ["../utils/proto/**/*.proto"]
+outputs = ["src/roboapp/*_pb2.py*", "src/buf/validate/*_pb2.py*"]
 
 [tasks.deps]
 description = "Install and sync Python dependencies using uv for uart_bridge"

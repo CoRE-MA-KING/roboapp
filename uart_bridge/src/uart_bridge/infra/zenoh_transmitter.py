@@ -5,15 +5,15 @@ from threading import Lock
 import pydantic
 import zenoh
 
+from roboapp.camera_switch_pb2 import CameraSwitchMessage
+from roboapp.damage_panel_pb2 import DamagePanelMessage, Target
+from roboapp.disks_pb2 import DisksMessage
+from roboapp.flap_pb2 import FlapMessage
+from roboapp.lidar_vector_pb2 import LiDARVector
+from roboapp.robot_state_pb2 import RobotStateMessage
 from uart_bridge.application.interfaces import Transmitter
 from uart_bridge.domain.config import get_config_path
 from uart_bridge.domain.messages import RobotState
-from uart_bridge.domain.proto.roboapp.camera_switch_pb2 import CameraSwitchMessage
-from uart_bridge.domain.proto.roboapp.damage_panel_pb2 import DamagePanelMessage, Target
-from uart_bridge.domain.proto.roboapp.disks_pb2 import DisksMessage
-from uart_bridge.domain.proto.roboapp.flap_pb2 import FlapMessage
-from uart_bridge.domain.proto.roboapp.lidar_vector_pb2 import LiDARVector
-from uart_bridge.domain.proto.roboapp.robot_state_pb2 import RobotStateMessage
 from uart_bridge.domain.shared_memory import SharedRobotData
 
 
