@@ -5,7 +5,6 @@ CMAKE_C_COMPILER_LAUNCHER = "sccache"
 [tools]
 just = "latest"
 sccache = "latest"
-protoc = "21.12"
 
 [tasks.generate_proto]
 description = "Generate C++ code from Protobuf files"
@@ -15,15 +14,16 @@ rm -f src/proto/*.pb.cc
 rm -f src/proto/*.pb.h
 protoc \
   --cpp_out=src/proto \
-  --proto_path=../message/proto \
-  $(find ../message/proto -name "*.proto")
+  --proto_path=../utils/proto \
+  $(find ../utils/proto -name "*.proto")
 """
-sources = ["../message/proto/**/*.proto"]
+sources = ["../utils/proto/**/*.proto"]
 outputs = ["src/proto/*.pb.cc", "src/proto/*.pb.h"]
 
 [tasks.deps]
 description = "Generate CMake build files using just and ninja"
 run = "just deps"
+depends = ["generate_proto"]
 sources = ["CMakeLists.txt", "src/**/*.cpp", "include/**/*/hpp"]
 outputs = ["./build/build.ninja", "./build/compile_commands.json"]
 

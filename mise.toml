@@ -16,6 +16,7 @@ task.monorepo_depth = 2
 actionlint = "latest"
 markdownlint-cli2 = "latest"
 node = "lts"
+protoc = "21.12"
 yamlfmt = "latest"
 
 [tasks.action_lint]
