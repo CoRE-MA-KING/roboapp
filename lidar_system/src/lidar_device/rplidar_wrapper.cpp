@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdio>
 #include <filesystem>
+#include <iostream>
 #include <stdexcept>
 #include <thread>
 
@@ -30,7 +31,8 @@ RplidarWrapper::RplidarWrapper(std::string device, float max_distance,
   auto op_result = lidar->connect(channel.get());
 
   if (!SL_IS_OK(op_result)) {
-    std::cerr << "Failed to connect to LIDAR " << std::hex << op_result << std::dec << std::endl;
+    std::cerr << "Failed to connect to LIDAR " << std::hex << op_result
+              << std::dec << std::endl;
     lidar.reset();
     channel.reset();
     throw std::runtime_error("Failed to connect to LIDAR");
@@ -44,7 +46,8 @@ RplidarWrapper::RplidarWrapper(std::string device, float max_distance,
   op_result = lidar->startScan(0, 1);
 
   if (!SL_IS_OK(op_result)) {
-    std::cerr << "Failed to start scan: " << std::hex << op_result << std::dec << std::endl;
+    std::cerr << "Failed to start scan: " << std::hex << op_result << std::dec
+              << std::endl;
     channel.reset();
     throw std::runtime_error("Failed to start scan");
   }

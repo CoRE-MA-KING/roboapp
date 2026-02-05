@@ -135,5 +135,19 @@ int main(int argc, char* argv[]) {
   }
 
   std::cout << "Stopping..." << std::endl;
+  for (auto& task : tasks) {
+    if (task.handle.valid()) {
+      try {
+        task.handle.get();  // Ensure any pending exceptions are rethrown and
+                            // handled
+      } catch (const std::exception& e) {
+        std::cerr << "Task " << task.name
+                  << " finished with exception: " << e.what() << std::endl;
+      } catch (...) {
+        std::cerr << "Task " << task.name << " finished with unknown error."
+                  << std::endl;
+      }
+    }
+  }
   return 0;
 }

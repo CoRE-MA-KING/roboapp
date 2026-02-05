@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <iostream>
 #include <lidar_types/lidar_data.hpp>
+#include <mutex>
 #include <opencv2/opencv.hpp>
 #include <thread>
 
@@ -41,6 +42,7 @@ int main(int argc, char **argv) {
   auto global_config = GlobalConfig(config_file);
   auto lidar_config_all = LiDARConfig(config_file);
 
+  std::mutex mtx;
   bool updated = true;
 
   // Collision Avoidance
@@ -55,18 +57,24 @@ int main(int argc, char **argv) {
   auto session = zenoh::Session(std::move(zenoh_config));
   session.declare_background_subscriber(  //
       zenoh::KeyExpr("lidar/data"),       //
-      [&timestamps, &updated](const zenoh::Sample &sample) {
-        auto timestamp = ntp64_to_timepoint(sample.get_timestamp()->get_time());
+      [&timestamps, &updated, &mtx](const zenoh::Sample &sample) {
+        try {
+          auto timestamp =
+              ntp64_to_timepoint(sample.get_timestamp()->get_time());
 
-        auto data = sample.get_payload().as_vector();
-        auto z = LiDARDataWrapper(data);
+          auto data = sample.get_payload().as_vector();
+          auto z = LiDARDataWrapper(data);
 
-        timestamps[z.name] = {
-            timestamp,
-            z,
-        };
+          std::lock_guard<std::mutex> lock(mtx);
+          timestamps[z.name] = {
+              timestamp,
+              z,
+          };
 
-        updated = true;
+          updated = true;
+        } catch (const std::exception &e) {
+          std::cerr << "Error processing lidar data: " << e.what() << std::endl;
+        }
       },
       zenoh::closures::none);
 
@@ -78,24 +86,32 @@ int main(int argc, char **argv) {
   while (true) {
     auto now = std::chrono::system_clock::now();
     std::vector<cv::Point2d> data;
+    bool current_updated = false;
 
-    for (auto it = timestamps.begin(); it != timestamps.end();) {
-      if (now - std::get<0>(it->second) >
-          std::chrono::seconds(lidar_config_all.duration_seconds)) {
-        updated = true;
-        it = timestamps.erase(it);
-      } else {
-        ++it;
+    {
+      std::lock_guard<std::mutex> lock(mtx);
+      for (auto it = timestamps.begin(); it != timestamps.end();) {
+        if (now - std::get<0>(it->second) >
+            std::chrono::seconds(lidar_config_all.duration_seconds)) {
+          updated = true;
+          it = timestamps.erase(it);
+        } else {
+          ++it;
+        }
+      }
+
+      current_updated = updated;
+      if (current_updated) {
+        for (auto &[id, pair] : timestamps) {
+          auto &[timestamp, lidar_data] = pair;
+          auto p = lidar_data.getPoint();
+          data.insert(data.end(), p.begin(), p.end());
+        }
+        updated = false;
       }
     }
 
-    if (updated) {
-      for (auto &[id, pair] : timestamps) {
-        auto &[timestamp, lidar_data] = pair;
-        auto p = lidar_data.getPoint();
-        data.insert(data.end(), p.begin(), p.end());
-      }
-
+    if (current_updated) {
       // Vectorを出力
       auto [lin, ang] = collision_avoidance.calcRepulsiveForce(data);
       vec_publisher.put(lidar_vector(lin, std::fmod(360.f - ang, 360)).dump());
@@ -106,7 +122,6 @@ int main(int argc, char **argv) {
       range_publisher.put(range_msg.dump());
     }
 
-    updated = false;
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
   return 0;
