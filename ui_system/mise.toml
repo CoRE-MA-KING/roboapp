@@ -6,7 +6,6 @@ node = "22"
 pnpm = "10"
 rust = { version = "1.91", components = "rust-analyzer" }
 sccache = "latest"
-protoc = "29.3"
 
 [tasks.generate_proto]
 description = "Generate TypeScript definitions from Protobuf files"
@@ -16,12 +15,12 @@ rm -f src/lib/types/proto/*.ts
 protoc \
   --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto \
   --ts_proto_out=src/lib/types/proto \
-  --proto_path=../message/proto \
+  --proto_path=../utils/proto \
   --ts_proto_opt=esModuleInterop=true \
   --ts_proto_opt=outputServices=false \
-  ../message/proto/roboapp/*.proto
+  $(find ../utils/proto -name "*.proto")
 """
-sources = ["../message/proto/roboapp/*.proto"]
+sources = ["../utils/proto/roboapp/*.proto"]
 outputs = ["src/lib/types/proto/*.ts"]
 
 [tasks.deps_node]
