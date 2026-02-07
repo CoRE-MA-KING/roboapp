@@ -8,7 +8,6 @@ sccache = "latest"
 
 [tasks.generate_proto]
 description = "Generate C++ code from Protobuf files"
-wait_for = ["sync"]
 run = """
 rm -f src/proto/*.pb.cc
 rm -f src/proto/*.pb.h
