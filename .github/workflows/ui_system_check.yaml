@@ -28,7 +28,7 @@ jobs:
       - name: Install Dependencies
         run: |
           mise //:deps
-          mise //ui_system:deps
+          mise //${{ env.WORKDIR }}:deps
       - name: Lint
         run: |
           cargo clippy --all-targets --all-features -- -D warnings
