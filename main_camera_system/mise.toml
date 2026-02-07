@@ -6,10 +6,10 @@ rust = { version = "1.91", components = "rust-analyzer" }
 sccache = "latest"
 
 [tasks.deps]
+depends = ["generate_proto"]
 run = "cargo fetch"
 
 [tasks.generate_proto]
-depends = ["deps"]
 description = "Generate Rust code from Protobuf files"
 run = """
 rm -f src/proto/*.rs
@@ -23,7 +23,7 @@ sources = ["../utils/proto/**/*.proto"]
 outputs = ["src/proto/*.rs"]
 
 [tasks.build]
-depends = ["deps", "generate_proto"]
+depends = ["deps"]
 description = "Build the main-camera-system Rust application in release mode"
 run = "cargo build --release"
 sources = [
