@@ -9,23 +9,9 @@ sccache = "latest"
 [tasks.sync]
 run = "cargo fetch"
 
-[tasks.generate_proto]
-description = "Generate Rust code from Protobuf files"
-wait_for = ["sync"]
-run = """
-rm -f src/proto/*.rs
-protoc \
-  --plugin=protoc-gen-rust_protobuf=$(which protoc-gen-rs) \
-  --rust_protobuf_out=src/proto \
-  --proto_path=../utils/proto \
-  $(find ../utils/proto -name "*.proto")
-"""
-sources = ["../utils/proto/**/*.proto"]
-outputs = ["src/proto/*.rs"]
-
 [tasks.deps]
 description = "Install dependencies and generate code"
-depends = ["sync", "generate_proto"]
+depends = ["sync"]
 
 [tasks.build]
 depends = ["deps"]
