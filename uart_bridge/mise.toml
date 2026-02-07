@@ -1,18 +1,8 @@
 [tools]
 uv = "0.9"
 
-[tasks.sync]
-description = "Install and sync Python dependencies using uv for uart_bridge"
-run = "uv sync"
-sources = [
-  "pyproject.toml",
-  "uv.lock",
-]
-outputs = { auto = true }
-
 [tasks.generate_proto]
 description = "Generate Python code from Protobuf files"
-wait_for = ["sync"]
 run = """
 mkdir -p src/roboapp src/buf/validate
 protoc \
@@ -28,7 +18,13 @@ outputs = ["src/roboapp/*_pb2.py*", "src/buf/validate/*_pb2.py*"]
 [tasks.deps]
 alias = "build"
 description = "Install dependencies and generate code"
-depends = ["sync", "generate_proto"]
+depends = ["generate_proto"]
+run = "uv sync"
+sources = [
+  "pyproject.toml",
+  "uv.lock",
+]
+outputs = { auto = true }
 
 [tasks.lint]
 depends = ["deps"]

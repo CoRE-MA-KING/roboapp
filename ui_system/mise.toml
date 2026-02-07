@@ -23,13 +23,9 @@ sources = [
 ]
 outputs = { auto = true }
 
-[tasks.sync]
-description = "Install all dependencies (Node.js and Rust) for the UI system"
-depends = ["sync_node", "sync_rust"]
-
 [tasks.generate_proto]
 description = "Generate TypeScript definitions from Protobuf files"
-wait_for = ["sync"]
+wait_for = ["sync_node"]
 run = """
 rm -f src/lib/types/proto/*.ts
 protoc \
@@ -45,7 +41,7 @@ outputs = ["src/lib/types/proto/*.ts"]
 
 [tasks.deps]
 description = "Install dependencies and generate code"
-depends = ["sync", "generate_proto"]
+depends = ["sync_node", "sync_rust", "generate_proto"]
 
 [tasks.build]
 depends = ["deps"]

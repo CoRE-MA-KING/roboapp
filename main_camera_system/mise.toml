@@ -6,12 +6,9 @@ OUT_DIR = "./build"
 rust = { version = "1.91", components = "rust-analyzer" }
 sccache = "latest"
 
-[tasks.sync]
-run = "cargo fetch"
-
 [tasks.deps]
 description = "Install dependencies and generate code"
-depends = ["sync"]
+run = "cargo fetch"
 
 [tasks.build]
 depends = ["deps"]
