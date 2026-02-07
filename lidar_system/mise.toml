@@ -16,7 +16,6 @@ outputs = ["./build/build.ninja", "./build/compile_commands.json"]
 description = "Generate C++ code from Protobuf files"
 wait_for = ["sync"]
 run = """
-mkdir -p src/proto
 rm -f src/proto/*.pb.cc
 rm -f src/proto/*.pb.h
 protoc \
