@@ -48,12 +48,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "../utils/proto/roboapp/robot_state.proto",
     ];
 
-    compile_protos_with_validators(
-        &mut config,
-        proto_files,
-        proto_include_paths,
-        &["user.v1", "weather.v1"],
-    )?;
+    compile_protos_with_validators(&mut config, proto_files, proto_include_paths, &["*"])?;
 
     // Compile protos
     tonic_prost_build::configure()
