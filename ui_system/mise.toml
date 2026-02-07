@@ -9,7 +9,6 @@ sccache = "latest"
 
 [tasks.generate_proto]
 description = "Generate TypeScript definitions from Protobuf files"
-depends = ["deps_node"]
 run = """
 rm -f src/lib/types/proto/*.ts
 protoc \

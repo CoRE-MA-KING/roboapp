@@ -17,6 +17,7 @@ outputs = ["src/roboapp/*_pb2.py*", "src/buf/validate/*_pb2.py*"]
 
 [tasks.deps]
 description = "Install and sync Python dependencies using uv for uart_bridge"
+depends = ["generate_proto"]
 run = "uv sync"
 sources = [
   "pyproject.toml",
@@ -25,7 +26,7 @@ sources = [
 outputs = { auto = true }
 
 [tasks.build]
-depends = ["generate_proto", "deps"]
+depends = ["deps"]
 
 [tasks.lint]
 depends = ["build"]

@@ -5,10 +5,6 @@ RUSTC_WRAPPER = "sccache"
 rust = { version = "1.91", components = "rust-analyzer" }
 sccache = "latest"
 
-[tasks.deps]
-depends = ["generate_proto"]
-run = "cargo fetch"
-
 [tasks.generate_proto]
 description = "Generate Rust code from Protobuf files"
 run = """
@@ -21,6 +17,10 @@ protoc \
 """
 sources = ["../utils/proto/**/*.proto"]
 outputs = ["src/proto/*.rs"]
+
+[tasks.deps]
+depends = ["generate_proto"]
+run = "cargo fetch"
 
 [tasks.build]
 depends = ["deps"]
