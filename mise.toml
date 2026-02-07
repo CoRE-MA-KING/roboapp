@@ -31,6 +31,10 @@ run = "yamlfmt .github"
 description = "Lint all Markdown files in the repository, excluding environment and build directories"
 run = 'markdownlint-cli2 "**/*.md" "#**/.venv" "#**/node_modules" "#**/target" "#**/build" "#**/3rdparty"'
 
+[tasks.markdown_format]
+description = "Automatically format and fix issues in all Markdown files"
+run = 'markdownlint-cli2 "**/*.md" "#**/.venv" "#**/node_modules" "#**/target" "#**/build" "#**/3rdparty" --fix'
+
 [tasks.build]
 description = "Build all sub-projects (camera, uart, ui, lidar) in the correct order"
 depends = [

@@ -26,7 +26,6 @@ outputs = { auto = true }
 
 [tasks.generate_proto]
 description = "Generate TypeScript definitions from Protobuf files"
-wait_for = ["deps_node"]
 run = """
 rm -f src/lib/types/proto/*.ts
 protoc \
