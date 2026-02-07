@@ -4,10 +4,13 @@ RUSTC_WRAPPER = "sccache"
 [tools]
 rust = { version = "1.91", components = "rust-analyzer" }
 sccache = "latest"
-"cargo:protobuf-codegen" = "3.7"
 
-[tasks.generate_proto]
+[tasks.sync]
+run = "cargo fetch"
+
+[tasks.generate_buf]
 description = "Generate Rust code from Protobuf files"
+wait_for = ["sync"]
 run = """
 rm -f src/proto/*.rs
 protoc \
@@ -20,8 +23,8 @@ sources = ["../utils/proto/**/*.proto"]
 outputs = ["src/proto/*.rs"]
 
 [tasks.deps]
-depends = ["generate_proto"]
-run = "cargo fetch"
+description = "Install dependencies and generate code"
+depends = ["sync", "generate_buf"]
 
 [tasks.build]
 depends = ["deps"]

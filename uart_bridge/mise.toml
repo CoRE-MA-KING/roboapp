@@ -1,8 +1,18 @@
 [tools]
 uv = "0.9"
 
-[tasks.generate_proto]
+[tasks.sync]
+description = "Install and sync Python dependencies using uv for uart_bridge"
+run = "uv sync"
+sources = [
+  "pyproject.toml",
+  "uv.lock",
+]
+outputs = { auto = true }
+
+[tasks.generate_buf]
 description = "Generate Python code from Protobuf files"
+wait_for = ["sync"]
 run = """
 mkdir -p src/roboapp src/buf/validate
 protoc \
@@ -16,34 +26,26 @@ sources = ["../utils/proto/**/*.proto"]
 outputs = ["src/roboapp/*_pb2.py*", "src/buf/validate/*_pb2.py*"]
 
 [tasks.deps]
-description = "Install and sync Python dependencies using uv for uart_bridge"
-depends = ["generate_proto"]
-run = "uv sync"
-sources = [
-  "pyproject.toml",
-  "uv.lock",
-]
-outputs = { auto = true }
-
-[tasks.build]
-depends = ["deps"]
+alias = "build"
+description = "Install dependencies and generate code"
+depends = ["sync", "generate_buf"]
 
 [tasks.lint]
-depends = ["build"]
+depends = ["deps"]
 description = "Run Python linters and type checkers for uart_bridge"
 run = ["uv run task lint", "uv run task check"]
 
 [tasks.format]
-depends = ["build"]
+depends = ["deps"]
 description = "Format Python code in uart_bridge using ruff"
 run = "uv run task format"
 
 [tasks.test]
-depends = ["build"]
+depends = ["deps"]
 description = "Execute Python tests for uart_bridge"
 run = "uv run task test"
 
 [tasks.start]
-depends = ["build"]
+depends = ["deps"]
 description = "Start the uart_bridge application"
 run = "uv run python3 src/uart_bridge/main.py"

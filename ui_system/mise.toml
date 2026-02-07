@@ -7,8 +7,29 @@ pnpm = "10"
 rust = { version = "1.91", components = "rust-analyzer" }
 sccache = "latest"
 
+[tasks.sync_node]
+description = "Install Node.js dependencies using pnpm"
+run = "pnpm i"
+sources = ["package.json", "pnpm-lock.yaml"]
+outputs = { auto = true }
+
+[tasks.sync_rust]
+description = "Fetch Rust dependencies for the Tauri backend"
+dir = "src-tauri"
+run = ["cargo fetch"]
+sources = [
+  "src-tauri/Cargo.toml",
+  "src-tauri/Cargo.lock",
+]
+outputs = { auto = true }
+
+[tasks.sync]
+description = "Install all dependencies (Node.js and Rust) for the UI system"
+depends = ["sync_node", "sync_rust"]
+
 [tasks.generate_proto]
 description = "Generate TypeScript definitions from Protobuf files"
+wait_for = ["sync"]
 run = """
 rm -f src/lib/types/proto/*.ts
 protoc \
@@ -22,26 +43,9 @@ protoc \
 sources = ["../utils/proto/roboapp/*.proto"]
 outputs = ["src/lib/types/proto/*.ts"]
 
-[tasks.deps_node]
-description = "Install Node.js dependencies using pnpm"
-run = "pnpm i"
-depends = ["generate_proto"]
-sources = ["package.json", "pnpm-lock.yaml"]
-outputs = { auto = true }
-
-[tasks.deps_rust]
-description = "Fetch Rust dependencies for the Tauri backend"
-dir = "src-tauri"
-run = ["cargo fetch"]
-sources = [
-  "src-tauri/Cargo.toml",
-  "src-tauri/Cargo.lock",
-]
-outputs = { auto = true }
-
 [tasks.deps]
-description = "Install all dependencies (Node.js and Rust) for the UI system"
-depends = ["deps_node", "deps_rust"]
+description = "Install dependencies and generate code"
+depends = ["sync", "generate_proto"]
 
 [tasks.build]
 depends = ["deps"]
@@ -63,12 +67,12 @@ sources = [
 outputs = ["./src-tauri/target/release/ui_system"]
 
 [tasks.lint_node]
-depends = ["deps_node"]
+depends = ["deps"]
 description = "Run ESLint and TypeScript checks for the frontend"
 run = ["pnpm lint", "pnpm check"]
 
 [tasks.lint_rust]
-depends = ["deps_rust"]
+depends = ["deps"]
 description = "Run Rust linter (clippy) for the Tauri backend"
 dir = "src-tauri"
 run = "cargo clippy --all-targets --all-features -- -D warnings"
@@ -78,12 +82,12 @@ description = "Run all linters (frontend and backend) for the UI system"
 depends = ["lint_node", "lint_rust"]
 
 [tasks.format_node]
-depends = ["deps_node"]
+depends = ["deps"]
 description = "Format frontend code using Prettier"
 run = "pnpm format"
 
 [tasks.format_rust]
-depends = ["deps_rust"]
+depends = ["deps"]
 description = "Format Tauri backend Rust code"
 dir = "src-tauri"
 run = "cargo fmt --all"
@@ -93,7 +97,7 @@ description = "Format all code in the UI system"
 depends = ["format_node", "format_rust"]
 
 [tasks.test_rust]
-depends = ["deps_rust"]
+depends = ["deps"]
 description = "Run unit tests for the Tauri backend"
 dir = "src-tauri"
 run = "cargo test"

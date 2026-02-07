@@ -31,9 +31,28 @@ run = "yamlfmt .github"
 description = "Lint all Markdown files in the repository, excluding environment and build directories"
 run = 'markdownlint-cli2 "**/*.md" "#**/.venv" "#**/node_modules" "#**/target" "#**/build" "#**/3rdparty"'
 
-[tasks.markdown_format]
-description = "Automatically format and fix issues in all Markdown files"
-run = 'markdownlint-cli2 "**/*.md" "#**/.venv" "#**/node_modules" "#**/target" "#**/build" "#**/3rdparty" --fix'
+[tasks.sync]
+description = "Sync all sub-projects"
+depends = [
+  "//main_camera_system:sync",
+  "//uart_bridge:sync",
+  "//ui_system:sync",
+  "//lidar_system:sync",
+]
+
+[tasks.generate_buf]
+description = "Generate code for all sub-projects"
+wait_for = ["sync"]
+depends = [
+  "//main_camera_system:generate_buf",
+  "//uart_bridge:generate_buf",
+  "//ui_system:generate_buf",
+  "//lidar_system:generate_buf",
+]
+
+[tasks.deps]
+description = "Install dependencies and generate code for the entire monorepo"
+depends = ["sync", "generate_buf"]
 
 [tasks.build]
 description = "Build all sub-projects (camera, uart, ui, lidar) in the correct order"
