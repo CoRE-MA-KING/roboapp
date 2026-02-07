@@ -4,9 +4,6 @@
 [submodule "lidar_system/3rdparty/toml11"]
 	path = lidar_system/3rdparty/toml11
 	url = https://github.com/ToruNiina/toml11
-[submodule "message"]
-	path = message
-	url = https://github.com/motty-mio2/roboapp_message
 [submodule "utils"]
 	path = utils
 	url = https://github.com/core-ma-king/roboapp_utils
