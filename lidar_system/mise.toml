@@ -24,7 +24,7 @@ protoc \
   $(find ../utils/proto -name "*.proto")
 """
 sources = ["../utils/proto/**/*.proto"]
-outputs = ["src/proto/*.pb.cc", "src/proto/*.pb.h"]
+outputs = ["src/proto/**/*.pb.cc", "src/proto/**/*.pb.h"]
 
 [tasks.deps]
 description = "Install dependencies and generate code"
