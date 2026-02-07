@@ -77,7 +77,7 @@ class ZenohTransmitter(Transmitter):
     def lidar_subscriber(self, sample: zenoh.Sample) -> None:
         try:
             m = LiDARVector.FromString(sample.payload.to_bytes())
-        except pydantic.ValidationError as e:
+        except Exception as e:
             logging.error(f"Failed to validate LiDARVectorMessage: {e}")
             return
 
