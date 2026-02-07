@@ -16,8 +16,9 @@ jobs:
       run:
         working-directory: ${{ env.WORKDIR }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
+          submodules: recursive
           fetch-depth: 1
       - uses: ./.github/actions/mise
         with:

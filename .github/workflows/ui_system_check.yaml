@@ -16,8 +16,9 @@ jobs:
       run:
         working-directory: ${{ env.WORKDIR }}/src-tauri
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
+          submodules: recursive
           fetch-depth: 1
       - uses: ./.github/actions/mise
         with:
@@ -44,13 +45,19 @@ jobs:
       run:
         working-directory: ${{ env.WORKDIR }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
       - uses: ./.github/actions/mise
         with:
           workdir: ${{ env.WORKDIR }}
       - uses: ./.github/actions/nodejs
         with:
           workdir: ${{ env.WORKDIR }}
+      - name: Install Dependencies
+        run: |
+          mise //:deps
+          mise //${{ env.WORKDIR }}:deps
       - name: Typecheck
         run: |
           pnpm check
