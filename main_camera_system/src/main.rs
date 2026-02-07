@@ -4,7 +4,6 @@ use log::{debug, error, info};
 use main_camera_system::camera_wrapper::create_camera_stream;
 use main_camera_system::config::{get_config_path, load_config};
 use main_camera_system::proto::camera_switch::CameraSwitchMessage;
-use prost::Message;
 use std::env;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
@@ -141,12 +140,9 @@ async fn main() {
         loop {
             if let Ok(sample) = subscriber.recv_async().await {
                 let payload = sample.payload();
-                match CameraSwitchMessage::decode(payload.to_bytes().as_ref()) {
+                match ::protobuf::Message::parse_from_bytes(payload.to_bytes().as_ref()) {
                     Ok(msg) => {
-                        if let Err(e) = msg.validate() {
-                            error!("CameraSwitchMessage validation failed: {:?}", e);
-                            continue;
-                        }
+                        let msg: CameraSwitchMessage = msg;
                         let new_value = msg.camera_id as usize;
                         let _ = switch_tx.send(new_value);
                     }
