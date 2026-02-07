@@ -8,7 +8,7 @@ sccache = "latest"
 [tasks.sync]
 run = "cargo fetch"
 
-[tasks.generate_buf]
+[tasks.generate_proto]
 description = "Generate Rust code from Protobuf files"
 wait_for = ["sync"]
 run = """
@@ -24,7 +24,7 @@ outputs = ["src/proto/*.rs"]
 
 [tasks.deps]
 description = "Install dependencies and generate code"
-depends = ["sync", "generate_buf"]
+depends = ["sync", "generate_proto"]
 
 [tasks.build]
 depends = ["deps"]

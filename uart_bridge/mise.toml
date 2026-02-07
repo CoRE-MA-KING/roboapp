@@ -10,7 +10,7 @@ sources = [
 ]
 outputs = { auto = true }
 
-[tasks.generate_buf]
+[tasks.generate_proto]
 description = "Generate Python code from Protobuf files"
 wait_for = ["sync"]
 run = """
@@ -28,7 +28,7 @@ outputs = ["src/roboapp/*_pb2.py*", "src/buf/validate/*_pb2.py*"]
 [tasks.deps]
 alias = "build"
 description = "Install dependencies and generate code"
-depends = ["sync", "generate_buf"]
+depends = ["sync", "generate_proto"]
 
 [tasks.lint]
 depends = ["deps"]

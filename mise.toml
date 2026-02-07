@@ -40,19 +40,19 @@ depends = [
   "//lidar_system:sync",
 ]
 
-[tasks.generate_buf]
+[tasks.generate_proto]
 description = "Generate code for all sub-projects"
 wait_for = ["sync"]
 depends = [
-  "//main_camera_system:generate_buf",
-  "//uart_bridge:generate_buf",
-  "//ui_system:generate_buf",
-  "//lidar_system:generate_buf",
+  "//main_camera_system:generate_proto",
+  "//uart_bridge:generate_proto",
+  "//ui_system:generate_proto",
+  "//lidar_system:generate_proto",
 ]
 
 [tasks.deps]
 description = "Install dependencies and generate code for the entire monorepo"
-depends = ["sync", "generate_buf"]
+depends = ["sync", "generate_proto"]
 
 [tasks.build]
 description = "Build all sub-projects (camera, uart, ui, lidar) in the correct order"
