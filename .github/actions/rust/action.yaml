@@ -16,5 +16,4 @@ runs:
     - name: Install Dependencies
       shell: bash
       run: |
-        cd "${{ inputs.workdir }}"
         rustup component add clippy rustfmt

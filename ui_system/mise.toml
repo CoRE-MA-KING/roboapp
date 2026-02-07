@@ -7,13 +7,14 @@ pnpm = "10"
 rust = { version = "1.91", components = "rust-analyzer" }
 sccache = "latest"
 
-[tasks.sync_node]
+[tasks.deps_node]
 description = "Install Node.js dependencies using pnpm"
+depends = ["generate_proto"]
 run = "pnpm i"
 sources = ["package.json", "pnpm-lock.yaml"]
 outputs = { auto = true }
 
-[tasks.sync_rust]
+[tasks.deps_rust]
 description = "Fetch Rust dependencies for the Tauri backend"
 dir = "src-tauri"
 run = ["cargo fetch"]
@@ -25,7 +26,7 @@ outputs = { auto = true }
 
 [tasks.generate_proto]
 description = "Generate TypeScript definitions from Protobuf files"
-wait_for = ["sync_node"]
+wait_for = ["deps_node"]
 run = """
 rm -f src/lib/types/proto/*.ts
 protoc \
@@ -41,7 +42,7 @@ outputs = ["src/lib/types/proto/*.ts"]
 
 [tasks.deps]
 description = "Install dependencies and generate code"
-depends = ["sync_node", "sync_rust", "generate_proto"]
+depends = ["deps_node", "deps_rust"]
 
 [tasks.build]
 depends = ["deps"]
@@ -63,12 +64,12 @@ sources = [
 outputs = ["./src-tauri/target/release/ui_system"]
 
 [tasks.lint_node]
-depends = ["deps"]
+depends = ["deps_node"]
 description = "Run ESLint and TypeScript checks for the frontend"
 run = ["pnpm lint", "pnpm check"]
 
 [tasks.lint_rust]
-depends = ["deps"]
+depends = ["deps_rust"]
 description = "Run Rust linter (clippy) for the Tauri backend"
 dir = "src-tauri"
 run = "cargo clippy --all-targets --all-features -- -D warnings"
@@ -78,12 +79,12 @@ description = "Run all linters (frontend and backend) for the UI system"
 depends = ["lint_node", "lint_rust"]
 
 [tasks.format_node]
-depends = ["deps"]
+depends = ["deps_node"]
 description = "Format frontend code using Prettier"
 run = "pnpm format"
 
 [tasks.format_rust]
-depends = ["deps"]
+depends = ["deps_rust"]
 description = "Format Tauri backend Rust code"
 dir = "src-tauri"
 run = "cargo fmt --all"
