@@ -4,6 +4,7 @@ RUSTC_WRAPPER = "sccache"
 [tools]
 rust = { version = "1.91", components = "rust-analyzer" }
 sccache = "latest"
+"cargo:protobuf-codegen" = "3.7"
 
 [tasks.generate_proto]
 description = "Generate Rust code from Protobuf files"
