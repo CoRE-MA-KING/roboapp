@@ -37,7 +37,7 @@ protoc \
   $(find ../utils/proto -name "*.proto")
 """
 sources = ["../utils/proto/roboapp/*.proto"]
-outputs = ["src/lib/types/proto/*.ts"]
+outputs = ["src/lib/types/proto/**/*.ts"]
 
 [tasks.deps]
 description = "Install dependencies and generate code"
