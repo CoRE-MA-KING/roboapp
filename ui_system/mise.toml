@@ -9,7 +9,6 @@ sccache = "latest"
 
 [tasks.deps_node]
 description = "Install Node.js dependencies using pnpm"
-depends = ["generate_proto"]
 run = "pnpm i"
 sources = ["package.json", "pnpm-lock.yaml"]
 outputs = { auto = true }
@@ -26,6 +25,7 @@ outputs = { auto = true }
 
 [tasks.generate_proto]
 description = "Generate TypeScript definitions from Protobuf files"
+depends = ["deps_node"]
 run = """
 rm -f src/lib/types/proto/*.ts
 protoc \
