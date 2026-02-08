@@ -28,7 +28,7 @@ jobs:
           workdir: ${{ env.WORKDIR }}
       - name: Install Dependencies
         run: |
-          mise //:deps
+          mise //:init
           mise //${{ env.WORKDIR }}:deps
       - name: Lint
         run: |
