@@ -19,8 +19,9 @@
 
 <script lang="ts">
 	$effect(() => {
-		let unlistenPromise = listen("cam/switch", (event) => {
-			const msg = CameraSwitchMessage.fromJSON(JSON.parse(event.payload as string));
+		let unlistenPromise = listen<Uint8Array>("cam/switch", (event) => {
+			const msg = CameraSwitchMessage.decode(new Uint8Array(event.payload));
+			console.log(msg);
 			cameraIdStore.set(msg.cameraId);
 		});
 		return () => {
@@ -29,8 +30,9 @@
 	});
 
 	$effect(() => {
-		let unlistenPromise = listen("damagepanel", (event) => {
-			const msg = DamagePanelMessage.fromJSON(JSON.parse(event.payload as string));
+		let unlistenPromise = listen<Uint8Array>("damagepanel", (event) => {
+			const msg = DamagePanelMessage.decode(new Uint8Array(event.payload));
+
 			damagePanelStore.set(msg.target ?? null);
 		});
 		return () => {
@@ -39,8 +41,9 @@
 	});
 
 	$effect(() => {
-		let unlistenPromise = listen("disks", (event) => {
-			const msg = DisksMessage.fromJSON(JSON.parse(event.payload as string));
+		let unlistenPromise = listen<Uint8Array>("disks", (event) => {
+			const msg = DisksMessage.decode(new Uint8Array(event.payload));
+			console.log(msg);
 			leftDiskStore.set(msg.left);
 			rightDiskStore.set(msg.right);
 		});
@@ -50,8 +53,8 @@
 	});
 
 	$effect(() => {
-		let unlistenPromise = listen("flap", (event) => {
-			const msg = FlapMessage.fromJSON(JSON.parse(event.payload as string));
+		let unlistenPromise = listen<Uint8Array>("flap", (event) => {
+			const msg = FlapMessage.decode(new Uint8Array(event.payload));
 			flapMessageStore.set(msg);
 		});
 		return () => {
@@ -60,10 +63,10 @@
 	});
 
 	$effect(() => {
-		let unlistenPromise = listen("lidar/range", (event) => {
-			const msg = LiDARRange.fromJSON(JSON.parse(event.payload as string));
+		let unlistenPromise = listen<Uint8Array>("lidar/range", (event) => {
+			const msg = LiDARRange.decode(new Uint8Array(event.payload));
 			lidarMessageStore.set(msg);
-			console.log("LiDAR range message received", event.payload as string);
+			console.log("LiDAR range message received", event.payload);
 		});
 		return () => {
 			unlistenPromise.then((unlisten) => unlisten());
@@ -71,8 +74,8 @@
 	});
 
 	$effect(() => {
-		let unlistenPromise = listen("robotstate", (event) => {
-			const msg = RobotStateMessage.fromJSON(JSON.parse(event.payload as string));
+		let unlistenPromise = listen<Uint8Array>("robotstate", (event) => {
+			const msg = RobotStateMessage.decode(new Uint8Array(event.payload));
 			if (msg.state in RobotStatus) {
 				robotStatusStore.set(msg);
 			} else {

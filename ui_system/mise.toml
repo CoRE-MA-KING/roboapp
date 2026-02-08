@@ -41,7 +41,7 @@ outputs = ["src/lib/types/proto/**/*.ts"]
 
 [tasks.deps]
 description = "Install dependencies and generate code"
-depends = ["deps_node", "deps_rust"]
+depends = ["deps_node", "deps_rust", "generate_proto"]
 
 [tasks.build]
 depends = ["deps"]

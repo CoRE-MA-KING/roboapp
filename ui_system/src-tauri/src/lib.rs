@@ -64,14 +64,8 @@ async fn declare_and_emit(session: &zenoh::Session, app: Arc<AppHandle>, event_n
     session
         .declare_subscriber(event_name)
         .callback_mut(move |sample| {
-            app.emit(
-                &event_name_cloned,
-                sample
-                    .payload()
-                    .try_to_string()
-                    .unwrap_or_else(|e| e.to_string().into()),
-            )
-            .unwrap();
+            app.emit(&event_name_cloned, sample.payload().to_bytes().to_vec())
+                .unwrap();
         })
         .background()
         .await
