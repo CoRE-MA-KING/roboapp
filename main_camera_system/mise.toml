@@ -1,14 +1,18 @@
 [env]
 RUSTC_WRAPPER = "sccache"
-OUT_DIR = "./build"
 
 [tools]
 rust = { version = "1.91", components = "rust-analyzer" }
 sccache = "latest"
 
+[tasks.generate_buf]
+description = "Generate code using build.rs"
+run = "cargo check"
+sources = ["../utils/proto/**/*.proto", "build.rs"]
+
 [tasks.deps]
 description = "Install dependencies and generate code"
-run = "cargo fetch"
+depends = ["generate_buf"]
 
 [tasks.build]
 depends = ["deps"]
