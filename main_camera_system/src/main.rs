@@ -3,7 +3,7 @@ use futures_util::{SinkExt, StreamExt};
 use log::{debug, error, info};
 use main_camera_system::camera_wrapper::create_camera_stream;
 use main_camera_system::config::{get_config_path, load_config};
-use main_camera_system::proto::roboapp::CameraSwitchMessage;
+use main_camera_system::proto::roboapp::roboapp::CameraSwitchMessage;
 use prost::Message;
 use std::env;
 use std::path::PathBuf;

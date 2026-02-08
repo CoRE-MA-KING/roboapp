@@ -11,11 +11,14 @@ const gitignorePath = fileURLToPath(new URL("./.gitignore", import.meta.url));
 
 export default [
 	includeIgnoreFile(gitignorePath),
+	{
+		ignores: ["src/lib/types/proto/**"]
+	},
 	js.configs.recommended,
 	...ts.configs.recommended,
 	...svelte.configs.recommended,
-	prettier,
 	...svelte.configs.prettier,
+	prettier,
 	{
 		languageOptions: {
 			globals: { ...globals.browser, ...globals.node }
@@ -28,6 +31,7 @@ export default [
 	},
 	{
 		files: ["**/*.svelte", "**/*.svelte.ts", "**/*.svelte.js"],
+
 		languageOptions: {
 			parserOptions: {
 				projectService: true,

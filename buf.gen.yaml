@@ -1,0 +1,27 @@
+version: v2
+inputs:
+  - directory: utils/proto
+    paths:
+      - utils/proto/buf
+      - utils/proto/roboapp
+plugins:
+  # Main Camera
+  - remote: buf.build/community/neoeinstein-prost:v0.5.0
+    out: main_camera_system/src/proto
+    opt:
+      - compile_well_known_types
+      - extern_path=.google.protobuf=::pbjson_types
+      - file_descriptor_set
+  - remote: buf.build/community/neoeinstein-prost-serde:v0.4.0
+    out: main_camera_system/src/proto
+  # LiDAR
+  - protoc_builtin: cpp
+    out: lidar_system/src/proto
+  # UI
+  - remote: buf.build/bufbuild/es:v2.11.0
+    out: ui_system/src/lib/types/proto
+  # UART
+  - remote: buf.build/protocolbuffers/pyi:v33.5
+    out: uart_bridge/src
+  - remote: buf.build/protocolbuffers/python:v33.5
+    out: uart_bridge/src

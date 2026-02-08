@@ -31,9 +31,14 @@ find_package(zenohc REQUIRED)
 find_package(zenohcxx REQUIRED)
 
 # Protobuf generated files
+find_package(Protobuf REQUIRED)
+include_directories(${Protobuf_INCLUDE_DIRS})
+
 include_directories(src/proto)
+include_directories(${Protobuf_INCLUDE_DIRS})
 file(GLOB_RECURSE PROTO_SRCS src/proto/*.pb.cc)
 add_library(RoboappProtoLib ${PROTO_SRCS})
+target_include_directories(RoboappProtoLib PUBLIC ${Protobuf_INCLUDE_DIRS})
 target_link_libraries(RoboappProtoLib PUBLIC protobuf::libprotobuf)
 
 # GoolgeTest
@@ -120,3 +125,4 @@ target_link_libraries(processor CollisionAvoidanceLib LidarTypesLib)
 add_executable(viewer src/viewer.cpp )
 target_link_libraries(viewer gflags ${OpenCV_LIBS} pthread toml11::toml11 zenohcxx::zenohc RoboappProtoLib)
 target_link_libraries(viewer CollisionAvoidanceLib LidarTypesLib VisualizerLib)
+target_link_libraries(viewer ${Protobuf_LIBRARIES})
