@@ -31,12 +31,7 @@ build-backend = "hatchling.build"
 
 [tool.mypy]
 strict = true
-
-[[tool.mypy.overrides]]
-module = ["roboapp.*", "buf.*"]
-disable_error_code = ["type-arg"]
-ignore_errors = true
-ignore_missing_imports = true
+exclude = ["roboapp.*", "buf.*"]
 
 [tool.ruff]
 exclude = ["src/roboapp", "src/buf"]
