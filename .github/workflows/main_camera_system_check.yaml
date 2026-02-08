@@ -26,9 +26,6 @@ jobs:
       - uses: ./.github/actions/rust
         with:
           workdir: ${{ env.WORKDIR }}
-      - name: Format
-        run: |
-          cargo fmt --all -- --check
       - name: Install Dependencies
         run: |
           mise //:init
@@ -36,6 +33,9 @@ jobs:
       - name: Lint
         run: |
           cargo clippy --all-targets --all-features -- -D warnings
+      - name: Format
+        run: |
+          cargo fmt --all -- --check
       - name: Run Tests
         run: |
           cargo test --all-features -- --nocapture
