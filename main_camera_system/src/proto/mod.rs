@@ -1,3 +1,9 @@
+#![allow(clippy::all)]
+#![allow(non_camel_case_types)]
+#![allow(non_snake_case)]
+#![allow(unused_imports)]
+#![allow(clippy::len_without_is_empty)]
+
 pub mod roboapp {
     include!(concat!(env!("OUT_DIR"), "/roboapp.rs"));
 }
