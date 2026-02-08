@@ -1,10 +1,24 @@
 [tools]
 uv = "0.9"
 
+[tasks.generate_proto]
+description = "Generate Python code from Protobuf files"
+run = """
+mkdir -p src/roboapp src/buf/validate
+protoc \
+  --python_out=src \
+  --pyi_out=src \
+  --proto_path=../utils/proto \
+  $(find ../utils/proto -name "*.proto")
+touch src/roboapp/__init__.py src/buf/__init__.py src/buf/validate/__init__.py
+"""
+sources = ["../utils/proto/**/*.proto"]
+outputs = ["src/roboapp/*_pb2.py*", "src/buf/validate/*_pb2.py*"]
+
 [tasks.deps]
 alias = "build"
 description = "Install dependencies and generate code"
-depends = ["//:generate_proto"]
+depends = ["generate_proto"]
 run = "uv sync"
 sources = [
   "pyproject.toml",

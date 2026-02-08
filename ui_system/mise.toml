@@ -8,7 +8,6 @@ rust = { version = "1.91", components = "rust-analyzer" }
 sccache = "latest"
 
 [tasks.deps_node]
-depends = ["//:generate_proto"]
 description = "Install Node.js dependencies using pnpm"
 run = "pnpm i"
 sources = ["package.json", "pnpm-lock.yaml"]
@@ -23,6 +22,22 @@ sources = [
   "src-tauri/Cargo.lock",
 ]
 outputs = { auto = true }
+
+[tasks.generate_proto]
+description = "Generate TypeScript definitions from Protobuf files"
+depends = ["deps_node"]
+run = """
+rm -f src/lib/types/proto/*.ts
+protoc \
+  --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto \
+  --ts_proto_out=src/lib/types/proto \
+  --proto_path=../utils/proto \
+  --ts_proto_opt=esModuleInterop=true \
+  --ts_proto_opt=outputServices=false \
+  $(find ../utils/proto -name "*.proto")
+"""
+sources = ["../utils/proto/roboapp/*.proto"]
+outputs = ["src/lib/types/proto/**/*.ts"]
 
 [tasks.deps]
 description = "Install dependencies and generate code"

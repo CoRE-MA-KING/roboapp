@@ -14,15 +14,10 @@ task.monorepo_depth = 2
 
 [tools]
 actionlint = "latest"
-buf = "latest"
 markdownlint-cli2 = "latest"
 node = "lts"
+protoc = "21.12"
 yamlfmt = "latest"
-
-[tasks.generate_proto]
-description = "Generate Python code from protobuf definitions using buf"
-run = "buf generate"
-sources = ["buf.gen.yaml", "utils/proto/**/*.proto"]
 
 [tasks.action_lint]
 description = "Perform static analysis on GitHub Actions workflow files using actionlint and yamlfmt"

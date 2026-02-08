@@ -6,9 +6,22 @@ CMAKE_C_COMPILER_LAUNCHER = "sccache"
 just = "latest"
 sccache = "latest"
 
+[tasks.generate_proto]
+description = "Generate C++ code from Protobuf files"
+run = """
+rm -f src/proto/*.pb.cc
+rm -f src/proto/*.pb.h
+protoc \
+  --cpp_out=src/proto \
+  --proto_path=../utils/proto \
+  $(find ../utils/proto -name "*.proto")
+"""
+sources = ["../utils/proto/**/*.proto"]
+outputs = ["src/proto/**/*.pb.cc", "src/proto/**/*.pb.h"]
+
 [tasks.deps]
 description = "Install dependencies and generate code"
-depends = ["//:generate_proto"]
+depends = ["generate_proto"]
 run = "just deps"
 sources = ["CMakeLists.txt", "src/**/*.cpp", "include/**/*/hpp"]
 outputs = ["./build/build.ninja", "./build/compile_commands.json"]
