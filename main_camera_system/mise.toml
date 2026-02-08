@@ -7,6 +7,7 @@ sccache = "latest"
 
 [tasks.deps]
 description = "Install dependencies and generate code"
+depends = ["//:generate_proto"]
 run = "cargo fetch"
 
 [tasks.build]

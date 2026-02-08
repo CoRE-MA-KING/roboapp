@@ -57,7 +57,7 @@ jobs:
       - name: Install Dependencies
         run: |
           mise //:init
-          mise //${{ env.WORKDIR }}:generate_proto
+          mise //${{ env.WORKDIR }}:deps_node
       - name: Typecheck
         run: |
           pnpm check
