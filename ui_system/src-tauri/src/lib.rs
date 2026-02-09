@@ -90,6 +90,7 @@ async fn zenoh_sub(app: AppHandle) {
 
     let app = Arc::new(app);
 
+    declare_and_emit(&session, Arc::clone(&app), "cam/port").await;
     declare_and_emit(&session, Arc::clone(&app), "cam/switch").await;
     declare_and_emit(&session, Arc::clone(&app), "damagepanel").await;
     declare_and_emit(&session, Arc::clone(&app), "disks").await;

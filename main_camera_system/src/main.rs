@@ -3,7 +3,7 @@ use futures_util::{SinkExt, StreamExt};
 use log::{debug, error, info};
 use main_camera_system::camera_wrapper::create_camera_stream;
 use main_camera_system::config::{get_config_path, load_config};
-use main_camera_system::proto::roboapp::CameraSwitchMessage;
+use main_camera_system::proto::roboapp::{CameraPortMessage, CameraSwitchMessage};
 use prost::Message;
 use std::env;
 use std::path::PathBuf;
@@ -81,6 +81,13 @@ async fn main() {
         None
     };
 
+    let port_publisher: zenoh::pubsub::Publisher =
+        zenoh.declare_publisher("cam/port").await.unwrap();
+
+    let port_msg = CameraPortMessage {
+        port: camera_config.websocket_port as i32,
+    };
+
     let subscriber = zenoh.declare_subscriber("cam/switch").await.unwrap();
 
     // WebSocket配信を有効化する場合のみサーバーを起動
@@ -155,6 +162,10 @@ async fn main() {
     });
 
     loop {
+        port_publisher
+            .put(port_msg.encode_to_vec())
+            .await
+            .expect("Failed to publish CameraPortMessage");
         // カメラ切り替え通知が来ていれば切り替え
         if let Ok(new_value) = switch_rx.try_recv() {
             let new_index = new_value % camera_config.devices.len();

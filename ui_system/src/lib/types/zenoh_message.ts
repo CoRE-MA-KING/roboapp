@@ -1,3 +1,4 @@
+export { CameraPortMessage } from "./proto/roboapp/camera_port";
 export { CameraSwitchMessage } from "./proto/roboapp/camera_switch";
 export { DamagePanelMessage, Target } from "./proto/roboapp/damage_panel";
 export { DisksMessage } from "./proto/roboapp/disks";

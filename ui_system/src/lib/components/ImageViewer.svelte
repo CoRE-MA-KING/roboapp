@@ -2,6 +2,7 @@
 	import { pitch_to_pixel } from "$lib/functions/flap_calc";
 	import { yaw_to_pixel } from "$lib/functions/flap_calc";
 	import { cameraIdStore } from "$lib/store/cameraid.svelte";
+	import { cameraPortStore } from "$lib/store/cameraport.svelte";
 	import { damagePanelStore } from "$lib/store/damagepanel.svelte";
 	import { flapMessageStore } from "$lib/store/flap.svelte";
 	import {
@@ -17,10 +18,9 @@
 <script lang="ts">
 	export type ImageViewerProps = {
 		host: string | null;
-		port: string | null;
 	};
 
-	let { host, port }: ImageViewerProps = $props();
+	let { host }: ImageViewerProps = $props();
 
 	let ws: WebSocket | null = $state(null);
 	let imageUrl: string | null = $state(null);
@@ -31,7 +31,7 @@
 	let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
 	function connect() {
-		ws = new WebSocket(`ws://${host ? host : "localhost"}:${port ? port : "8080"}`);
+		ws = new WebSocket(`ws://${host ? host : "localhost"}:${$cameraPortStore}`);
 		ws.binaryType = "arraybuffer";
 
 		ws.onmessage = (event) => {

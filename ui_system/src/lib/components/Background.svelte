@@ -1,5 +1,6 @@
 <script lang="ts" module>
 	import { cameraIdStore } from "$lib/store/cameraid.svelte";
+	import { cameraPortStore } from "$lib/store/cameraport.svelte";
 	import { damagePanelStore } from "$lib/store/damagepanel.svelte";
 	import { leftDiskStore, rightDiskStore } from "$lib/store/disks.svelte";
 	import { flapMessageStore } from "$lib/store/flap.svelte";
@@ -7,6 +8,7 @@
 	import { robotStatusStore } from "$lib/store/robotstatus.svelte";
 	import { RobotStatus } from "$lib/types/robot_status";
 	import {
+		CameraPortMessage,
 		CameraSwitchMessage,
 		DamagePanelMessage,
 		DisksMessage,
@@ -19,9 +21,18 @@
 
 <script lang="ts">
 	$effect(() => {
+		let unlistenPromise = listen<Uint8Array>("cam/port", (event) => {
+			const msg = CameraPortMessage.decode(new Uint8Array(event.payload));
+			cameraPortStore.set(msg.port);
+		});
+		return () => {
+			unlistenPromise.then((unlisten) => unlisten());
+		};
+	});
+
+	$effect(() => {
 		let unlistenPromise = listen<Uint8Array>("cam/switch", (event) => {
 			const msg = CameraSwitchMessage.decode(new Uint8Array(event.payload));
-			console.log(msg);
 			cameraIdStore.set(msg.cameraId);
 		});
 		return () => {
