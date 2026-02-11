@@ -14,10 +14,14 @@ task.monorepo_depth = 2
 
 [tools]
 actionlint = "latest"
+buf = "latest"
 markdownlint-cli2 = "latest"
 node = "lts"
-protoc = "21.12"
+"npm:ts-proto" = "latest"
 yamlfmt = "latest"
+
+[tasks.generate_proto]
+run = ["buf generate"]
 
 [tasks.action_lint]
 description = "Perform static analysis on GitHub Actions workflow files using actionlint and yamlfmt"

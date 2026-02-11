@@ -1,0 +1,20 @@
+version: v2
+inputs:
+  - directory: utils/proto
+    paths:
+      - utils/proto/buf
+      - utils/proto/roboapp
+plugins:
+  # UART
+  - protoc_builtin: python
+    out: uart_bridge/src
+  - protoc_builtin: pyi
+    out: uart_bridge/src
+  # LiDAR
+  - protoc_builtin: cpp
+    out: lidar_system/src/proto
+  # UI
+  # - remote: buf.build/bufbuild/es:v2.11.0
+  - protoc_builtin: ts_proto
+    out: ui_system/src/lib/types/proto
+    strategy: all
