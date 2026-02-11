@@ -49,22 +49,23 @@
 
 ### 一覧
 
-| 送信元アプリ名         | 出力トピック名     | データ形式             |
-| ---------------------- | ------------------ | ---------------------- |
-| main_camera_system     | cam/jpg            | JPEG                   |
-| uart_bridge            | cam/switch         | CameraSwitchMessage    |
-| uart_bridge            | disks              | DisksMessage           |
-| uart_bridge            | flap               | FlapMessage            |
-| uart_bridge            | robotstate         | RobotStateMessage      |
-| damage_panel_recog     | damagepanel        | DamagePanelRecognition |
-| lidar_system/sender    | lidar/data         | LiDARData              |
-| lidar_system/sender    | lidar/range        | LiDARRangeMessage      |
-| lidar_system/processor | lidar/force_vector | LiDARVectorMessage     |
+| 送信元アプリ名         | 出力トピック名     | データ形式               |
+| ---------------------- | ------------------ | ------------------------ |
+| main_camera_system     | cam/jpg            | JPEG                     |
+| uart_bridge            | cam/switch         | CameraSwitchMessage      |
+| uart_bridge            | disks              | DisksMessage             |
+| uart_bridge            | flap               | FlapMessage              |
+| uart_bridge            | robotstate         | RobotStateMessage        |
+| uart_bridge            | damagepanel/color  | DamagePanelColorMessage  |
+| damaage_panel_recog    | damagepanel/target | DamagePanelTargetMessage |
+| lidar_system/sender    | lidar/data         | LiDARData                |
+| lidar_system/sender    | lidar/range        | LiDARRangeMessage        |
+| lidar_system/processor | lidar/force_vector | LiDARVectorMessage       |
 
 ### ネットワーク
 
 ```mermaid
-    flowchart LR
+flowchart LR
 
     LS1(LiDARSystem/Sender1)
     LS2(LiDARSystem/Sender2)
@@ -89,6 +90,8 @@
     U -- robotstate --> T
     U -- （UART：RobotCommand） --> M
     M -- （UART：RobotState） --> U
-    D -- damagepanel --> U
-    D -- damagepanel --> T
+    U -- damagepanel/color --> D
+    U -- damagepanel/color --> T
+    D -- damagepanel/target --> U
+    D -- damagepanel/target --> T
 ```
