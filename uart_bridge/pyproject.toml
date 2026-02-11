@@ -8,8 +8,8 @@ authors = [
   { name = "motty", email = "motty.mio2@gmail.com" },
 ]
 dependencies = [
+  "betterproto>=1.2.5",
   "eclipse-zenoh==1.6.2",
-  "protobuf>=6.33.5",
   "pydantic>=2.11.7",
   "pyserial>=3.5",
 ]
@@ -21,7 +21,6 @@ dev = [
   "pytest-cov>=7.0.0",
   "ruff>=0.12.3",
   "taskipy>=1.14.1",
-  "types-protobuf>=6.32.1.20251210",
   "types-pyserial>=3.5.0.20250326",
 ]
 
@@ -31,10 +30,10 @@ build-backend = "hatchling.build"
 
 [tool.mypy]
 strict = true
-exclude = ["roboapp.*", "buf.*"]
+exclude = ["src/uart_bridge/domain/proto"]
 
 [tool.ruff]
-exclude = ["src/roboapp", "src/buf"]
+exclude = ["src/uart_bridge/domain/proto"]
 
 [tool.ruff.lint]
 extend-select = ["I", "TC", "UP", "W"]

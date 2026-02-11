@@ -5,16 +5,19 @@ from threading import Lock
 import pydantic
 import zenoh
 
-from roboapp.camera_switch_pb2 import CameraSwitchMessage
-from roboapp.damagepanel_color_pb2 import DamagePanelColorMessage
-from roboapp.damagepanel_target_pb2 import DamagePanelTargetMessage, Target
-from roboapp.disks_pb2 import DisksMessage
-from roboapp.flap_pb2 import FlapMessage
-from roboapp.lidar_vector_pb2 import LiDARVector
-from roboapp.robot_state_pb2 import RobotStateMessage
 from uart_bridge.application.interfaces import Transmitter
 from uart_bridge.domain.config import get_config_path
 from uart_bridge.domain.messages import RobotState
+from uart_bridge.domain.proto.roboapp import (
+    CameraSwitchMessage,
+    DamagePanelColorMessage,
+    DamagePanelTargetMessage,
+    DisksMessage,
+    FlapMessage,
+    LiDarVector,
+    RobotStateMessage,
+    Target,
+)
 from uart_bridge.domain.shared_memory import SharedRobotData
 
 
@@ -83,7 +86,7 @@ class ZenohTransmitter(Transmitter):
 
     def lidar_subscriber(self, sample: zenoh.Sample) -> None:
         try:
-            m = LiDARVector.FromString(sample.payload.to_bytes())
+            m = LiDarVector.FromString(sample.payload.to_bytes())
         except Exception as e:
             logging.error(f"Failed to validate LiDARVectorMessage: {e}")
             return

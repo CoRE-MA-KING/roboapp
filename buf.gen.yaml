@@ -6,10 +6,9 @@ inputs:
       - utils/proto/roboapp
 plugins:
   # UART
-  - protoc_builtin: python
-    out: uart_bridge/src
-  - protoc_builtin: pyi
-    out: uart_bridge/src
+  - local: protoc-gen-python_betterproto2
+    out: uart_bridge/src/uart_bridge/domain/proto
+    strategy: all
   # LiDAR
   - protoc_builtin: cpp
     out: lidar_system/src/proto

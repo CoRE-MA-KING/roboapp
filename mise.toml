@@ -18,10 +18,12 @@ buf = "latest"
 markdownlint-cli2 = "latest"
 node = "lts"
 "npm:ts-proto" = "latest"
+"pipx:betterproto2_compiler" = "latest"
 yamlfmt = "latest"
 
 [tasks.generate_proto]
-run = ["buf generate"]
+run = ["buf generate --clean"]
+sources = ["buf.gen.yaml", "utils/proto"]
 
 [tasks.action_lint]
 description = "Perform static analysis on GitHub Actions workflow files using actionlint and yamlfmt"
