@@ -1499,6 +1499,7 @@ dependencies = [
  "dirs",
  "env_logger",
  "futures-util",
+ "glob",
  "log",
  "prost 0.13.5",
  "prost-build",
