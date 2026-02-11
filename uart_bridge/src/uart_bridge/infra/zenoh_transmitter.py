@@ -6,7 +6,8 @@ import pydantic
 import zenoh
 
 from roboapp.camera_switch_pb2 import CameraSwitchMessage
-from roboapp.damage_panel_pb2 import DamagePanelMessage, Target
+from roboapp.damagepanel_color_pb2 import DamagePanelColorMessage
+from roboapp.damagepanel_target_pb2 import DamagePanelTargetMessage, Target
 from roboapp.disks_pb2 import DisksMessage
 from roboapp.flap_pb2 import FlapMessage
 from roboapp.lidar_vector_pb2 import LiDARVector
@@ -55,9 +56,15 @@ class ZenohTransmitter(Transmitter):
             ).SerializeToString()
         )
 
-    def damagepanel_subscriber(self, sample: zenoh.Sample) -> None:
+        self.publishers["damagepanel/color"].put(
+            DamagePanelColorMessage(
+                color="blue" if robot_state.flags.is_red else "red",
+            ).SerializeToString()
+        )
+
+    def damagepanel_target_subscriber(self, sample: zenoh.Sample) -> None:
         try:
-            d = DamagePanelMessage.FromString(sample.payload.to_bytes())
+            d = DamagePanelTargetMessage.FromString(sample.payload.to_bytes())
         except Exception as e:
             logging.error(f"Failed to validate DamagePanelMessage: {e}")
             return
@@ -110,9 +117,13 @@ class ZenohTransmitter(Transmitter):
             "robotstate"
         )
 
+        self.publishers["damagepanel/color"] = self.zenoh_session.declare_publisher(
+            "damagepanel/color"
+        )
+
         self.zenoh_session.declare_subscriber(
-            "damagepanel",
-            self.damagepanel_subscriber,
+            "damagepanel/target",
+            self.damagepanel_target_subscriber,
         )
 
         self.zenoh_session.declare_subscriber(
