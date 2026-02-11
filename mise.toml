@@ -19,6 +19,7 @@ markdownlint-cli2 = "latest"
 node = "lts"
 "npm:ts-proto" = "latest"
 "pipx:betterproto2_compiler" = "latest"
+ruff = "latest"
 yamlfmt = "latest"
 
 [tasks.generate_proto]
