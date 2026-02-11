@@ -3,7 +3,8 @@
 	import { yaw_to_pixel } from "$lib/functions/flap_calc";
 	import { cameraIdStore } from "$lib/store/cameraid.svelte";
 	import { cameraPortStore } from "$lib/store/cameraport.svelte";
-	import { damagePanelStore } from "$lib/store/damagepanel.svelte";
+	import { damagePanelColorStore } from "$lib/store/damagepanel_color.svelte";
+	import { damagePanelTargetStore } from "$lib/store/damagepanel_target.svelte";
 	import { flapMessageStore } from "$lib/store/flap.svelte";
 	import {
 		crosshair_size,
@@ -78,14 +79,14 @@
 			xmlns:xlink="http://www.w3.org/1999/xlink"
 		>
 			<!-- Damage Panel -->
-			{#if $damagePanelStore}
+			{#if $damagePanelTargetStore}
 				<rect
 					height={target_height}
 					width={target_width}
-					x={$damagePanelStore.x - target_width / 2}
-					y={$damagePanelStore.y - target_height / 2}
+					x={$damagePanelTargetStore.x - target_width / 2}
+					y={$damagePanelTargetStore.y - target_height / 2}
 					fill-opacity="0.0"
-					stroke="red"
+					stroke={$damagePanelColorStore}
 					stroke-width="4"
 				/>
 			{/if}

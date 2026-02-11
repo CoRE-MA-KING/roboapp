@@ -1,7 +1,8 @@
 <script lang="ts" module>
 	import { cameraIdStore } from "$lib/store/cameraid.svelte";
 	import { cameraPortStore } from "$lib/store/cameraport.svelte";
-	import { damagePanelStore } from "$lib/store/damagepanel.svelte";
+	import { damagePanelColorStore } from "$lib/store/damagepanel_color.svelte";
+	import { damagePanelTargetStore } from "$lib/store/damagepanel_target.svelte";
 	import { leftDiskStore, rightDiskStore } from "$lib/store/disks.svelte";
 	import { flapMessageStore } from "$lib/store/flap.svelte";
 	import { lidarMessageStore } from "$lib/store/lidar.svelte";
@@ -10,7 +11,8 @@
 	import {
 		CameraPortMessage,
 		CameraSwitchMessage,
-		DamagePanelMessage,
+		DamagePanelColorMessage,
+		DamagePanelTargetMessage,
 		DisksMessage,
 		FlapMessage,
 		LiDARRange,
@@ -41,10 +43,21 @@
 	});
 
 	$effect(() => {
-		let unlistenPromise = listen<Uint8Array>("damagepanel", (event) => {
-			const msg = DamagePanelMessage.decode(new Uint8Array(event.payload));
+		let unlistenPromise = listen<Uint8Array>("damagepanel/color", (event) => {
+			const msg = DamagePanelColorMessage.decode(new Uint8Array(event.payload));
 
-			damagePanelStore.set(msg.target ?? null);
+			damagePanelColorStore.set(msg.color);
+		});
+		return () => {
+			unlistenPromise.then((unlisten) => unlisten());
+		};
+	});
+
+	$effect(() => {
+		let unlistenPromise = listen<Uint8Array>("damagepanel/target", (event) => {
+			const msg = DamagePanelTargetMessage.decode(new Uint8Array(event.payload));
+
+			damagePanelTargetStore.set(msg.target ?? null);
 		});
 		return () => {
 			unlistenPromise.then((unlisten) => unlisten());
