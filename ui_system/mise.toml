@@ -9,12 +9,14 @@ sccache = "latest"
 
 [tasks.deps_node]
 description = "Install Node.js dependencies using pnpm"
+depends = ["//:generate_proto"]
 run = "pnpm i"
 sources = ["package.json", "pnpm-lock.yaml"]
 outputs = { auto = true }
 
 [tasks.deps_rust]
 description = "Fetch Rust dependencies for the Tauri backend"
+depends = ["//:generate_proto"]
 dir = "src-tauri"
 run = ["cargo fetch"]
 sources = [
@@ -25,7 +27,7 @@ outputs = { auto = true }
 
 [tasks.deps]
 description = "Install dependencies and generate code"
-depends = ["deps_node", "deps_rust", "//:generate_proto"]
+depends = ["deps_node", "deps_rust"]
 
 [tasks.build]
 depends = ["deps"]
