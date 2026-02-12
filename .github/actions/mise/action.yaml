@@ -8,6 +8,5 @@ runs:
   using: "composite"
   steps:
     - uses: jdx/mise-action@v3
-    - uses: jdx/mise-action@v3
       with:
         working_directory: ${{ inputs.workdir }}

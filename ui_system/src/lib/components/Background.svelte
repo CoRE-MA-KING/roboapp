@@ -24,7 +24,7 @@
 <script lang="ts">
 	$effect(() => {
 		let unlistenPromise = listen<Uint8Array>("cam/port", (event) => {
-			const msg = CameraPortMessage.decode(new Uint8Array(event.payload));
+			const msg = CameraPortMessage.decode(event.payload);
 			cameraPortStore.set(msg.port);
 		});
 		return () => {
@@ -34,7 +34,7 @@
 
 	$effect(() => {
 		let unlistenPromise = listen<Uint8Array>("cam/switch", (event) => {
-			const msg = CameraSwitchMessage.decode(new Uint8Array(event.payload));
+			const msg = CameraSwitchMessage.decode(event.payload);
 			cameraIdStore.set(msg.cameraId);
 		});
 		return () => {
@@ -44,7 +44,7 @@
 
 	$effect(() => {
 		let unlistenPromise = listen<Uint8Array>("damagepanel/color", (event) => {
-			const msg = DamagePanelColorMessage.decode(new Uint8Array(event.payload));
+			const msg = DamagePanelColorMessage.decode(event.payload);
 
 			damagePanelColorStore.set(msg.color);
 		});
@@ -55,7 +55,7 @@
 
 	$effect(() => {
 		let unlistenPromise = listen<Uint8Array>("damagepanel/target", (event) => {
-			const msg = DamagePanelTargetMessage.decode(new Uint8Array(event.payload));
+			const msg = DamagePanelTargetMessage.decode(event.payload);
 
 			damagePanelTargetStore.set(msg.target ?? null);
 		});
@@ -66,7 +66,7 @@
 
 	$effect(() => {
 		let unlistenPromise = listen<Uint8Array>("disks", (event) => {
-			const msg = DisksMessage.decode(new Uint8Array(event.payload));
+			const msg = DisksMessage.decode(event.payload);
 			console.log(msg);
 			leftDiskStore.set(msg.left);
 			rightDiskStore.set(msg.right);
@@ -78,7 +78,7 @@
 
 	$effect(() => {
 		let unlistenPromise = listen<Uint8Array>("flap", (event) => {
-			const msg = FlapMessage.decode(new Uint8Array(event.payload));
+			const msg = FlapMessage.decode(event.payload);
 			flapMessageStore.set(msg);
 		});
 		return () => {
@@ -88,7 +88,7 @@
 
 	$effect(() => {
 		let unlistenPromise = listen<Uint8Array>("lidar/range", (event) => {
-			const msg = LiDARRange.decode(new Uint8Array(event.payload));
+			const msg = LiDARRange.decode(event.payload);
 			lidarMessageStore.set(msg);
 			console.log("LiDAR range message received", event.payload);
 		});
@@ -99,7 +99,7 @@
 
 	$effect(() => {
 		let unlistenPromise = listen<Uint8Array>("robotstate", (event) => {
-			const msg = RobotStateMessage.decode(new Uint8Array(event.payload));
+			const msg = RobotStateMessage.decode(event.payload);
 			if (msg.state in RobotStatus) {
 				robotStatusStore.set(msg);
 			} else {

@@ -18,12 +18,14 @@
 // }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    println!("cargo:rerun-if-changed=../utils/proto/");
-
     let proto_include_paths = &["../utils/proto"];
     let proto_files: Vec<_> = glob::glob("../utils/proto/**/*.proto")?
         .filter_map(Result::ok)
         .collect();
+
+    for proto_file in &proto_files {
+        println!("cargo:rerun-if-changed={}", proto_file.display());
+    }
 
     let mut config = prost_build::Config::new();
     config.compile_well_known_types();
