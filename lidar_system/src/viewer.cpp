@@ -77,8 +77,15 @@ int main(int argc, char **argv) {
 
         auto id = sample.get_timestamp()->get_id().to_string();
 
+        auto payload = sample.get_payload().as_vector();
+
         roboapp::LiDARVector vec_msg;
-        vec_msg.ParseFromString(sample.get_payload().as_string());
+
+        if (!vec_msg.ParseFromArray(payload.data(), payload.size())) {
+          std::cerr << "Failed to parse LiDARVector message." << std::endl;
+
+          return;
+        }
 
         vec.linear = vec_msg.linear();
         vec.angular = vec_msg.angular();

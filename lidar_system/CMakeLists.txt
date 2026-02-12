@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.12)
 project(rplidar_test)
 
 find_program(SCCACHE_PROGRAM sccache)
@@ -32,7 +32,7 @@ find_package(zenohcxx REQUIRED)
 
 # Protobuf generated files
 include_directories(src/proto)
-file(GLOB_RECURSE PROTO_SRCS src/proto/*.pb.cc)
+file(GLOB_RECURSE PROTO_SRCS CONFIGURE_DEPENDS src/proto/*.pb.cc)
 add_library(RoboappProtoLib ${PROTO_SRCS})
 target_link_libraries(RoboappProtoLib PUBLIC protobuf::libprotobuf)
 
@@ -49,7 +49,7 @@ include(GoogleTest)
 enable_testing()
 
 #テスト用ターゲット
-file(GLOB TEST_SOURCES test/*.cpp)
+file(GLOB TEST_SOURCES CONFIGURE_DEPENDS test/*.cpp)
 foreach(test_src ${TEST_SOURCES})
   get_filename_component(test_name ${test_src} NAME_WE)
   add_executable(${test_name} ${test_src})
@@ -66,7 +66,7 @@ include_directories (${gflags_INCLUDE_DIR})
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 # rplidar SDK sources
-file(GLOB RPLIDAR_SDK_SRC
+file(GLOB RPLIDAR_SDK_SRC CONFIGURE_DEPENDS
     3rdparty/rplidar_sdk/sdk/src/*.cpp
     3rdparty/rplidar_sdk/sdk/src/arch/linux/*.cpp
     3rdparty/rplidar_sdk/sdk/src/dataunpacker/*.cpp

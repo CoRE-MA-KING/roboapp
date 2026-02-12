@@ -120,12 +120,12 @@ int main(int argc, char **argv) {
       vec_publisher.put(vec_msg.SerializeAsString());
 
       // Rangeを出力
-      nlohmann::json range_msg = rangeSeparater(data);
+      auto range_data = rangeSeparater(data);
       roboapp::LiDARRange range_pb;
-      range_pb.set_left(range_msg["left"]);
-      range_pb.set_right(range_msg["right"]);
-      range_pb.set_rear_left(range_msg["rear_left"]);
-      range_pb.set_rear_right(range_msg["rear_right"]);
+      range_pb.set_left(range_data.left);
+      range_pb.set_right(range_data.right);
+      range_pb.set_rear_left(range_data.rear_left);
+      range_pb.set_rear_right(range_data.rear_right);
 
       range_publisher.put(range_pb.SerializeAsString());
     }
