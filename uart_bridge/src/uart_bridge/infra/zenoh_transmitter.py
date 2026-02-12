@@ -67,12 +67,17 @@ class ZenohTransmitter(Transmitter):
 
     def damagepanel_target_subscriber(self, sample: zenoh.Sample) -> None:
         try:
-            d = DamagePanelTargetMessage.FromString(sample.payload.to_bytes())
+            d: DamagePanelTargetMessage = DamagePanelTargetMessage.FromString(
+                sample.payload.to_bytes()
+            )
         except Exception as e:
-            logging.error(f"Failed to validate DamagePanelMessage: {e}")
+            logging.error(f"Failed to decode DamagePanelTargetMessage: {e}")
             return
 
-        target = d.target if d.HasField("target") else Target()
+        if not isinstance(d, DamagePanelTargetMessage):
+            return
+
+        target: Target = d.target if d.target else Target()
 
         with self.command_lock:
             try:
@@ -86,9 +91,12 @@ class ZenohTransmitter(Transmitter):
 
     def lidar_subscriber(self, sample: zenoh.Sample) -> None:
         try:
-            m = LiDarVector.FromString(sample.payload.to_bytes())
+            m: LiDarVector = LiDarVector.FromString(sample.payload.to_bytes())
         except Exception as e:
-            logging.error(f"Failed to validate LiDARVectorMessage: {e}")
+            logging.error(f"Failed to decode LiDARVectorMessage: {e}")
+            return
+
+        if not isinstance(m, LiDarVector):
             return
 
         with self.command_lock:
