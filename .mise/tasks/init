@@ -2,7 +2,7 @@
 set -euo pipefail
 
 echo "Cloning Submodules"
-if [ "${GITHUB_ACTIONS:-}" != "true" ]; then
+if [ "${GITHUB_ACTIONS:-}" != "true" ] && [ "${ROBOAPP_CI_CONTAINER:-}" != "true" ] && [ -d ".git" ]; then
     git submodule update --init --recursive
 fi
 
