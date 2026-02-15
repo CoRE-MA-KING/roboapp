@@ -20,6 +20,7 @@ node = "lts"
 "npm:ts-proto" = "latest"
 "pipx:betterproto2_compiler" = "latest"
 ruff = "latest"
+uv = "0.9"
 yamlfmt = "latest"
 
 [tasks.generate_proto]
