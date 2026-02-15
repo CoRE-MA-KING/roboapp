@@ -4,10 +4,6 @@ inputs:
   workdir:
     description: "Working directory"
     required: true
-  component:
-    description: "Component name (common, lidar, camera, uart, ui, minimal)"
-    required: false
-    default: "minimal"
 runs:
   using: "composite"
   steps:

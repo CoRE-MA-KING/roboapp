@@ -25,7 +25,6 @@ jobs:
       - uses: ./.github/actions/mise
         with:
           workdir: ${{ env.WORKDIR }}
-          component: camera
       - uses: ./.github/actions/rust
         with:
           workdir: ${{ env.WORKDIR }}

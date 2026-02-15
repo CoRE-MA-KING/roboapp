@@ -25,7 +25,6 @@ jobs:
       - uses: ./.github/actions/mise
         with:
           workdir: ${{ env.WORKDIR }}
-          component: lidar
       - name: Install Dependencies
         run: |
           mise //${{ env.WORKDIR }}:deps

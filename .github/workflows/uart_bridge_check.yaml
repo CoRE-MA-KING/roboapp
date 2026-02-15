@@ -21,7 +21,6 @@ jobs:
       - uses: ./.github/actions/mise
         with:
           workdir: ${{ env.WORKDIR }}
-          component: uart
       - uses: ./.github/actions/python
         with:
           workdir: ${{ env.WORKDIR }}

@@ -25,7 +25,6 @@ jobs:
       - uses: ./.github/actions/mise
         with:
           workdir: ${{ env.WORKDIR }}
-          component: ui
       - uses: ./.github/actions/rust
         with:
           workdir: ${{ env.WORKDIR }}/src-tauri
