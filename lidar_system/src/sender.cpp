@@ -11,9 +11,7 @@
 #include <thread>
 #include <vector>
 
-#include "config.hpp"
-#include "lidar_device/random_lidar.hpp"
-#include "lidar_device/rplidar_wrapper.hpp"
+#include "lidar_device/lidar_device_manager.hpp"
 #include "lidar_types/lidar_data.hpp"
 #include "zenoh.hxx"
 
@@ -32,21 +30,7 @@ void run_lidar_thread(std::string name, LiDARDeviceConfig config,
   auto data = LiDARDataWrapper(name, config.x, config.y);
   const int max_consecutive_errors = 3;
 
-  std::unique_ptr<MockLiDAR> lidar;
-
-  if (config.backend == "rplidar") {
-    std::cout << "Starting RPLIDAR: " << name << std::endl;
-    lidar = std::make_unique<RplidarWrapper>(
-        config.device.value(), config.max_distance, config.min_degree,
-        config.max_degree, config.rotation);
-  } else if (config.backend == "random") {
-    std::cout << "Starting RandomLiDAR: " << name << std::endl;
-    lidar =
-        std::make_unique<RandomLiDAR>(config.max_distance, config.min_degree,
-                                      config.max_degree, config.rotation);
-  } else {
-    throw std::runtime_error("Unknown backend: " + config.backend);
-  }
+  LiDARDeviceManager manager(name, config);
 
   std::cout << "LiDAR " << name << " initialized successfully." << std::endl;
 
@@ -55,7 +39,7 @@ void run_lidar_thread(std::string name, LiDARDeviceConfig config,
     data.clear();
 
     try {
-      if (lidar && lidar->get(data)) {
+      if (manager.get(data)) {
         publisher.put(data.dump());
         consecutive_errors = 0;
         std::this_thread::yield();

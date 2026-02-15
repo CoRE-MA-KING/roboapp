@@ -86,6 +86,7 @@ target_link_libraries(LidarTypesLib nlohmann_json::nlohmann_json)
 
 set (LIDAR_DEVICE_FILES
     src/lidar_device/rplidar_wrapper.cpp
+    src/lidar_device/lidar_device_manager.cpp
 )
 
 add_library(LidarDeviceLib ${LIDAR_DEVICE_FILES} ${RPLIDAR_SDK_SRC})
