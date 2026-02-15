@@ -13,8 +13,3 @@ runs:
       uses: Swatinem/rust-cache@v2
       with:
         workspaces: ${{ inputs.workdir }}
-    - name: Install Dependencies
-      shell: bash
-      run: |
-        rustup component add clippy rustfmt
-        rustup component add --toolchain 1.91.1-x86_64-unknown-linux-gnu clippy rustfmt
