@@ -57,11 +57,10 @@ int main(int argc, char **argv) {
       [&lidar_timestamps, &updated](const zenoh::Sample &sample) {
         auto timestamp = ntp64_to_timepoint(sample.get_timestamp()->get_time());
 
-        auto id = sample.get_timestamp()->get_id().to_string();
         auto data = sample.get_payload().as_vector();
         auto z = LiDARDataWrapper(data);
 
-        lidar_timestamps[id] = {
+        lidar_timestamps[z.name] = {
             timestamp,
             z,
         };

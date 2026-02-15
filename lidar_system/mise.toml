@@ -15,7 +15,7 @@ outputs = ["./build/build.ninja", "./build/compile_commands.json"]
 
 [tasks.build]
 depends = ["deps"]
-description = "Compile C++ applications (processor, sender, viewer)"
+description = "Compile C++ applications (processor, viewer)"
 run = "just build"
 sources = [
   "./build/build.ninja",
@@ -23,7 +23,7 @@ sources = [
   "include/**/*.hpp",
   "src/**/*.cpp"
 ]
-outputs = ["./build/processor", "./build/sender", "./build/viewer"]
+outputs = ["./build/processor", "./build/viewer"]
 
 [tasks.lint]
 description = "Run C++ linters (clang-tidy) and format checks"
