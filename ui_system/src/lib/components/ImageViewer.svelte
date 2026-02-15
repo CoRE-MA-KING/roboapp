@@ -25,6 +25,7 @@
 	let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 	let animationFrameId: number;
 	let pendingBitmap: ImageBitmap | null = null;
+	let isDecoding = false;
 
 	function render() {
 		if (pendingBitmap && canvasView) {
@@ -43,12 +44,18 @@
 		ws.binaryType = "arraybuffer";
 
 		ws.onmessage = async (event) => {
-			const blob = new Blob([event.data], { type: "image/jpeg" });
-			const bitmap = await createImageBitmap(blob);
-			if (pendingBitmap) {
-				pendingBitmap.close();
+			// 前のフレームがまだ描画待ち、またはデコード中ならこのフレームは捨てる
+			if (pendingBitmap || isDecoding) return;
+
+			isDecoding = true;
+			try {
+				const blob = new Blob([event.data], { type: "image/jpeg" });
+				pendingBitmap = await createImageBitmap(blob);
+			} catch (e) {
+				console.error("Decode error:", e);
+			} finally {
+				isDecoding = false;
 			}
-			pendingBitmap = bitmap;
 		};
 
 		ws.onclose = () => {
