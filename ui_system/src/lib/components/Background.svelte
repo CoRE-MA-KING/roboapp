@@ -75,9 +75,22 @@
 		};
 	});
 
+	function areEqual(a: Uint8Array, b: Uint8Array) {
+		if (a.length !== b.length) return false;
+		for (let i = 0; i < a.length; i++) {
+			if (a[i] !== b[i]) return false;
+		}
+		return true;
+	}
+
 	$effect(() => {
+		let lastPayload: Uint8Array | null = null;
 		let unlistenPromise = listen<unknown>("disks", (event) => {
-			const msg = DisksMessage.decode(toUint8Array(event.payload));
+			const payload = toUint8Array(event.payload);
+			if (lastPayload && areEqual(payload, lastPayload)) return;
+			lastPayload = payload;
+
+			const msg = DisksMessage.decode(payload);
 			leftDiskStore.set(msg.left);
 			rightDiskStore.set(msg.right);
 		});
@@ -97,8 +110,13 @@
 	});
 
 	$effect(() => {
+		let lastPayload: Uint8Array | null = null;
 		let unlistenPromise = listen<unknown>("lidar/range", (event) => {
-			const msg = LiDARRange.decode(toUint8Array(event.payload));
+			const payload = toUint8Array(event.payload);
+			if (lastPayload && areEqual(payload, lastPayload)) return;
+			lastPayload = payload;
+
+			const msg = LiDARRange.decode(payload);
 			lidarMessageStore.set(msg);
 		});
 		return () => {

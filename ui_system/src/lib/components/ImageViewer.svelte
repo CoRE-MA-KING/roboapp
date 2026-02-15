@@ -18,21 +18,44 @@
 	let { host }: ImageViewerProps = $props();
 
 	let ws: WebSocket | null = $state(null);
-	let imageUrl: string | null = $state(null);
-	let imageView: HTMLImageElement;
+	let canvasView: HTMLCanvasElement;
 
 	let viewBox = `0 0 ${image_width} ${image_height}`;
 
 	let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+	let animationFrameId: number;
+	let pendingBitmap: ImageBitmap | null = null;
+	let isDecoding = false;
+
+	function render() {
+		if (pendingBitmap && canvasView) {
+			const ctx = canvasView.getContext("2d");
+			if (ctx) {
+				ctx.drawImage(pendingBitmap, 0, 0, canvasView.width, canvasView.height);
+			}
+			pendingBitmap.close();
+			pendingBitmap = null;
+		}
+		animationFrameId = requestAnimationFrame(render);
+	}
 
 	function connect() {
 		ws = new WebSocket(`ws://${host ? host : "localhost"}:${$cameraPortStore}`);
 		ws.binaryType = "arraybuffer";
 
-		ws.onmessage = (event) => {
-			const blob = new Blob([event.data], { type: "image/jpeg" });
-			if (imageUrl) URL.revokeObjectURL(imageUrl);
-			imageUrl = URL.createObjectURL(blob);
+		ws.onmessage = async (event) => {
+			// 前のフレームがまだ描画待ち、またはデコード中ならこのフレームは捨てる
+			if (pendingBitmap || isDecoding) return;
+
+			isDecoding = true;
+			try {
+				const blob = new Blob([event.data], { type: "image/jpeg" });
+				pendingBitmap = await createImageBitmap(blob);
+			} catch (e) {
+				console.error("Decode error:", e);
+			} finally {
+				isDecoding = false;
+			}
 		};
 
 		ws.onclose = () => {
@@ -48,22 +71,26 @@
 
 	onMount(() => {
 		connect();
+		animationFrameId = requestAnimationFrame(render);
 
 		return () => {
 			if (reconnectTimer) clearTimeout(reconnectTimer);
+			cancelAnimationFrame(animationFrameId);
 			ws?.close();
-			if (imageUrl) URL.revokeObjectURL(imageUrl);
+			if (pendingBitmap) pendingBitmap.close();
 		};
 	});
 </script>
 
 <div class="relative w-full aspect-video">
-	<img
-		bind:this={imageView}
-		src={imageUrl}
+	<canvas
+		bind:this={canvasView}
+		width={image_width}
+		height={image_height}
 		class="absolute top-0 left-0 w-full h-full object-contain"
-		alt="受信した画像がここに表示されます"
-	/>
+		role="img"
+		aria-label="受信した画像がここに表示されます"
+	></canvas>
 	{#if $cameraIdStore == 0}
 		<svg
 			baseProfile="full"
