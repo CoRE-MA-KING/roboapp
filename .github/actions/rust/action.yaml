@@ -16,6 +16,5 @@ runs:
     - name: Install Dependencies
       shell: bash
       run: |
-        cd "${{ inputs.workdir }}"
-        cargo fetch
         rustup component add clippy rustfmt
+        rustup component add --toolchain 1.91.1-x86_64-unknown-linux-gnu clippy rustfmt

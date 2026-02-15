@@ -10,6 +10,7 @@
 #include "collision_avoidance/collision_avoidance.hpp"
 #include "config.hpp"
 #include "lidar_metadata.hpp"
+#include "proto/roboapp/lidar_vector.pb.h"
 #include "visualizer/visualizer.hpp"
 #include "zenoh.hxx"
 
@@ -75,8 +76,19 @@ int main(int argc, char **argv) {
         auto timestamp = ntp64_to_timepoint(sample.get_timestamp()->get_time());
 
         auto id = sample.get_timestamp()->get_id().to_string();
-        auto data = sample.get_payload().as_string();
-        vec = lidar_vector(data);
+
+        auto payload = sample.get_payload().as_vector();
+
+        roboapp::LiDARVector vec_msg;
+
+        if (!vec_msg.ParseFromArray(payload.data(), payload.size())) {
+          std::cerr << "Failed to parse LiDARVector message." << std::endl;
+
+          return;
+        }
+
+        vec.linear = vec_msg.linear();
+        vec.angular = vec_msg.angular();
 
         updated = true;
       },

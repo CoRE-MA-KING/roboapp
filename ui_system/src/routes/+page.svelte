@@ -13,7 +13,6 @@
 
 <script lang="ts">
 	let host = "localhost";
-	let port = "8080";
 
 	onMount(async () => {
 		const matches = await getMatches();
@@ -27,21 +26,15 @@
 			host = args.address.value;
 		}
 
-		if (args.port?.value && typeof args.port?.value === "string" && args.port.value.trim() !== "") {
-			port = args.port.value;
-		}
-
 		invoke("state_request");
 	});
 </script>
 
 <main>
 	<Background />
-	<p>
-		"Camera ID: {$cameraIdStore}"
-	</p>
+
 	<div class="absolute w-full h-full">
-		<ImageViewer {host} {port} />
+		<ImageViewer {host} />
 	</div>
 
 	{#if $cameraIdStore == 0}

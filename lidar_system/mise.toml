@@ -7,7 +7,8 @@ just = "latest"
 sccache = "latest"
 
 [tasks.deps]
-description = "Generate CMake build files using just and ninja"
+description = "Install dependencies and generate code"
+depends = ["//:generate_proto"]
 run = "just deps"
 sources = ["CMakeLists.txt", "src/**/*.cpp", "include/**/*/hpp"]
 outputs = ["./build/build.ninja", "./build/compile_commands.json"]

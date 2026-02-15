@@ -64,14 +64,8 @@ async fn declare_and_emit(session: &zenoh::Session, app: Arc<AppHandle>, event_n
     session
         .declare_subscriber(event_name)
         .callback_mut(move |sample| {
-            app.emit(
-                &event_name_cloned,
-                sample
-                    .payload()
-                    .try_to_string()
-                    .unwrap_or_else(|e| e.to_string().into()),
-            )
-            .unwrap();
+            app.emit(&event_name_cloned, sample.payload().to_bytes().to_vec())
+                .unwrap();
         })
         .background()
         .await
@@ -96,8 +90,10 @@ async fn zenoh_sub(app: AppHandle) {
 
     let app = Arc::new(app);
 
+    declare_and_emit(&session, Arc::clone(&app), "cam/port").await;
     declare_and_emit(&session, Arc::clone(&app), "cam/switch").await;
-    declare_and_emit(&session, Arc::clone(&app), "damagepanel").await;
+    declare_and_emit(&session, Arc::clone(&app), "damagepanel/color").await;
+    declare_and_emit(&session, Arc::clone(&app), "damagepanel/target").await;
     declare_and_emit(&session, Arc::clone(&app), "disks").await;
     declare_and_emit(&session, Arc::clone(&app), "flap").await;
     declare_and_emit(&session, Arc::clone(&app), "lidar/range").await;

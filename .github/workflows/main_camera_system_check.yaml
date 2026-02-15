@@ -16,8 +16,9 @@ jobs:
       run:
         working-directory: ${{ env.WORKDIR }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
+          submodules: recursive
           fetch-depth: 1
       - uses: ./.github/actions/mise
         with:
@@ -27,8 +28,8 @@ jobs:
           workdir: ${{ env.WORKDIR }}
       - name: Install Dependencies
         run: |
-          mise //:deps
-          mise //main_camera_system:deps
+          mise //:init
+          mise //${{ env.WORKDIR }}:deps
       - name: Lint
         run: |
           cargo clippy --all-targets --all-features -- -D warnings

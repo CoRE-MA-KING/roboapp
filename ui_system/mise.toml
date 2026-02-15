@@ -4,27 +4,29 @@ RUSTC_WRAPPER = "sccache"
 [tools]
 node = "22"
 pnpm = "10"
-rust = { version = "1.91", components="rust-analyzer" }
+rust = { version = "1.91", components = "rust-analyzer" }
 sccache = "latest"
 
 [tasks.deps_node]
 description = "Install Node.js dependencies using pnpm"
+depends = ["//:generate_proto"]
 run = "pnpm i"
 sources = ["package.json", "pnpm-lock.yaml"]
 outputs = { auto = true }
 
 [tasks.deps_rust]
 description = "Fetch Rust dependencies for the Tauri backend"
+depends = ["//:generate_proto"]
 dir = "src-tauri"
 run = ["cargo fetch"]
 sources = [
-    "src-tauri/Cargo.toml",
-    "src-tauri/Cargo.lock",
+  "src-tauri/Cargo.toml",
+  "src-tauri/Cargo.lock",
 ]
 outputs = { auto = true }
 
 [tasks.deps]
-description = "Install all dependencies (Node.js and Rust) for the UI system"
+description = "Install dependencies and generate code"
 depends = ["deps_node", "deps_rust"]
 
 [tasks.build]
@@ -32,17 +34,17 @@ depends = ["deps"]
 description = "Build the UI system (SvelteKit + Tauri) into a production binary"
 run = "pnpm tauri build"
 sources = [
-    "package.json",
-    "pnpm-lock.yaml",
-    "src/**",
-    "tsconfig*.json",
-    "vite.config.*",
-    "src-tauri/capabilities/**",
-    "src-tauri/Cargo.toml",
-    "src-tauri/Cargo.lock",
-    "src-tauri/src/**",
-    "src-tauri/tauri.conf.json",
-    "src-tauri/icons/**",
+  "package.json",
+  "pnpm-lock.yaml",
+  "src/**",
+  "tsconfig*.json",
+  "vite.config.*",
+  "src-tauri/capabilities/**",
+  "src-tauri/Cargo.toml",
+  "src-tauri/Cargo.lock",
+  "src-tauri/src/**",
+  "src-tauri/tauri.conf.json",
+  "src-tauri/icons/**",
 ]
 outputs = ["./src-tauri/target/release/ui_system"]
 
@@ -77,7 +79,7 @@ description = "Format all code in the UI system"
 depends = ["format_node", "format_rust"]
 
 [tasks.test_rust]
-depends = ["deps_rust"]
+depends = ["deps"]
 description = "Run unit tests for the Tauri backend"
 dir = "src-tauri"
 run = "cargo test"

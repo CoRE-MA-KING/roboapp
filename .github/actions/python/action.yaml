@@ -10,8 +10,3 @@ runs:
     - uses: astral-sh/setup-uv@v6
       with:
         enable-cache: true
-    - name: Install Dependencies
-      shell: bash
-      run: |
-        cd "${{ inputs.workdir }}"
-        uv sync

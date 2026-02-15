@@ -3,17 +3,17 @@ use futures_util::{SinkExt, StreamExt};
 use log::{debug, error, info};
 use main_camera_system::camera_wrapper::create_camera_stream;
 use main_camera_system::config::{get_config_path, load_config};
-use main_camera_system::messages::CameraSwitchMessage;
+use main_camera_system::proto::roboapp::{CameraPortMessage, CameraSwitchMessage};
+use prost::Message;
 use std::env;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener;
 use tokio::sync::mpsc;
 use tokio_tungstenite::accept_async;
-use tokio_tungstenite::tungstenite::Message;
+use tokio_tungstenite::tungstenite::Message as WsMessage;
 use v4l::io::mmap::Stream;
 use v4l::io::traits::CaptureStream;
-
 #[derive(Parser, Debug)]
 struct Args {
     #[arg(short, long)]
@@ -81,6 +81,13 @@ async fn main() {
         None
     };
 
+    let port_publisher: zenoh::pubsub::Publisher =
+        zenoh.declare_publisher("cam/port").await.unwrap();
+
+    let port_msg = CameraPortMessage {
+        port: camera_config.websocket_port as i32,
+    };
+
     let subscriber = zenoh.declare_subscriber("cam/switch").await.unwrap();
 
     // WebSocket配信を有効化する場合のみサーバーを起動
@@ -109,7 +116,11 @@ async fn main() {
                     // 送信タスク
                     let send_task = tokio::spawn(async move {
                         while let Some(data) = rx.recv().await {
-                            if ws_sender.send(Message::Binary(data.into())).await.is_err() {
+                            if ws_sender
+                                .send(WsMessage::Binary(data.into()))
+                                .await
+                                .is_err()
+                            {
                                 break;
                             }
                         }
@@ -136,25 +147,25 @@ async fn main() {
     tokio::spawn(async move {
         loop {
             if let Ok(sample) = subscriber.recv_async().await {
-                if let Some(msg) = sample
-                    .payload()
-                    .try_to_string()
-                    .ok()
-                    .and_then(|s| serde_json::from_str::<CameraSwitchMessage>(&s).ok())
-                {
-                    let new_value: usize = msg.camera_id;
-                    let _ = switch_tx.send(new_value);
-                } else {
-                    error!(
-                        "Failed to parse CameraSwitchMessage from payload: {:?}",
-                        sample.payload()
-                    );
+                let payload = sample.payload();
+                match CameraSwitchMessage::decode(payload.to_bytes().as_ref()) {
+                    Ok(msg) => {
+                        let new_value = msg.camera_id as usize;
+                        let _ = switch_tx.send(new_value);
+                    }
+                    Err(e) => {
+                        error!("Failed to parse CameraSwitchMessage from payload: {:?}", e);
+                    }
                 }
             }
         }
     });
 
     loop {
+        port_publisher
+            .put(port_msg.encode_to_vec())
+            .await
+            .expect("Failed to publish CameraPortMessage");
         // カメラ切り替え通知が来ていれば切り替え
         if let Ok(new_value) = switch_rx.try_recv() {
             let new_index = new_value % camera_config.devices.len();

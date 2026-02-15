@@ -2,25 +2,20 @@
 	import { pitch_to_pixel } from "$lib/functions/flap_calc";
 	import { yaw_to_pixel } from "$lib/functions/flap_calc";
 	import { cameraIdStore } from "$lib/store/cameraid.svelte";
-	import { damagePanelStore } from "$lib/store/damagepanel.svelte";
+	import { cameraPortStore } from "$lib/store/cameraport.svelte";
+	import { damagePanelColorStore } from "$lib/store/damagepanel_color.svelte";
+	import { damagePanelTargetStore } from "$lib/store/damagepanel_target.svelte";
 	import { flapMessageStore } from "$lib/store/flap.svelte";
-	import {
-		crosshair_size,
-		image_height,
-		image_width,
-		target_height,
-		target_width
-	} from "$lib/values/image";
+	import { crosshair_size, image_height, image_width } from "$lib/values/image";
 	import { onMount } from "svelte";
 </script>
 
 <script lang="ts">
 	export type ImageViewerProps = {
 		host: string | null;
-		port: string | null;
 	};
 
-	let { host, port }: ImageViewerProps = $props();
+	let { host }: ImageViewerProps = $props();
 
 	let ws: WebSocket | null = $state(null);
 	let imageUrl: string | null = $state(null);
@@ -28,10 +23,10 @@
 
 	let viewBox = `0 0 ${image_width} ${image_height}`;
 
-	let reconnectTimer: number | null = null;
+	let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
 	function connect() {
-		ws = new WebSocket(`ws://${host ? host : "localhost"}:${port ? port : "8080"}`);
+		ws = new WebSocket(`ws://${host ? host : "localhost"}:${$cameraPortStore}`);
 		ws.binaryType = "arraybuffer";
 
 		ws.onmessage = (event) => {
@@ -78,14 +73,14 @@
 			xmlns:xlink="http://www.w3.org/1999/xlink"
 		>
 			<!-- Damage Panel -->
-			{#if $damagePanelStore}
+			{#if $damagePanelTargetStore}
 				<rect
-					height={target_height}
-					width={target_width}
-					x={$damagePanelStore.x - target_width / 2}
-					y={$damagePanelStore.y - target_height / 2}
+					height={$damagePanelTargetStore.height}
+					width={$damagePanelTargetStore.width}
+					x={$damagePanelTargetStore.x - $damagePanelTargetStore.width / 2}
+					y={$damagePanelTargetStore.y - $damagePanelTargetStore.height / 2}
 					fill-opacity="0.0"
-					stroke="red"
+					stroke={$damagePanelColorStore}
 					stroke-width="4"
 				/>
 			{/if}

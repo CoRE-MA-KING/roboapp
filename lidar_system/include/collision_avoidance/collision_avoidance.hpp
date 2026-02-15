@@ -7,8 +7,6 @@
 #include <opencv2/core.hpp>
 #include <vector>
 
-#include "lidar_types/lidar_vector.hpp"
-
 class CollisionAvoidance {
  public:
   CollisionAvoidance(double robot_width = 0.4, double robot_length = 2.0,

@@ -8,16 +8,17 @@ import zenoh
 from uart_bridge.application.interfaces import Transmitter
 from uart_bridge.domain.config import get_config_path
 from uart_bridge.domain.messages import RobotState
-from uart_bridge.domain.shared_memory import SharedRobotData
-from uart_bridge.domain.transmitter_messages import (
+from uart_bridge.domain.proto.roboapp import (
     CameraSwitchMessage,
-    DamagePanelRecognition,
+    DamagePanelColorMessage,
+    DamagePanelTargetMessage,
     DisksMessage,
     FlapMessage,
-    LiDARVectorMessage,
+    LiDarVector,
     RobotStateMessage,
     Target,
 )
+from uart_bridge.domain.shared_memory import SharedRobotData
 
 
 def create_zenoh_session() -> zenoh.Session:
@@ -36,39 +37,47 @@ class ZenohTransmitter(Transmitter):
         self.publishers["cam/switch"].put(
             CameraSwitchMessage(
                 camera_id=robot_state.video_id,
-            ).model_dump_json()
+            ).SerializeToString()
         )
 
         self.publishers["disks"].put(
             DisksMessage(
                 left=robot_state.left_disks, right=robot_state.right_disks
-            ).model_dump_json()
+            ).SerializeToString()
         )
 
         self.publishers["flap"].put(
             FlapMessage(
                 pitch=robot_state.pitch_deg, yaw=robot_state.yaw_deg
-            ).model_dump_json()
+            ).SerializeToString()
         )
 
         self.publishers["robotstate"].put(
             RobotStateMessage(
                 state=robot_state.state_id.value,
                 color="red" if robot_state.flags.is_red else "blue",
-            ).model_dump_json()
+            ).SerializeToString()
         )
 
-    def damagepanel_subscriber(self, sample: zenoh.Sample) -> None:
+        self.publishers["damagepanel/color"].put(
+            DamagePanelColorMessage(
+                color="blue" if robot_state.flags.is_red else "red",
+            ).SerializeToString()
+        )
+
+    def damagepanel_target_subscriber(self, sample: zenoh.Sample) -> None:
         try:
-            d = DamagePanelRecognition.model_validate_json(sample.payload.to_string())
-        except pydantic.ValidationError as e:
-            raise ValueError(f"Failed to validate DamagePanelRecognition: {e}") from e
-            logging.error(f"Failed to validate DamagePanelRecognition: {e}")
+            d: DamagePanelTargetMessage = DamagePanelTargetMessage.FromString(
+                sample.payload.to_bytes()
+            )
+        except Exception as e:
+            logging.error(f"Failed to decode DamagePanelTargetMessage: {e}")
             return
 
-        print(d)
+        if not isinstance(d, DamagePanelTargetMessage):
+            return
 
-        target = d.target if d.target else Target()
+        target: Target = d.target if d.target else Target()
 
         with self.command_lock:
             try:
@@ -82,9 +91,12 @@ class ZenohTransmitter(Transmitter):
 
     def lidar_subscriber(self, sample: zenoh.Sample) -> None:
         try:
-            m = LiDARVectorMessage.model_validate_json(sample.payload.to_string())
-        except pydantic.ValidationError as e:
-            logging.error(f"Failed to validate LiDARVectorMessage: {e}")
+            m: LiDarVector = LiDarVector.FromString(sample.payload.to_bytes())
+        except Exception as e:
+            logging.error(f"Failed to decode LiDARVectorMessage: {e}")
+            return
+
+        if not isinstance(m, LiDarVector):
             return
 
         with self.command_lock:
@@ -116,9 +128,13 @@ class ZenohTransmitter(Transmitter):
             "robotstate"
         )
 
+        self.publishers["damagepanel/color"] = self.zenoh_session.declare_publisher(
+            "damagepanel/color"
+        )
+
         self.zenoh_session.declare_subscriber(
-            "damagepanel",
-            self.damagepanel_subscriber,
+            "damagepanel/target",
+            self.damagepanel_target_subscriber,
         )
 
         self.zenoh_session.declare_subscriber(

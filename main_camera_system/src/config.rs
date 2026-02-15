@@ -58,7 +58,7 @@ impl CameraConfig {
         true
     }
     fn default_websocket_port() -> u16 {
-        8080
+        4120
     }
     fn default_zenoh() -> bool {
         false

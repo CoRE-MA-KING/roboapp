@@ -14,7 +14,7 @@ jobs:
       run:
         working-directory: ${{ env.WORKDIR }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
           fetch-depth: 1
@@ -25,7 +25,7 @@ jobs:
           workdir: ${{ env.WORKDIR }}
       - name: Install Dependencies
         run: |
-          mise //:deps
+          mise //:init
           mise //${{ env.WORKDIR }}:deps
       - name: Build
         run: |
