@@ -1,17 +1,14 @@
+use bytes::Bytes;
 use clap::Parser;
-use futures_util::{SinkExt, StreamExt};
 use log::{debug, error, info};
 use main_camera_system::camera_wrapper::create_camera_stream;
 use main_camera_system::config::{get_config_path, load_config};
 use main_camera_system::proto::roboapp::{CameraPortMessage, CameraSwitchMessage};
+use main_camera_system::websocket::start_websocket_server;
 use prost::Message;
 use std::env;
 use std::path::PathBuf;
-use std::sync::{Arc, Mutex};
-use tokio::net::TcpListener;
-use tokio::sync::mpsc;
-use tokio_tungstenite::accept_async;
-use tokio_tungstenite::tungstenite::Message as WsMessage;
+use tokio::sync::{broadcast, mpsc};
 use v4l::io::mmap::Stream;
 use v4l::io::traits::CaptureStream;
 #[derive(Parser, Debug)]
@@ -73,78 +70,82 @@ async fn main() {
         }
     };
 
-    let jpg_publisher: Option<zenoh::pubsub::Publisher> = if camera_config.zenoh {
-        let topic_name = "cam/jpg";
-        info!("JPEG publishing enabled at {topic_name}");
-        Some(zenoh.declare_publisher(topic_name).await.unwrap())
-    } else {
-        None
-    };
+    // 5Hz Port 配信タスク (常に実行)
+    let zenoh_session = zenoh.clone();
+    let ws_port = camera_config.websocket_port as i32;
+    tokio::spawn(async move {
+        let port_publisher = zenoh_session.declare_publisher("cam/port").await.unwrap();
+        let port_msg = CameraPortMessage { port: ws_port };
+        let mut interval = tokio::time::interval(tokio::time::Duration::from_millis(200));
+        loop {
+            interval.tick().await;
+            if let Err(e) = port_publisher.put(port_msg.encode_to_vec()).await {
+                error!("Failed to publish CameraPortMessage: {:?}", e);
+            }
+        }
+    });
 
-    let port_publisher: zenoh::pubsub::Publisher =
-        zenoh.declare_publisher("cam/port").await.unwrap();
+    let (image_tx, _) = broadcast::channel::<Bytes>(1);
 
-    let port_msg = CameraPortMessage {
-        port: camera_config.websocket_port as i32,
-    };
-
-    let subscriber = zenoh.declare_subscriber("cam/switch").await.unwrap();
-
-    // WebSocket配信を有効化する場合のみサーバーを起動
-    type WsClients = Arc<Mutex<Vec<tokio::sync::mpsc::UnboundedSender<Vec<u8>>>>>;
-
-    let ws_clients: Option<WsClients> = if camera_config.websocket {
-        let ws_clients: WsClients = Arc::new(Mutex::new(Vec::new()));
-        let ws_clients_clone = ws_clients.clone();
+    // Zenoh JPG 配信タスク
+    if camera_config.zenoh {
+        let zenoh_session = zenoh.clone();
+        let mut image_rx = image_tx.subscribe();
         tokio::spawn(async move {
-            let listener = TcpListener::bind(format!("0.0.0.0:{}", camera_config.websocket_port))
-                .await
-                .expect("Failed to bind WebSocket port");
-            info!(
-                "WebSocket server listening on ws://0.0.0.0:{}",
-                camera_config.websocket_port
-            );
-            while let Ok((stream, _)) = listener.accept().await {
-                let ws_clients_inner = ws_clients_clone.clone();
-                tokio::spawn(async move {
-                    let ws_stream = accept_async(stream)
-                        .await
-                        .expect("WebSocket handshake failed");
-                    let (mut ws_sender, mut ws_receiver) = ws_stream.split();
-                    let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel::<Vec<u8>>();
-                    ws_clients_inner.lock().unwrap().push(tx);
-                    // 送信タスク
-                    let send_task = tokio::spawn(async move {
-                        while let Some(data) = rx.recv().await {
-                            if ws_sender
-                                .send(WsMessage::Binary(data.into()))
-                                .await
-                                .is_err()
-                            {
-                                break;
-                            }
+            let jpg_publisher = zenoh_session.declare_publisher("cam/jpg").await.unwrap();
+            info!("JPEG publishing enabled at cam/jpg");
+            loop {
+                match image_rx.recv().await {
+                    Ok(data) => {
+                        if let Err(e) = jpg_publisher.put(data).await {
+                            error!("Failed to publish JPEG buffer to Zenoh: {:?}", e);
                         }
-                    });
-                    // 受信タスク（クライアントからの切断検知用）
-                    let recv_task = tokio::spawn(async move {
-                        while let Some(_msg) = ws_receiver.next().await {
-                            // ここでは何もしない
-                        }
-                    });
-                    let _ = tokio::join!(send_task, recv_task);
-                });
+                    }
+                    Err(broadcast::error::RecvError::Lagged(count)) => {
+                        debug!("Zenoh publisher lagged by {count} frames");
+                    }
+                    Err(_) => break,
+                }
             }
         });
-        Some(ws_clients)
-    } else {
-        None
-    };
+    }
+
+    // WebSocket 配信タスク
+    if camera_config.websocket {
+        let ws_clients = start_websocket_server(camera_config.websocket_port);
+        let mut image_rx = image_tx.subscribe();
+        tokio::spawn(async move {
+            loop {
+                match image_rx.recv().await {
+                    Ok(data) => {
+                        let mut clients = ws_clients.lock().unwrap();
+                        clients.retain(|tx| match tx.try_send(data.clone()) {
+                            Ok(_) => true,
+                            Err(tokio::sync::mpsc::error::TrySendError::Full(_)) => {
+                                debug!("WebSocket client buffer full, dropping frame");
+                                true
+                            }
+                            Err(tokio::sync::mpsc::error::TrySendError::Closed(_)) => false,
+                        });
+                    }
+                    Err(broadcast::error::RecvError::Lagged(count)) => {
+                        debug!("WebSocket publisher lagged by {count} frames");
+                    }
+                    Err(_) => break,
+                }
+            }
+        });
+    }
 
     let (switch_tx, mut switch_rx) = mpsc::unbounded_channel();
 
     // スイッチ受信タスク
-    let subscriber = subscriber.clone();
+    let zenoh_session = zenoh.clone();
     tokio::spawn(async move {
+        let subscriber = zenoh_session
+            .declare_subscriber("cam/switch")
+            .await
+            .unwrap();
         loop {
             if let Ok(sample) = subscriber.recv_async().await {
                 let payload = sample.payload();
@@ -162,10 +163,6 @@ async fn main() {
     });
 
     loop {
-        port_publisher
-            .put(port_msg.encode_to_vec())
-            .await
-            .expect("Failed to publish CameraPortMessage");
         // カメラ切り替え通知が来ていれば切り替え
         if let Ok(new_value) = switch_rx.try_recv() {
             let new_index = new_value % camera_config.devices.len();
@@ -187,20 +184,8 @@ async fn main() {
                     meta.timestamp
                 );
 
-                // WebSocketクライアントに配信（有効時のみ）
-                if let Some(ws_clients) = &ws_clients {
-                    let clients = ws_clients.lock().unwrap();
-                    clients.iter().for_each(|tx| {
-                        let _ = tx.send(buf.to_vec());
-                    });
-                }
-
-                if let Some(jpg_publisher) = &jpg_publisher {
-                    jpg_publisher
-                        .put(buf)
-                        .await
-                        .expect("Failed to publish JPEG buffer");
-                }
+                let data = Bytes::copy_from_slice(buf);
+                let _ = image_tx.send(data);
             } else {
                 stream = None;
             }
