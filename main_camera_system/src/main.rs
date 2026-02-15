@@ -7,7 +7,8 @@ use main_camera_system::websocket::{WsClients, start_websocket_server};
 use prost::Message;
 use std::env;
 use std::path::PathBuf;
-use tokio::sync::mpsc;
+use std::sync::Arc;
+use tokio::sync::{broadcast, mpsc};
 use v4l::io::mmap::Stream;
 use v4l::io::traits::CaptureStream;
 #[derive(Parser, Debug)]
@@ -100,6 +101,49 @@ async fn main() {
         None
     };
 
+    let (image_tx, _) = broadcast::channel::<Arc<Vec<u8>>>(1);
+
+    // Zenoh JPG 配信タスク
+    if let Some(jpg_publisher) = jpg_publisher {
+        let mut image_rx = image_tx.subscribe();
+        tokio::spawn(async move {
+            loop {
+                match image_rx.recv().await {
+                    Ok(data) => {
+                        if let Err(e) = jpg_publisher.put(data.as_ref()).await {
+                            error!("Failed to publish JPEG buffer to Zenoh: {:?}", e);
+                        }
+                    }
+                    Err(broadcast::error::RecvError::Lagged(count)) => {
+                        debug!("Zenoh publisher lagged by {count} frames");
+                    }
+                    Err(_) => break,
+                }
+            }
+        });
+    }
+
+    // WebSocket 配信タスク
+    if let Some(ws_clients) = ws_clients {
+        let mut image_rx = image_tx.subscribe();
+        tokio::spawn(async move {
+            loop {
+                match image_rx.recv().await {
+                    Ok(data) => {
+                        let clients = ws_clients.lock().unwrap();
+                        clients.iter().for_each(|tx| {
+                            let _ = tx.send(data.to_vec());
+                        });
+                    }
+                    Err(broadcast::error::RecvError::Lagged(count)) => {
+                        debug!("WebSocket publisher lagged by {count} frames");
+                    }
+                    Err(_) => break,
+                }
+            }
+        });
+    }
+
     let (switch_tx, mut switch_rx) = mpsc::unbounded_channel();
 
     // スイッチ受信タスク
@@ -143,20 +187,8 @@ async fn main() {
                     meta.timestamp
                 );
 
-                // WebSocketクライアントに配信（有効時のみ）
-                if let Some(ws_clients) = &ws_clients {
-                    let clients = ws_clients.lock().unwrap();
-                    clients.iter().for_each(|tx| {
-                        let _ = tx.send(buf.to_vec());
-                    });
-                }
-
-                if let Some(jpg_publisher) = &jpg_publisher {
-                    jpg_publisher
-                        .put(buf)
-                        .await
-                        .expect("Failed to publish JPEG buffer");
-                }
+                let data = Arc::new(buf.to_vec());
+                let _ = image_tx.send(data);
             } else {
                 stream = None;
             }
