@@ -40,7 +40,7 @@ def test_read_uart_config(get_resource_path: Path) -> None:
     if c is None:
         pytest.fail("UART config should not be None")
 
-    assert c.device == "/dev/tty0"
+    assert c.device == "/dev/null"
 
     if p.exists():
         p.unlink()
