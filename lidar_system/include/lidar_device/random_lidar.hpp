@@ -6,9 +6,9 @@
 #include <random>
 #include <thread>
 
-#include "mock_lidar.hpp"
+#include "ilidar.hpp"
 
-class RandomLiDAR : public MockLiDAR {
+class RandomLiDAR : public ILiDAR {
  private:
   std::mt19937 random_engine;
   std::uniform_int_distribution<int> random_distance;
@@ -17,7 +17,7 @@ class RandomLiDAR : public MockLiDAR {
  public:
   inline RandomLiDAR(float max_distance = 1000.0, int32_t min_degree = 0,
                      int32_t max_degree = 360, int32_t rotation = 0)
-      : MockLiDAR(max_distance, min_degree, max_degree, rotation),
+      : ILiDAR(max_distance, min_degree, max_degree, rotation),
         random_distance(static_cast<int>(max_distance * 0.2),
                         static_cast<int>(max_distance * 1.0)),
         random_rate(0.8, 1.2) {

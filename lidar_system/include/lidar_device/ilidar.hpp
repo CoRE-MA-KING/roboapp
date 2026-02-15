@@ -1,12 +1,12 @@
-#ifndef MOCK_LIDAR_HPP
-#define MOCK_LIDAR_HPP
+#ifndef ILIDAR_HPP
+#define ILIDAR_HPP
 
 #include "lidar_types/lidar_data.hpp"
 
-class MockLiDAR {
+class ILiDAR {
  public:
-  MockLiDAR(float max_distance = 1000.0, int32_t min_degree = 0,
-            int32_t max_degree = 360, int32_t rotation = 0)
+  ILiDAR(float max_distance = 1000.0, int32_t min_degree = 0,
+         int32_t max_degree = 360, int32_t rotation = 0)
       : max_distance(max_distance),
         min_degree(min_degree),
         max_degree(max_degree),
@@ -15,7 +15,7 @@ class MockLiDAR {
     this->max_degree = std::max(0, std::min(this->max_degree, 360));
   }
   virtual bool get(LiDARDataWrapper &data) = 0;
-  virtual ~MockLiDAR() = default;
+  virtual ~ILiDAR() = default;
 
  protected:
   float max_distance;
@@ -24,4 +24,4 @@ class MockLiDAR {
   int32_t rotation;
 };
 
-#endif  // MOCK_LIDAR_HPP
+#endif  // ILIDAR_HPP

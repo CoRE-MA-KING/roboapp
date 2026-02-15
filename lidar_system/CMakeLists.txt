@@ -86,6 +86,7 @@ target_link_libraries(LidarTypesLib nlohmann_json::nlohmann_json)
 
 set (LIDAR_DEVICE_FILES
     src/lidar_device/rplidar_wrapper.cpp
+    src/lidar_device/lidar_device_manager.cpp
 )
 
 add_library(LidarDeviceLib ${LIDAR_DEVICE_FILES} ${RPLIDAR_SDK_SRC})
@@ -109,13 +110,9 @@ target_include_directories(VisualizerLib PUBLIC include/visualizer)
 target_link_libraries(VisualizerLib CollisionAvoidanceLib ${OpenCV_LIBS})
 
 
-add_executable(sender src/sender.cpp)
-target_link_libraries(sender gflags toml11::toml11 zenohcxx::zenohc RoboappProtoLib)
-target_link_libraries(sender LidarDeviceLib)
-
 add_executable(processor src/processor.cpp )
 target_link_libraries(processor gflags ${OpenCV_LIBS} pthread toml11::toml11 zenohcxx::zenohc RoboappProtoLib)
-target_link_libraries(processor CollisionAvoidanceLib LidarTypesLib)
+target_link_libraries(processor CollisionAvoidanceLib LidarTypesLib LidarDeviceLib)
 
 add_executable(viewer src/viewer.cpp )
 target_link_libraries(viewer gflags ${OpenCV_LIBS} pthread toml11::toml11 zenohcxx::zenohc RoboappProtoLib)

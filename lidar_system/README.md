@@ -22,13 +22,9 @@
 
 2. 実行
 
-   - ※実行アプリ数が使用方法によって変わるため、`mise start` は提供していません
-   - `sender`
-     - lidarデータを送信するソフトです
-     - `./build/sender -n foo` のように、`-n` オプションでデバイス名を指定して実行します
    - `processor`
-     - 障害物回避の計算と可視化を行うソフトです
-     - `./build/processor` で実行します
+     - LiDARデータの取得、障害物回避の計算を行うソフトです
+     - `mise start` もしくは `./build/processor` で実行します
    - `viewer`
      - 点群情報を可視化するソフトです
      - `./build/viewer` で実行します
