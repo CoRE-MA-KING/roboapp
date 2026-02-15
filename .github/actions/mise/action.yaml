@@ -15,7 +15,3 @@ runs:
     - uses: jdx/mise-action@v3
       with:
         working_directory: ${{ inputs.workdir }}
-    - name: Setup APT
-      uses: ./.github/actions/setup-apt
-      with:
-        component: ${{ inputs.component }}
