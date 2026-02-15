@@ -6,10 +6,10 @@
 #include <memory>
 #include <random>
 
-#include "mock_lidar.hpp"
+#include "ilidar.hpp"
 #include "rplidar.h"
 
-class RplidarWrapper : public MockLiDAR {
+class RplidarWrapper : public ILiDAR {
  private:
   std::unique_ptr<sl::IChannel> channel;
   std::unique_ptr<sl::ILidarDriver> lidar;
@@ -18,7 +18,7 @@ class RplidarWrapper : public MockLiDAR {
   RplidarWrapper(std::string device, float max_distance = 1000.0,
                  int32_t min_degree = 0, int32_t max_degree = 360,
                  int32_t rotation = 0);
-  // : MockLiDAR(max_distance, min_degree, max_degree);
+  // : ILiDAR(max_distance, min_degree, max_degree);
   bool get(LiDARDataWrapper &data);
   ~RplidarWrapper();
 };

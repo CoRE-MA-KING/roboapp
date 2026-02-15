@@ -80,6 +80,9 @@ struct LidarTask {
   std::string name;
   LiDARDeviceConfig config;
   std::future<void> handle;
+  int restart_count = 0;
+  std::chrono::system_clock::time_point next_restart_time =
+      std::chrono::system_clock::now();
 };
 
 int main(int argc, char** argv) {
@@ -125,20 +128,35 @@ int main(int argc, char** argv) {
   // main loop
   std::thread supervisor([&tasks, &session, &timestamps, &mtx, &updated]() {
     while (!ctrl_c_pressed) {
+      auto now = std::chrono::system_clock::now();
       for (auto& task : tasks) {
         if (task.handle.valid() && task.handle.wait_for(std::chrono::seconds(
                                        0)) == std::future_status::ready) {
           try {
             task.handle.get();  // Check for exceptions
+            task.restart_count = 0;
           } catch (const std::exception& e) {
             std::cerr << "Task " << task.name << " crashed: " << e.what()
                       << std::endl;
+            task.restart_count++;
           }
 
-          std::cerr << "Restarting task: " << task.name << " in 1 second..."
-                    << std::endl;
-          std::this_thread::sleep_for(std::chrono::seconds(1));
+          // Exponential backoff: 1s, 2s, 4s, 8s, 16s, 32s (max)
+          int backoff_power = std::max(0, task.restart_count - 1);
+          int delay = std::min(32, (1 << backoff_power));
 
+          task.next_restart_time = now + std::chrono::seconds(delay);
+          std::cerr << "Task " << task.name << " scheduled to restart in "
+                    << delay
+                    << " seconds (restart count: " << task.restart_count << ")."
+                    << std::endl;
+
+          task.handle = std::future<void>();
+        }
+
+        if (!task.handle.valid() && now >= task.next_restart_time &&
+            !ctrl_c_pressed) {
+          std::cerr << "Restarting task: " << task.name << std::endl;
           task.handle =
               std::async(std::launch::async, run_lidar_thread, task.name,
                          task.config, std::ref(session), std::ref(timestamps),

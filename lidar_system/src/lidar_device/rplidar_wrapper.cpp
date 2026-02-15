@@ -10,7 +10,7 @@
 RplidarWrapper::RplidarWrapper(std::string device, float max_distance,
                                int32_t min_degree, int32_t max_degree,
                                int32_t rotation)
-    : MockLiDAR(max_distance, min_degree, max_degree, rotation) {
+    : ILiDAR(max_distance, min_degree, max_degree, rotation) {
   if (!std::filesystem::exists(device)) {
     throw std::runtime_error("Device file does not exist: " + device);
   }

@@ -5,7 +5,7 @@
 #include <string>
 
 #include "config.hpp"
-#include "lidar_device/mock_lidar.hpp"
+#include "lidar_device/ilidar.hpp"
 #include "lidar_types/lidar_data.hpp"
 
 class LiDARDeviceManager {
@@ -18,7 +18,7 @@ class LiDARDeviceManager {
  private:
   std::string name;
   LiDARDeviceConfig config;
-  std::unique_ptr<MockLiDAR> lidar;
+  std::unique_ptr<ILiDAR> lidar;
   void initialize();
 };
 
