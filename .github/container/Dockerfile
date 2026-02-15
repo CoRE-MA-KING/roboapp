@@ -18,7 +18,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     curl \
     git \
     gpg \
-    sudo
+    sudo \
+    pipx
 
 # Run the project's init script using both bind mount (for the script) and cache mounts (for apt)
 # The cache mount ensures that apt-get update/install inside the script are fast and don't bloat the image
