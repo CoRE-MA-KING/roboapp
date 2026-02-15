@@ -22,10 +22,9 @@
 
 2. 実行
 
-   - ※実行アプリ数が使用方法によって変わるため、`mise start` は提供していません
    - `processor`
      - LiDARデータの取得、障害物回避の計算を行うソフトです
-     - `./build/processor` で実行します
+     - `mise start` もしくは `./build/processor` で実行します
    - `viewer`
      - 点群情報を可視化するソフトです
      - `./build/viewer` で実行します

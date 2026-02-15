@@ -44,6 +44,11 @@ depends = ["deps"]
 description = "Automatically format C++ code using clang-format"
 run = "just format"
 
+[tasks.start]
+depends = ["build"]
+description = "Execute Processor application"
+run = "./build/processor"
+
 [tasks.test]
 depends = ["build"]
 description = "Execute C++ unit tests"

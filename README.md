@@ -58,8 +58,8 @@
 | uart_bridge            | robotstate         | RobotStateMessage        |
 | uart_bridge            | damagepanel/color  | DamagePanelColorMessage  |
 | damaage_panel_recog    | damagepanel/target | DamagePanelTargetMessage |
-| lidar_system/sender    | lidar/data         | LiDARData                |
-| lidar_system/sender    | lidar/range        | LiDARRangeMessage        |
+| lidar_system/processor | lidar/data         | LiDARData                |
+| lidar_system/processor | lidar/range        | LiDARRangeMessage        |
 | lidar_system/processor | lidar/force_vector | LiDARVectorMessage       |
 
 ### ネットワーク
@@ -67,8 +67,6 @@
 ```mermaid
 flowchart LR
 
-    LS1(LiDARSystem/Sender1)
-    LS2(LiDARSystem/Sender2)
     LP(LiDARSystem/Processor)
     LV(LiDARSystem/Viewer)
     M{{STM32}}
@@ -77,10 +75,9 @@ flowchart LR
     T[UI System]
     D[Damage Panel Recognition]
 
-    LS1 -- lidar/data --> LP
-    LS2 -- lidar/data --> LP
     LP -- lidar/force_vector --> U
     LP -- lidar/force_vector --> LV
+    LP -- lidar/data --> LV
     LP -- lidar/range --> T
     C -- （WebSocket）--> T
     U -- cam/switch --> T
