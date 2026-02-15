@@ -3,7 +3,7 @@ use log::{debug, error, info};
 use main_camera_system::camera_wrapper::create_camera_stream;
 use main_camera_system::config::{get_config_path, load_config};
 use main_camera_system::proto::roboapp::{CameraPortMessage, CameraSwitchMessage};
-use main_camera_system::websocket::{WsClients, start_websocket_server};
+use main_camera_system::websocket::start_websocket_server;
 use prost::Message;
 use std::env;
 use std::path::PathBuf;
@@ -70,20 +70,12 @@ async fn main() {
         }
     };
 
-    let jpg_publisher: Option<zenoh::pubsub::Publisher> = if camera_config.zenoh {
-        let topic_name = "cam/jpg";
-        info!("JPEG publishing enabled at {topic_name}");
-        Some(zenoh.declare_publisher(topic_name).await.unwrap())
-    } else {
-        None
-    };
-
-    let port_publisher = zenoh.declare_publisher("cam/port").await.unwrap();
-    let port_msg = CameraPortMessage {
-        port: camera_config.websocket_port as i32,
-    };
-
+    // 5Hz Port 配信タスク (常に実行)
+    let zenoh_session = zenoh.clone();
+    let ws_port = camera_config.websocket_port as i32;
     tokio::spawn(async move {
+        let port_publisher = zenoh_session.declare_publisher("cam/port").await.unwrap();
+        let port_msg = CameraPortMessage { port: ws_port };
         let mut interval = tokio::time::interval(tokio::time::Duration::from_millis(200));
         loop {
             interval.tick().await;
@@ -95,18 +87,15 @@ async fn main() {
 
     let subscriber = zenoh.declare_subscriber("cam/switch").await.unwrap();
 
-    let ws_clients: Option<WsClients> = if camera_config.websocket {
-        Some(start_websocket_server(camera_config.websocket_port))
-    } else {
-        None
-    };
-
     let (image_tx, _) = broadcast::channel::<Arc<Vec<u8>>>(1);
 
     // Zenoh JPG 配信タスク
-    if let Some(jpg_publisher) = jpg_publisher {
+    if camera_config.zenoh {
+        let zenoh_session = zenoh.clone();
         let mut image_rx = image_tx.subscribe();
         tokio::spawn(async move {
+            let jpg_publisher = zenoh_session.declare_publisher("cam/jpg").await.unwrap();
+            info!("JPEG publishing enabled at cam/jpg");
             loop {
                 match image_rx.recv().await {
                     Ok(data) => {
@@ -124,7 +113,8 @@ async fn main() {
     }
 
     // WebSocket 配信タスク
-    if let Some(ws_clients) = ws_clients {
+    if camera_config.websocket {
+        let ws_clients = start_websocket_server(camera_config.websocket_port);
         let mut image_rx = image_tx.subscribe();
         tokio::spawn(async move {
             loop {

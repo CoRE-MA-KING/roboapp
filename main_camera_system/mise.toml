@@ -19,9 +19,7 @@ depends = ["deps"]
 description = "Build the main-camera-system Rust application in release mode"
 run = "cargo build --release"
 sources = [
-  "Cargo.toml",
-  "Cargo.lock",
-  "src/**",
+  "src/**/*.rs",
 ]
 outputs = ["./target/release/main-camera-system"]
 
