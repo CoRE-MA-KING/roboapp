@@ -54,7 +54,6 @@ jobs:
       - uses: ./.github/actions/mise
         with:
           workdir: ${{ env.WORKDIR }}
-          component: minimal
       - uses: ./.github/actions/nodejs
         with:
           workdir: ${{ env.WORKDIR }}

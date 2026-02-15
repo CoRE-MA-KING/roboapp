@@ -12,7 +12,6 @@ jobs:
       - uses: ./.github/actions/mise
         with:
           workdir: .
-          component: minimal
       - name: Install Dependencies
         run: |
           mise //:markdown_lint
