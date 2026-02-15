@@ -6,13 +6,7 @@
 	import { damagePanelColorStore } from "$lib/store/damagepanel_color.svelte";
 	import { damagePanelTargetStore } from "$lib/store/damagepanel_target.svelte";
 	import { flapMessageStore } from "$lib/store/flap.svelte";
-	import {
-		crosshair_size,
-		image_height,
-		image_width,
-		target_height,
-		target_width
-	} from "$lib/values/image";
+	import { crosshair_size, image_height, image_width } from "$lib/values/image";
 	import { onMount } from "svelte";
 </script>
 
@@ -81,10 +75,10 @@
 			<!-- Damage Panel -->
 			{#if $damagePanelTargetStore}
 				<rect
-					height={target_height}
-					width={target_width}
-					x={$damagePanelTargetStore.x - target_width / 2}
-					y={$damagePanelTargetStore.y - target_height / 2}
+					height={$damagePanelTargetStore.height}
+					width={$damagePanelTargetStore.width}
+					x={$damagePanelTargetStore.x - $damagePanelTargetStore.width / 2}
+					y={$damagePanelTargetStore.y - $damagePanelTargetStore.height / 2}
 					fill-opacity="0.0"
 					stroke={$damagePanelColorStore}
 					stroke-width="4"

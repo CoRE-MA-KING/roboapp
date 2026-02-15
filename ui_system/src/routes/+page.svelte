@@ -32,9 +32,7 @@
 
 <main>
 	<Background />
-	<p>
-		"Camera ID: {$cameraIdStore}"
-	</p>
+
 	<div class="absolute w-full h-full">
 		<ImageViewer {host} />
 	</div>
