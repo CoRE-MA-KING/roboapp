@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use clap::Parser;
 use log::{debug, error, info};
 use main_camera_system::camera_wrapper::create_camera_stream;
@@ -7,7 +8,6 @@ use main_camera_system::websocket::start_websocket_server;
 use prost::Message;
 use std::env;
 use std::path::PathBuf;
-use std::sync::Arc;
 use tokio::sync::{broadcast, mpsc};
 use v4l::io::mmap::Stream;
 use v4l::io::traits::CaptureStream;
@@ -85,7 +85,7 @@ async fn main() {
         }
     });
 
-    let (image_tx, _) = broadcast::channel::<Arc<Vec<u8>>>(1);
+    let (image_tx, _) = broadcast::channel::<Bytes>(1);
 
     // Zenoh JPG 配信タスク
     if camera_config.zenoh {
@@ -97,7 +97,7 @@ async fn main() {
             loop {
                 match image_rx.recv().await {
                     Ok(data) => {
-                        if let Err(e) = jpg_publisher.put(data.as_ref()).await {
+                        if let Err(e) = jpg_publisher.put(data).await {
                             error!("Failed to publish JPEG buffer to Zenoh: {:?}", e);
                         }
                     }
@@ -119,17 +119,13 @@ async fn main() {
                 match image_rx.recv().await {
                     Ok(data) => {
                         let mut clients = ws_clients.lock().unwrap();
-                        clients.retain(|tx| {
-                            match tx.try_send(Arc::clone(&data)) {
-                                Ok(_) => true,
-                                Err(tokio::sync::mpsc::error::TrySendError::Full(_)) => {
-                                    debug!("WebSocket client buffer full, dropping frame");
-                                    true // バッファフルは維持
-                                }
-                                Err(tokio::sync::mpsc::error::TrySendError::Closed(_)) => {
-                                    false // 切断されたクライアントを削除
-                                }
+                        clients.retain(|tx| match tx.try_send(data.clone()) {
+                            Ok(_) => true,
+                            Err(tokio::sync::mpsc::error::TrySendError::Full(_)) => {
+                                debug!("WebSocket client buffer full, dropping frame");
+                                true
                             }
+                            Err(tokio::sync::mpsc::error::TrySendError::Closed(_)) => false,
                         });
                     }
                     Err(broadcast::error::RecvError::Lagged(count)) => {
@@ -188,7 +184,7 @@ async fn main() {
                     meta.timestamp
                 );
 
-                let data = Arc::new(buf.to_vec());
+                let data = Bytes::copy_from_slice(buf);
                 let _ = image_tx.send(data);
             } else {
                 stream = None;
