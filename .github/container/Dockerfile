@@ -53,9 +53,11 @@ RUN --mount=type=bind,source=.mise/tasks/init,target=/tmp/init \
 WORKDIR /workspace
 
 COPY --from=fetcher /usr/local/bin/mise /tmp/mise
+SHELL ["/bin/bash", "-c"]
 
 RUN \
     --mount=type=bind,source=mise.toml,target=/workspace/mise.toml \
+    eval "$(/tmp/mise activate bash)" && \
     /tmp/mise trust && \
-    /tmp/mise install --verbose && \
+    /tmp/mise install && \
     rm -f /tmp/mise
