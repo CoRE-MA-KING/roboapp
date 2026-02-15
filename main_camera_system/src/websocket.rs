@@ -5,7 +5,7 @@ use tokio::net::TcpListener;
 use tokio_tungstenite::accept_async;
 use tokio_tungstenite::tungstenite::Message as WsMessage;
 
-pub type WsClients = Arc<Mutex<Vec<tokio::sync::mpsc::UnboundedSender<Vec<u8>>>>>;
+pub type WsClients = Arc<Mutex<Vec<tokio::sync::mpsc::Sender<Arc<Vec<u8>>>>>>;
 
 pub fn start_websocket_server(port: u16) -> WsClients {
     let ws_clients: WsClients = Arc::new(Mutex::new(Vec::new()));
@@ -24,14 +24,14 @@ pub fn start_websocket_server(port: u16) -> WsClients {
                     .await
                     .expect("WebSocket handshake failed");
                 let (mut ws_sender, mut ws_receiver) = ws_stream.split();
-                let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel::<Vec<u8>>();
+                let (tx, mut rx) = tokio::sync::mpsc::channel::<Arc<Vec<u8>>>(1);
                 ws_clients_inner.lock().unwrap().push(tx);
 
                 // 送信タスク
                 let send_task = tokio::spawn(async move {
                     while let Some(data) = rx.recv().await {
                         if ws_sender
-                            .send(WsMessage::Binary(data.into()))
+                            .send(WsMessage::Binary(data.as_ref().to_vec().into()))
                             .await
                             .is_err()
                         {

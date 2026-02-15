@@ -118,9 +118,18 @@ async fn main() {
             loop {
                 match image_rx.recv().await {
                     Ok(data) => {
-                        let clients = ws_clients.lock().unwrap();
-                        clients.iter().for_each(|tx| {
-                            let _ = tx.send(data.to_vec());
+                        let mut clients = ws_clients.lock().unwrap();
+                        clients.retain(|tx| {
+                            match tx.try_send(Arc::clone(&data)) {
+                                Ok(_) => true,
+                                Err(tokio::sync::mpsc::error::TrySendError::Full(_)) => {
+                                    debug!("WebSocket client buffer full, dropping frame");
+                                    true // バッファフルは維持
+                                }
+                                Err(tokio::sync::mpsc::error::TrySendError::Closed(_)) => {
+                                    false // 切断されたクライアントを削除
+                                }
+                            }
                         });
                     }
                     Err(broadcast::error::RecvError::Lagged(count)) => {
