@@ -31,7 +31,7 @@ def test_read_uart_config(get_resource_path: Path) -> None:
     p = Path("/tmp/roboapp_test_uart")
 
     if not p.exists():
-        p.symlink_to("/dev/tty0")
+        p.symlink_to("/dev/null")
 
     config_file = get_resource_path / "uart_device.toml"
 
