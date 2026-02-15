@@ -10,7 +10,7 @@ jobs:
   UART_Bridge_Check:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/${{ github.repository }}/ci-image:latest
+      image: ghcr.io/core-ma-king/roboapp/ci-image:latest
     defaults:
       run:
         working-directory: ${{ env.WORKDIR }}

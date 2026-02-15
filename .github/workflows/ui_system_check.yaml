@@ -13,7 +13,7 @@ jobs:
   UI_System_Check_Rust:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/${{ github.repository }}/ci-image:latest
+      image: ghcr.io/core-ma-king/roboapp/ci-image:latest
     defaults:
       run:
         working-directory: ${{ env.WORKDIR }}/src-tauri
@@ -44,7 +44,7 @@ jobs:
   UI_System_Check_JS:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/${{ github.repository }}/ci-image:latest
+      image: ghcr.io/core-ma-king/roboapp/ci-image:latest
     defaults:
       run:
         working-directory: ${{ env.WORKDIR }}
