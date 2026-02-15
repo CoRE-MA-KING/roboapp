@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM ubuntu:24.04
 
 LABEL org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}
@@ -14,10 +15,9 @@ RUN apt-get update && apt-get install -y \
     sudo \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy and run the project's init script to ensure consistency
-# We run it with 'all' to install every component's dependencies
-COPY .mise/tasks/init /tmp/init
-RUN chmod +x /tmp/init && /tmp/init all && rm /tmp/init && rm -rf /var/lib/apt/lists/*
+# Run the project's init script using a bind mount to avoid extra layers
+RUN --mount=type=bind,source=.mise/tasks/init,target=/tmp/init \
+    chmod +x /tmp/init && /tmp/init all && rm -rf /var/lib/apt/lists/*
 
 # Install mise
 RUN curl https://mise.jdx.dev/install.sh | sh
