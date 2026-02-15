@@ -76,8 +76,14 @@
 	});
 
 	$effect(() => {
+		let lastPayload = "";
 		let unlistenPromise = listen<unknown>("disks", (event) => {
-			const msg = DisksMessage.decode(toUint8Array(event.payload));
+			const payload = toUint8Array(event.payload);
+			const payloadStr = payload.toString();
+			if (payloadStr === lastPayload) return;
+			lastPayload = payloadStr;
+
+			const msg = DisksMessage.decode(payload);
 			leftDiskStore.set(msg.left);
 			rightDiskStore.set(msg.right);
 		});
@@ -97,8 +103,14 @@
 	});
 
 	$effect(() => {
+		let lastPayload = "";
 		let unlistenPromise = listen<unknown>("lidar/range", (event) => {
-			const msg = LiDARRange.decode(toUint8Array(event.payload));
+			const payload = toUint8Array(event.payload);
+			const payloadStr = payload.toString();
+			if (payloadStr === lastPayload) return;
+			lastPayload = payloadStr;
+
+			const msg = LiDARRange.decode(payload);
 			lidarMessageStore.set(msg);
 		});
 		return () => {
