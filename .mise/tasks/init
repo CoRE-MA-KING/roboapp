@@ -25,7 +25,7 @@ sudo apt-get install -y \
 
 sudo apt-mark hold libzenohc libzenohc-dev libzenohcpp-dev zenohd
 
-if [ "${GITHUB_ACTIONS:-}" != "true" ]; then
+if [ "$(command -v systemctl)" ]; then
 	sudo systemctl disable zenohd --now
 fi
 # UI System
