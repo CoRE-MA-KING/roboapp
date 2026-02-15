@@ -1,16 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "Cloning Submodules"
-if [ "${GITHUB_ACTIONS:-}" != "true" ] && [ "${ROBOAPP_CI_CONTAINER:-}" != "true" ] && [ -d ".git" ]; then
+if [ -d ".git" ]; then
+    echo "Cloning Submodules"
     git submodule update --init --recursive
 fi
 
-COMPONENT=${1:-all}
-
-sudo echo "Install Dependencies for component: $COMPONENT"
-
-# Setup repository
+sudo echo "Install Dependencies"
 sudo mkdir -p /etc/apt/keyrings
 if [ ! -f "/etc/apt/keyrings/zenoh-public-key.gpg" ]; then
 	curl -L https://download.eclipse.org/zenoh/debian-repo/zenoh-public-key | sudo gpg --dearmor --yes --output /etc/apt/keyrings/zenoh-public-key.gpg
@@ -23,38 +19,22 @@ fi
 sudo apt-get update
 
 # Common
-if [ "$COMPONENT" = "all" ] || [ "$COMPONENT" = "common" ] || [ "$COMPONENT" = "ui" ] || [ "$COMPONENT" = "camera" ] || [ "$COMPONENT" = "lidar" ] || [ "$COMPONENT" = "uart" ]; then
-	sudo apt-get install -y \
-		build-essential cmake ninja-build \
-		libzenohc=1.6.2 libzenohc-dev=1.6.2 libzenohcpp-dev=1.6.2 zenohd
+sudo apt-get install -y \
+	build-essential cmake ninja-build \
+	libzenohc=1.6.2 libzenohc-dev=1.6.2 libzenohcpp-dev=1.6.2
 
-	sudo apt-mark hold libzenohc libzenohc-dev libzenohcpp-dev zenohd
-	sudo systemctl disable zenohd --now || true
-fi
+sudo apt-mark hold libzenohc libzenohc-dev libzenohcpp-dev
 
 # UI System
-if [ "$COMPONENT" = "all" ] || [ "$COMPONENT" = "ui" ]; then
-	sudo apt-get install -y \
-		libwebkit2gtk-4.1-dev file libxdo-dev libssl-dev \
-		libayatana-appindicator3-dev librsvg2-dev clang libclang-dev llvm llvm-dev
-fi
+sudo apt-get install -y \
+	libwebkit2gtk-4.1-dev build-essential file libxdo-dev libssl-dev \
+	libayatana-appindicator3-dev librsvg2-dev clang libclang-dev llvm llvm-dev
 
 # Main Camera System
-if [ "$COMPONENT" = "all" ] || [ "$COMPONENT" = "camera" ]; then
-	sudo apt-get install -y \
-		nasm
-fi
+sudo apt-get install -y \
+	nasm
 
 # Lidar System
-if [ "$COMPONENT" = "all" ] || [ "$COMPONENT" = "lidar" ]; then
-	sudo apt-get install -y \
-		libgflags-dev libopencv-dev nlohmann-json3-dev \
-		clang-tidy clang-format \
-		libprotobuf-dev protobuf-compiler
-fi
+sudo apt-get install -y \
+	libgflags-dev libopencv-dev nlohmann-json3-dev
 
-# UART Bridge
-if [ "$COMPONENT" = "all" ] || [ "$COMPONENT" = "uart" ]; then
-	sudo apt-get install -y \
-		socat
-fi

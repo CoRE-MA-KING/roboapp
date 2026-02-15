@@ -25,10 +25,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 RUN --mount=type=bind,source=.mise/tasks/init,target=/tmp/init \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    bash /tmp/init all
-
-# Install mise
-RUN curl https://mise.jdx.dev/install.sh | sh
-ENV PATH="/root/.local/share/mise/bin:/root/.local/share/mise/shims:$PATH"
+    bash /tmp/init
 
 WORKDIR /workspace
+
