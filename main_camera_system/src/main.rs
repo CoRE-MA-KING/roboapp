@@ -1,17 +1,13 @@
 use clap::Parser;
-use futures_util::{SinkExt, StreamExt};
 use log::{debug, error, info};
 use main_camera_system::camera_wrapper::create_camera_stream;
 use main_camera_system::config::{get_config_path, load_config};
 use main_camera_system::proto::roboapp::{CameraPortMessage, CameraSwitchMessage};
+use main_camera_system::websocket::{WsClients, start_websocket_server};
 use prost::Message;
 use std::env;
 use std::path::PathBuf;
-use std::sync::{Arc, Mutex};
-use tokio::net::TcpListener;
 use tokio::sync::mpsc;
-use tokio_tungstenite::accept_async;
-use tokio_tungstenite::tungstenite::Message as WsMessage;
 use v4l::io::mmap::Stream;
 use v4l::io::traits::CaptureStream;
 #[derive(Parser, Debug)]
@@ -81,61 +77,25 @@ async fn main() {
         None
     };
 
-    let port_publisher: zenoh::pubsub::Publisher =
-        zenoh.declare_publisher("cam/port").await.unwrap();
-
+    let port_publisher = zenoh.declare_publisher("cam/port").await.unwrap();
     let port_msg = CameraPortMessage {
         port: camera_config.websocket_port as i32,
     };
 
+    tokio::spawn(async move {
+        let mut interval = tokio::time::interval(tokio::time::Duration::from_millis(200));
+        loop {
+            interval.tick().await;
+            if let Err(e) = port_publisher.put(port_msg.encode_to_vec()).await {
+                error!("Failed to publish CameraPortMessage: {:?}", e);
+            }
+        }
+    });
+
     let subscriber = zenoh.declare_subscriber("cam/switch").await.unwrap();
 
-    // WebSocket配信を有効化する場合のみサーバーを起動
-    type WsClients = Arc<Mutex<Vec<tokio::sync::mpsc::UnboundedSender<Vec<u8>>>>>;
-
     let ws_clients: Option<WsClients> = if camera_config.websocket {
-        let ws_clients: WsClients = Arc::new(Mutex::new(Vec::new()));
-        let ws_clients_clone = ws_clients.clone();
-        tokio::spawn(async move {
-            let listener = TcpListener::bind(format!("0.0.0.0:{}", camera_config.websocket_port))
-                .await
-                .expect("Failed to bind WebSocket port");
-            info!(
-                "WebSocket server listening on ws://0.0.0.0:{}",
-                camera_config.websocket_port
-            );
-            while let Ok((stream, _)) = listener.accept().await {
-                let ws_clients_inner = ws_clients_clone.clone();
-                tokio::spawn(async move {
-                    let ws_stream = accept_async(stream)
-                        .await
-                        .expect("WebSocket handshake failed");
-                    let (mut ws_sender, mut ws_receiver) = ws_stream.split();
-                    let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel::<Vec<u8>>();
-                    ws_clients_inner.lock().unwrap().push(tx);
-                    // 送信タスク
-                    let send_task = tokio::spawn(async move {
-                        while let Some(data) = rx.recv().await {
-                            if ws_sender
-                                .send(WsMessage::Binary(data.into()))
-                                .await
-                                .is_err()
-                            {
-                                break;
-                            }
-                        }
-                    });
-                    // 受信タスク（クライアントからの切断検知用）
-                    let recv_task = tokio::spawn(async move {
-                        while let Some(_msg) = ws_receiver.next().await {
-                            // ここでは何もしない
-                        }
-                    });
-                    let _ = tokio::join!(send_task, recv_task);
-                });
-            }
-        });
-        Some(ws_clients)
+        Some(start_websocket_server(camera_config.websocket_port))
     } else {
         None
     };
@@ -162,10 +122,6 @@ async fn main() {
     });
 
     loop {
-        port_publisher
-            .put(port_msg.encode_to_vec())
-            .await
-            .expect("Failed to publish CameraPortMessage");
         // カメラ切り替え通知が来ていれば切り替え
         if let Ok(new_value) = switch_rx.try_recv() {
             let new_index = new_value % camera_config.devices.len();
