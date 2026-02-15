@@ -85,8 +85,6 @@ async fn main() {
         }
     });
 
-    let subscriber = zenoh.declare_subscriber("cam/switch").await.unwrap();
-
     let (image_tx, _) = broadcast::channel::<Arc<Vec<u8>>>(1);
 
     // Zenoh JPG 配信タスク
@@ -137,8 +135,12 @@ async fn main() {
     let (switch_tx, mut switch_rx) = mpsc::unbounded_channel();
 
     // スイッチ受信タスク
-    let subscriber = subscriber.clone();
+    let zenoh_session = zenoh.clone();
     tokio::spawn(async move {
+        let subscriber = zenoh_session
+            .declare_subscriber("cam/switch")
+            .await
+            .unwrap();
         loop {
             if let Ok(sample) = subscriber.recv_async().await {
                 let payload = sample.payload();
