@@ -4,6 +4,10 @@ inputs:
   workdir:
     description: "Working directory"
     required: true
+  component:
+    description: "Component name (common, lidar, camera, uart, ui, minimal)"
+    required: false
+    default: "minimal"
 runs:
   using: "composite"
   steps:
@@ -11,3 +15,7 @@ runs:
     - uses: jdx/mise-action@v3
       with:
         working_directory: ${{ inputs.workdir }}
+    - name: Setup APT
+      uses: ./.github/actions/setup-apt
+      with:
+        component: ${{ inputs.component }}

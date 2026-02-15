@@ -1,0 +1,33 @@
+name: Setup APT Dependencies
+description: "Install and cache APT dependencies grouped by component"
+inputs:
+  component:
+    description: "Component name (common, lidar, camera, uart, ui, minimal)"
+    required: false
+    default: "common"
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Zenoh Repository
+      if: env.ROBOAPP_CI_CONTAINER != 'true' && inputs.component != 'minimal'
+      shell: bash
+      run: |
+        if [ ! -f "/etc/apt/sources.list.d/zenoh.list" ]; then
+          sudo mkdir -p /etc/apt/keyrings
+          curl -L https://download.eclipse.org/zenoh/debian-repo/zenoh-public-key | sudo gpg --dearmor --yes --output /etc/apt/keyrings/zenoh-public-key.gpg
+          echo "deb [signed-by=/etc/apt/keyrings/zenoh-public-key.gpg] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee /etc/apt/sources.list.d/zenoh.list >/dev/null
+          sudo apt-get update
+        fi
+    - name: Install and Cache Packages
+      if: env.ROBOAPP_CI_CONTAINER != 'true'
+      uses: awalsh128/cache-apt-pkgs-action@v1
+      with:
+        packages: >-
+          ${{ inputs.component != 'minimal' && 'build-essential cmake ninja-build libzenohc=1.6.2 libzenohc-dev=1.6.2 libzenohcpp-dev=1.6.2 zenohd' || '' }} ${{ inputs.component == 'ui' && 'libwebkit2gtk-4.1-dev file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev clang libclang-dev llvm llvm-dev' || '' }} ${{ inputs.component == 'camera' && 'nasm' || '' }} ${{ inputs.component == 'lidar' && 'libgflags-dev libopencv-dev nlohmann-json3-dev clang-tidy clang-format libprotobuf-dev protobuf-compiler' || '' }} ${{ inputs.component == 'uart' && 'socat' || '' }}
+        version: 1.0
+    - name: Post-install steps
+      if: env.ROBOAPP_CI_CONTAINER != 'true' && inputs.component != 'minimal'
+      shell: bash
+      run: |
+        sudo apt-mark hold libzenohc libzenohc-dev libzenohcpp-dev zenohd
+        sudo systemctl disable zenohd --now || true

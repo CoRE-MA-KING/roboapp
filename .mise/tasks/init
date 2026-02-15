@@ -6,7 +6,11 @@ if [ "${GITHUB_ACTIONS:-}" != "true" ]; then
     git submodule update --init --recursive
 fi
 
-sudo echo "Install Dependencies"
+COMPONENT=${1:-all}
+
+sudo echo "Install Dependencies for component: $COMPONENT"
+
+# Setup repository
 sudo mkdir -p /etc/apt/keyrings
 if [ ! -f "/etc/apt/keyrings/zenoh-public-key.gpg" ]; then
 	curl -L https://download.eclipse.org/zenoh/debian-repo/zenoh-public-key | sudo gpg --dearmor --yes --output /etc/apt/keyrings/zenoh-public-key.gpg
@@ -19,29 +23,38 @@ fi
 sudo apt-get update
 
 # Common
-sudo apt-get install -y \
-	build-essential cmake ninja-build \
-	libzenohc=1.6.2 libzenohc-dev=1.6.2 libzenohcpp-dev=1.6.2 zenohd
+if [ "$COMPONENT" = "all" ] || [ "$COMPONENT" = "common" ] || [ "$COMPONENT" = "ui" ] || [ "$COMPONENT" = "camera" ] || [ "$COMPONENT" = "lidar" ] || [ "$COMPONENT" = "uart" ]; then
+	sudo apt-get install -y \
+		build-essential cmake ninja-build \
+		libzenohc=1.6.2 libzenohc-dev=1.6.2 libzenohcpp-dev=1.6.2 zenohd
 
-sudo apt-mark hold libzenohc libzenohc-dev libzenohcpp-dev zenohd
-
-sudo systemctl disable zenohd --now
+	sudo apt-mark hold libzenohc libzenohc-dev libzenohcpp-dev zenohd
+	sudo systemctl disable zenohd --now || true
+fi
 
 # UI System
-sudo apt-get install -y \
-	libwebkit2gtk-4.1-dev build-essential file libxdo-dev libssl-dev \
-	libayatana-appindicator3-dev librsvg2-dev clang libclang-dev llvm llvm-dev
+if [ "$COMPONENT" = "all" ] || [ "$COMPONENT" = "ui" ]; then
+	sudo apt-get install -y \
+		libwebkit2gtk-4.1-dev file libxdo-dev libssl-dev \
+		libayatana-appindicator3-dev librsvg2-dev clang libclang-dev llvm llvm-dev
+fi
 
 # Main Camera System
-sudo apt-get install -y \
-	nasm
+if [ "$COMPONENT" = "all" ] || [ "$COMPONENT" = "camera" ]; then
+	sudo apt-get install -y \
+		nasm
+fi
 
 # Lidar System
-sudo apt-get install -y \
-	libgflags-dev libopencv-dev nlohmann-json3-dev \
-	clang-tidy clang-format \
-	libprotobuf-dev protobuf-compiler
+if [ "$COMPONENT" = "all" ] || [ "$COMPONENT" = "lidar" ]; then
+	sudo apt-get install -y \
+		libgflags-dev libopencv-dev nlohmann-json3-dev \
+		clang-tidy clang-format \
+		libprotobuf-dev protobuf-compiler
+fi
 
 # UART Bridge
-sudo apt-get install -y \
-	socat
+if [ "$COMPONENT" = "all" ] || [ "$COMPONENT" = "uart" ]; then
+	sudo apt-get install -y \
+		socat
+fi

@@ -10,6 +10,8 @@ env:
 jobs:
   LiDAR_System_Check:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository }}/ci-image:latest
     defaults:
       run:
         working-directory: ${{ env.WORKDIR }}
@@ -23,9 +25,9 @@ jobs:
       - uses: ./.github/actions/mise
         with:
           workdir: ${{ env.WORKDIR }}
+          component: lidar
       - name: Install Dependencies
         run: |
-          mise //:init
           mise //${{ env.WORKDIR }}:deps
       - name: Build
         run: |

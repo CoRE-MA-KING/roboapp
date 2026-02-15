@@ -9,6 +9,8 @@ env:
 jobs:
   UART_Bridge_Check:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository }}/ci-image:latest
     defaults:
       run:
         working-directory: ${{ env.WORKDIR }}
@@ -19,12 +21,12 @@ jobs:
       - uses: ./.github/actions/mise
         with:
           workdir: ${{ env.WORKDIR }}
+          component: uart
       - uses: ./.github/actions/python
         with:
           workdir: ${{ env.WORKDIR }}
       - name: Install Dependencies
         run: |
-          mise //:init
           mise //${{ env.WORKDIR }}:deps
       - name: Type Check
         run: |

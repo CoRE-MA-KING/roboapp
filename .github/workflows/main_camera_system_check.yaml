@@ -12,6 +12,8 @@ env:
 jobs:
   MainCameraSystem_Check:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository }}/ci-image:latest
     defaults:
       run:
         working-directory: ${{ env.WORKDIR }}
@@ -23,12 +25,12 @@ jobs:
       - uses: ./.github/actions/mise
         with:
           workdir: ${{ env.WORKDIR }}
+          component: camera
       - uses: ./.github/actions/rust
         with:
           workdir: ${{ env.WORKDIR }}
       - name: Install Dependencies
         run: |
-          mise //:init
           mise //${{ env.WORKDIR }}:deps
       - name: Lint
         run: |
