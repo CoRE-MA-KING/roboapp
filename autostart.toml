@@ -2,10 +2,6 @@
 working_dir = "main_camera_system"
 executable = "target/release/main-camera-system"
 
-[lidar_sender]
-working_dir = "lidar_system"
-executable = "build/sender"
-
 [lidar_processor]
 working_dir = "lidar_system"
 executable = "build/processor"
