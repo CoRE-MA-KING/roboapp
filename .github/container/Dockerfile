@@ -1,25 +1,5 @@
 # syntax=docker/dockerfile:1
-
-FROM ubuntu:24.04 AS fetcher
-
-RUN \
-    --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update  \
-    && apt-get -y --no-install-recommends install  \
-    # install any other dependencies you might need
-    sudo curl git ca-certificates build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-ENV MISE_DATA_DIR="/mise"
-ENV MISE_CONFIG_DIR="/mise"
-ENV MISE_CACHE_DIR="/mise/cache"
-ENV MISE_INSTALL_PATH="/usr/local/bin/mise"
-ENV PATH="/mise/shims:$PATH"
-# ENV MISE_VERSION="..."
-
-RUN curl https://mise.run | sh
+# check=error=true
 
 FROM ubuntu:24.04
 
@@ -43,17 +23,18 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     sudo \
     pipx
 
-# Run the project's init script using both bind mount (for the script) and cache mounts (for apt)
-# The cache mount ensures that apt-get update/install inside the script are fast and don't bloat the image
 RUN --mount=type=bind,source=.mise/tasks/init,target=/tmp/init \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     bash /tmp/init
 
+SHELL ["/bin/bash", "-c"]
+
 WORKDIR /workspace
 
-COPY --from=fetcher /usr/local/bin/mise /tmp/mise
-SHELL ["/bin/bash", "-c"]
+COPY  \
+    --from=jdxcode/mise:2026.2.13 \
+    /usr/local/bin/mise /tmp/mise
 
 RUN \
     --mount=type=bind,source=mise.toml,target=/workspace/mise.toml \
@@ -61,3 +42,4 @@ RUN \
     /tmp/mise trust && \
     /tmp/mise install && \
     rm -f /tmp/mise
+
