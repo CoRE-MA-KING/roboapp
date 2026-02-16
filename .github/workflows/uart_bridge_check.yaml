@@ -9,6 +9,8 @@ env:
 jobs:
   UART_Bridge_Check:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/core-ma-king/roboapp/ci-image:latest
     defaults:
       run:
         working-directory: ${{ env.WORKDIR }}
@@ -24,7 +26,6 @@ jobs:
           workdir: ${{ env.WORKDIR }}
       - name: Install Dependencies
         run: |
-          mise //:init
           mise //${{ env.WORKDIR }}:deps
       - name: Type Check
         run: |

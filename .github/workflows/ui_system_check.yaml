@@ -12,6 +12,8 @@ env:
 jobs:
   UI_System_Check_Rust:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/core-ma-king/roboapp/ci-image:latest
     defaults:
       run:
         working-directory: ${{ env.WORKDIR }}/src-tauri
@@ -28,7 +30,6 @@ jobs:
           workdir: ${{ env.WORKDIR }}/src-tauri
       - name: Install Dependencies
         run: |
-          mise //:init
           mise //${{ env.WORKDIR }}:deps
       - name: Lint
         run: |
@@ -41,6 +42,8 @@ jobs:
           cargo test --all-features -- --nocapture
   UI_System_Check_JS:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/core-ma-king/roboapp/ci-image:latest
     defaults:
       run:
         working-directory: ${{ env.WORKDIR }}
@@ -56,7 +59,6 @@ jobs:
           workdir: ${{ env.WORKDIR }}
       - name: Install Dependencies
         run: |
-          mise //:init
           mise //${{ env.WORKDIR }}:deps_node
       - name: Typecheck
         run: |
