@@ -67,10 +67,10 @@
 ```mermaid
 flowchart LR
 
-    LP(LiDARSystem/Processor)
-    LV(LiDARSystem/Viewer)
+    LP(LiDAR System/Processor)
+    LV(LiDAR System/Viewer)
     M{{STM32}}
-    C[main_camera_system]
+    C[Main Camera System]
     U[Uart Bridge]
     T[UI System]
     D[Damage Panel Recognition]
