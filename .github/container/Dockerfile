@@ -32,14 +32,10 @@ SHELL ["/bin/bash", "-c"]
 
 WORKDIR /workspace
 
-COPY  \
-    --from=jdxcode/mise:2026.2.13 \
-    /usr/local/bin/mise /tmp/mise
-
 RUN \
+    --mount=type=bind,from=jdxcode/mise:2026.2.13,source=/usr/local/bin/mise,target=/tmp/mise \
     --mount=type=bind,source=mise.toml,target=/workspace/mise.toml \
     eval "$(/tmp/mise activate bash)" && \
     /tmp/mise trust && \
-    /tmp/mise install && \
-    rm -f /tmp/mise
+    /tmp/mise install
 
