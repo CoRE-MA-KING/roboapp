@@ -70,21 +70,6 @@ async fn main() {
         }
     };
 
-    // 5Hz Port 配信タスク (常に実行)
-    let zenoh_session = zenoh.clone();
-    let ws_port = camera_config.websocket_port as i32;
-    tokio::spawn(async move {
-        let port_publisher = zenoh_session.declare_publisher("cam/port").await.unwrap();
-        let port_msg = CameraPortMessage { port: ws_port };
-        let mut interval = tokio::time::interval(tokio::time::Duration::from_millis(200));
-        loop {
-            interval.tick().await;
-            if let Err(e) = port_publisher.put(port_msg.encode_to_vec()).await {
-                error!("Failed to publish CameraPortMessage: {:?}", e);
-            }
-        }
-    });
-
     let (image_tx, _) = broadcast::channel::<Bytes>(1);
 
     // Zenoh JPG 配信タスク
@@ -112,6 +97,21 @@ async fn main() {
 
     // WebSocket 配信タスク
     if camera_config.websocket {
+        // 5Hz Port 配信タスク
+        let zenoh_session = zenoh.clone();
+        let ws_port = camera_config.websocket_port as i32;
+        tokio::spawn(async move {
+            let port_publisher = zenoh_session.declare_publisher("cam/port").await.unwrap();
+            let port_msg = CameraPortMessage { port: ws_port };
+            let mut interval = tokio::time::interval(tokio::time::Duration::from_millis(200));
+            loop {
+                interval.tick().await;
+                if let Err(e) = port_publisher.put(port_msg.encode_to_vec()).await {
+                    error!("Failed to publish CameraPortMessage: {:?}", e);
+                }
+            }
+        });
+
         let ws_clients = start_websocket_server(camera_config.websocket_port);
         let mut image_rx = image_tx.subscribe();
         tokio::spawn(async move {
