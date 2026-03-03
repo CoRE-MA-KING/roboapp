@@ -39,15 +39,36 @@ void run_lidar_thread(std::string name, LiDARDeviceConfig config,
   auto data = LiDARDataWrapper(name, config.x, config.y);
   const int max_consecutive_errors = 3;
 
-  LiDARDeviceManager manager(name, config);
-  std::cout << "LiDAR " << name << " initialized successfully." << std::endl;
-
+  std::unique_ptr<LiDARDeviceManager> manager;
+  bool error_logged = false;
   int consecutive_errors = 0;
+
   while (!ctrl_c_pressed) {
+    if (!manager) {
+      try {
+        manager = std::make_unique<LiDARDeviceManager>(name, config);
+        std::cout << "LiDAR " << name << " initialized successfully."
+                  << std::endl;
+        error_logged = false;
+      } catch (const std::exception& e) {
+        if (!error_logged) {
+          std::cerr << "LiDAR " << name
+                    << " initialization failed: " << e.what()
+                    << ". Retrying every 5s..." << std::endl;
+          error_logged = true;
+        }
+        // Check ctrl_c_pressed every 100ms for 5 seconds
+        for (int i = 0; i < 50 && !ctrl_c_pressed; ++i) {
+          std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+        continue;
+      }
+    }
+
     data.clear();
 
     try {
-      if (manager.get(data)) {
+      if (manager->get(data)) {
         auto now = std::chrono::system_clock::now();
         {
           std::lock_guard<std::mutex> lock(mtx);
@@ -61,17 +82,21 @@ void run_lidar_thread(std::string name, LiDARDeviceConfig config,
         consecutive_errors++;
         if (consecutive_errors >= max_consecutive_errors) {
           std::cerr << "LiDAR " << name << " timed out " << consecutive_errors
-                    << " times in a row. Restarting..." << std::endl;
-          manager.restart();  // Attempt internal restart first
+                    << " times in a row. Resetting manager..." << std::endl;
+          manager.reset();
           consecutive_errors = 0;
           std::this_thread::sleep_for(std::chrono::seconds(1));
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
       }
     } catch (const std::exception& e) {
-      std::cerr << "LiDAR " << name << " thread error: " << e.what()
-                << ". Thread exiting." << std::endl;
-      throw;
+      if (!error_logged) {
+        std::cerr << "LiDAR " << name << " runtime error: " << e.what()
+                  << ". Resetting manager..." << std::endl;
+        error_logged = true;
+      }
+      manager.reset();
+      std::this_thread::sleep_for(std::chrono::seconds(1));
     }
   }
 }

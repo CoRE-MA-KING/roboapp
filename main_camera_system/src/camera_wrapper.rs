@@ -55,9 +55,6 @@ pub fn create_camera_stream(config: &CameraDevice) -> Result<Stream<'_>, String>
     match create_camera_device(config) {
         Ok(dev) => Ok(Stream::with_buffers(&dev, Type::VideoCapture, 4)
             .expect("Failed to create buffer stream")),
-        Err(e) => {
-            eprintln!("カメラデバイスの初期化失敗: {:?}", e);
-            Err(e)
-        }
+        Err(e) => Err(e),
     }
 }
