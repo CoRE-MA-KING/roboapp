@@ -51,15 +51,17 @@ void run_lidar_thread(std::string name, LiDARDeviceConfig config,
                   << std::endl;
         error_logged = false;
       } catch (const std::exception& e) {
-        if (!error_logged) {
-          std::cerr << "LiDAR " << name
-                    << " initialization failed: " << e.what() << ". Retrying..."
-                    << std::endl;
-          error_logged = true;
+          if (!error_logged) {
+            std::cerr << "LiDAR " << name << " initialization failed: " << e.what()
+                      << ". Retrying every 5s..." << std::endl;
+            error_logged = true;
+          }
+          // Check ctrl_c_pressed every 100ms for 5 seconds
+          for (int i = 0; i < 50 && !ctrl_c_pressed; ++i) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+          }
+          continue;
         }
-        std::this_thread::sleep_for(std::chrono::seconds(5));
-        continue;
-      }
     }
 
     data.clear();
