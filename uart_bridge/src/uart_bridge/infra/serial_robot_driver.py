@@ -1,4 +1,5 @@
 import logging
+import time
 from collections.abc import Sequence
 from copy import deepcopy
 from threading import Lock
@@ -68,7 +69,6 @@ class SerialRobotDriver(RobotDriver):
                 logging.error("Failed to open serial port: %s. Retrying...", err)
                 self._error_logged = True
             self._serial = None
-            import time
 
             time.sleep(1.0)
 
