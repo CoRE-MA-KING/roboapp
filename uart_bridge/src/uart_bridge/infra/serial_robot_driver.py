@@ -48,6 +48,9 @@ class SerialRobotDriver(RobotDriver):
         # 送信用の値
         self._send_values = RobotCommand()
 
+        # エラーログ出力済みフラグ
+        self._error_logged = False
+
     def _open_serial_port(self) -> None:
         """シリアルポートを開く"""
         try:
@@ -59,9 +62,15 @@ class SerialRobotDriver(RobotDriver):
                 timeout=self._timeout,
                 write_timeout=0,
             )
+            self._error_logged = False
         except serial.SerialException as err:
-            logging.error("Failed to open serial port: %s", err)
+            if not self._error_logged:
+                logging.error("Failed to open serial port: %s. Retrying...", err)
+                self._error_logged = True
             self._serial = None
+            import time
+
+            time.sleep(1.0)
 
     def raw_to_RobotState(self, data: Sequence[str]) -> RobotState:
         try:
@@ -128,12 +137,15 @@ class SerialRobotDriver(RobotDriver):
                 if len(parts) >= 8:
                     try:
                         self._robot_state = self.raw_to_RobotState(parts)
+                        self._error_logged = False
                     except (pydantic.ValidationError, ValueError, IndexError) as e:
                         logging.error(
                             f"Failed to parse or validate RobotState from serial: {e}"
                         )
         except Exception as err:
-            logging.error("Error reading from serial port: %s", err)
+            if not self._error_logged:
+                logging.error("Error reading from serial port: %s", err)
+                self._error_logged = True
             if self._serial:
                 self._serial.close()
             self._serial = None
@@ -143,10 +155,13 @@ class SerialRobotDriver(RobotDriver):
         send_str = self.RobotCommand_to_raw(self._send_values)
         try:
             self._serial.write(send_str.encode())
+            self._error_logged = False
         except serial.SerialTimeoutException:
             pass
         except Exception as err:
-            logging.error("Error writing to serial port: %s", err)
+            if not self._error_logged:
+                logging.error("Error writing to serial port: %s", err)
+                self._error_logged = True
             if self._serial:
                 self._serial.close()
             self._serial = None

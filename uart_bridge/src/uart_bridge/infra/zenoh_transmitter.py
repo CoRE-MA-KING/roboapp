@@ -160,7 +160,6 @@ class ZenohTransmitter(Transmitter):
                 with self.command_lock:
                     try:
                         command = self.shm.read_command()
-                        print(command)
                     except pydantic.ValidationError as e:
                         logging.error(f"Failed to read command from shared memory: {e}")
                         continue

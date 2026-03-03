@@ -35,15 +35,9 @@ async fn main() {
     debug!("Camera Config: {:?}", camera_config);
 
     let mut device_index: usize = 0;
+    let mut is_camera_error_logged = false;
 
-    let mut stream: Option<Stream<'_>> =
-        match create_camera_stream(&camera_config.devices[device_index]) {
-            Ok(stream) => Some(stream),
-            Err(e) => {
-                eprintln!("カメラデバイスの初期化失敗: {:?}", e);
-                None
-            }
-        };
+    let mut stream: Option<Stream<'_>> = None;
 
     // Initialize Zenoh client
 
@@ -167,15 +161,14 @@ async fn main() {
         if let Ok(new_value) = switch_rx.try_recv() {
             let new_index = new_value % camera_config.devices.len();
 
-            if new_index == device_index {
-                continue;
+            if new_index != device_index {
+                device_index = new_index;
+                stream = None;
+                is_camera_error_logged = false;
             }
-            device_index = new_index;
-            stream = None;
         }
 
         if let Some(local_stream) = &mut stream {
-            // let (buf, meta) = stream.next().unwrap();
             if let Ok((buf, meta)) = local_stream.next() {
                 debug!(
                     "Buffer size: {}, seq: {}, timestamp: {}",
@@ -188,15 +181,21 @@ async fn main() {
                 let _ = image_tx.send(data);
             } else {
                 stream = None;
+                is_camera_error_logged = false;
             }
         } else {
             stream = match create_camera_stream(&camera_config.devices[device_index]) {
                 Ok(new_stream) => {
                     info!("Switched to device index: {}", device_index);
+                    is_camera_error_logged = false;
                     Some(new_stream)
                 }
                 Err(e) => {
-                    error!("カメラデバイスの初期化失敗: {:?}", e);
+                    if !is_camera_error_logged {
+                        error!("カメラデバイスの初期化失敗: {:?}", e);
+                        is_camera_error_logged = true;
+                    }
+                    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
                     None
                 }
             };
