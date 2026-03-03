@@ -157,13 +157,6 @@ class ZenohTransmitter(Transmitter):
                     logging.error(f"Failed to read state from shared memory: {e}")
                     continue
 
-                with self.command_lock:
-                    try:
-                        command = self.shm.read_command()
-                    except pydantic.ValidationError as e:
-                        logging.error(f"Failed to read command from shared memory: {e}")
-                        continue
-
                 if time.time() - last_send_time >= 0.1:
                     last_send_time = time.time()
                     # 送信
