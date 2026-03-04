@@ -2,6 +2,7 @@ import logging
 import time
 from collections.abc import Sequence
 from copy import deepcopy
+from pathlib import Path
 from threading import Lock
 from typing import Any
 
@@ -56,7 +57,7 @@ class SerialRobotDriver(RobotDriver):
         """シリアルポートを開く"""
         try:
             self._serial = serial.Serial(
-                port=self._port.resolve(),
+                port=str(Path(self._port).resolve()),
                 baudrate=self._baudrate,
                 stopbits=self._stopbits,
                 parity=self._parity,
