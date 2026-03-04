@@ -56,7 +56,7 @@ class SerialRobotDriver(RobotDriver):
         """シリアルポートを開く"""
         try:
             self._serial = serial.Serial(
-                port=self._port,
+                port=self._port.resolve(),
                 baudrate=self._baudrate,
                 stopbits=self._stopbits,
                 parity=self._parity,

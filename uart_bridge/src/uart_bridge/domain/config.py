@@ -30,15 +30,6 @@ def get_dummy_port() -> tuple[Path, Path]:
 class UartConfig(BaseModel):
     device: str = Field(str(get_dummy_port()[1]), description="UARTポートのパス")
 
-    @field_validator("device", mode="after")
-    @classmethod
-    def validate_port(cls, v: str) -> str:
-        # ここで加工
-        real_path = Path(v).resolve()
-        if not real_path.exists():
-            raise ValueError(f"{v} is not a valid UART port!")
-        return str(real_path)
-
 
 class Config(BaseModel):
     uart: UartConfig | None = None
