@@ -1,6 +1,6 @@
 from enum import Enum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class RobotStateId(Enum):
@@ -32,10 +32,8 @@ class RobotState(BaseModel):
     """マイコンと通信して取得したロボットの状態"""
 
     state_id: RobotStateId = RobotStateId.UNKNOWN
-    pitch_deg: float = Field(
-        default=0.0, ge=0, le=100, description="フラップのピッチ角度"
-    )
-    yaw_deg: float = Field(default=0.0, ge=0, le=100, description="フラップのヨー角度")
+    pitch_deg: float = Field(default=0.0, description="フラップのピッチ角度")
+    yaw_deg: float = Field(default=0.0, description="フラップのヨー角度")
     left_disks: int = Field(default=0, ge=0, le=100, description="左ディスクの枚数")
     right_disks: int = Field(default=0, ge=0, le=100, description="右ディスクの枚数")
     video_id: int = Field(
@@ -46,6 +44,16 @@ class RobotState(BaseModel):
         default_factory=RobotFlags, description="ロボットの各種フラグ"
     )
     reserved: int = Field(default=0, ge=0, le=100, description="未使用")
+
+    @field_validator("pitch_deg")
+    @classmethod
+    def round_pitch_deg(cls, v: float) -> float:
+        return max(min(v, 15.0), 0.0)
+
+    @field_validator("yaw_deg")
+    @classmethod
+    def round_yaw_deg(cls, v: float) -> float:
+        return max(min(v, 40.0), 0.0)
 
 
 class RobotCommand(BaseModel):
