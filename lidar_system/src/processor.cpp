@@ -3,8 +3,10 @@
 
 #include <chrono>
 #include <cstdint>
+#include <deque>
 #include <future>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <mutex>
 #include <thread>
@@ -195,6 +197,9 @@ int main(int argc, char** argv) {
   std::cout << "Started " << tasks.size() << " LiDAR threads." << std::endl;
 
   // Main Calculation Loop
+  constexpr size_t kRangeAvgWindow = 5;
+  std::deque<LiDARRange> range_history;
+
   while (!ctrl_c_pressed) {
     auto now = std::chrono::system_clock::now();
     std::vector<cv::Point2d> data;
@@ -232,13 +237,61 @@ int main(int argc, char** argv) {
       vec_msg.set_angular(std::fmod(360.f - ang, 360));
       vec_publisher.put(vec_msg.SerializeAsString());
 
-      // Calculate Range
+      // Calculate Range and maintain history for averaging
       auto range_data = rangeSeparater(data);
+      range_history.push_back(range_data);
+      if (range_history.size() > kRangeAvgWindow) {
+        range_history.pop_front();
+      }
+
+      // Compute averaged range over available history entries (ignore no-data
+      // entries)
+      LiDARRange avg_range;
+      const float no_data = std::numeric_limits<float>::max();
+      double sum_left = 0, sum_right = 0, sum_rear_left = 0, sum_rear_right = 0;
+      int cnt_left = 0, cnt_right = 0, cnt_rear_left = 0, cnt_rear_right = 0;
+      for (const auto& r : range_history) {
+        if (r.left != no_data) {
+          sum_left += r.left;
+          ++cnt_left;
+        }
+        if (r.right != no_data) {
+          sum_right += r.right;
+          ++cnt_right;
+        }
+        if (r.rear_left != no_data) {
+          sum_rear_left += r.rear_left;
+          ++cnt_rear_left;
+        }
+        if (r.rear_right != no_data) {
+          sum_rear_right += r.rear_right;
+          ++cnt_rear_right;
+        }
+      }
+
+      if (cnt_left)
+        avg_range.left = static_cast<float>(sum_left / cnt_left);
+      else
+        avg_range.left = no_data;
+      if (cnt_right)
+        avg_range.right = static_cast<float>(sum_right / cnt_right);
+      else
+        avg_range.right = no_data;
+      if (cnt_rear_left)
+        avg_range.rear_left = static_cast<float>(sum_rear_left / cnt_rear_left);
+      else
+        avg_range.rear_left = no_data;
+      if (cnt_rear_right)
+        avg_range.rear_right =
+            static_cast<float>(sum_rear_right / cnt_rear_right);
+      else
+        avg_range.rear_right = no_data;
+
       roboapp::LiDARRange range_pb;
-      range_pb.set_left(range_data.left);
-      range_pb.set_right(range_data.right);
-      range_pb.set_rear_left(range_data.rear_left);
-      range_pb.set_rear_right(range_data.rear_right);
+      range_pb.set_left(avg_range.left);
+      range_pb.set_right(avg_range.right);
+      range_pb.set_rear_left(avg_range.rear_left);
+      range_pb.set_rear_right(avg_range.rear_right);
 
       range_publisher.put(range_pb.SerializeAsString());
     }
