@@ -213,7 +213,7 @@ int main(int argc, char** argv) {
         }
       }
 
-      current_updated = updated;
+      current_updated |= updated;
       if (current_updated) {
         for (auto& [id, pair] : timestamps) {
           auto& [timestamp, lidar_data] = pair;
