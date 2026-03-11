@@ -6,6 +6,14 @@
 <script lang="ts">
 	let viewBox = `0 0 ${image_width} ${image_height}`;
 
+	const side_top = 0.1;
+	const side_height = 0.3;
+	const side_width = 0.1;
+
+	const button_height = 0.15;
+
+	const opacity_multiplier = 0.8;
+
 	let near_distance = 500; // in mm
 	let far_distance = 3_000; // in mm
 
@@ -32,25 +40,25 @@
 			<!-- Left -->
 			<polygon
 				fill="red"
-				fill-opacity={0.9 * farlogic($lidarMessageStore.left)}
+				fill-opacity={opacity_multiplier * farlogic($lidarMessageStore.left)}
 				points="
-            0,{image_height * 0.1}
+            0,{image_height * side_top}
             0,{image_height}
-            {image_width * 0.15},{image_height * 0.8}
-            {image_width * 0.15},{image_height * 0.3}
-            0,{image_height * 0.1}
+            {image_width * side_width},{image_height * (1 - button_height)}
+            {image_width * side_width},{image_height * side_height}
+            0,{image_height * side_top}
             "
 			/>
 
 			<!-- Rear Left -->
 			<polygon
 				fill="red"
-				fill-opacity={0.9 * farlogic($lidarMessageStore.rearLeft)}
+				fill-opacity={opacity_multiplier * farlogic($lidarMessageStore.rearLeft)}
 				points="
             0,{image_height}
             {image_width * 0.5},{image_height}
-            {image_width * 0.5},{image_height * 0.8}
-            {image_width * 0.15},{image_height * 0.8}
+            {image_width * 0.5},{image_height * (1 - button_height)}
+            {image_width * side_width},{image_height * (1 - button_height)}
             0,{image_height}
             "
 			/>
@@ -58,12 +66,12 @@
 			<!-- Rear Right -->
 			<polygon
 				fill="red"
-				fill-opacity={0.9 * farlogic($lidarMessageStore.rearRight)}
+				fill-opacity={opacity_multiplier * farlogic($lidarMessageStore.rearRight)}
 				points="
             {image_width},{image_height}
             {image_width * 0.5},{image_height}
-            {image_width * 0.5},{image_height * 0.8}
-            {image_width * 0.85},{image_height * 0.8}
+            {image_width * 0.5},{image_height * (1 - button_height)}
+            {image_width * (1 - side_width)},{image_height * (1 - button_height)}
             {image_width},{image_height}
             "
 			/>
@@ -71,13 +79,13 @@
 			<!-- Right -->
 			<polygon
 				fill="red"
-				fill-opacity={0.9 * farlogic($lidarMessageStore.right)}
+				fill-opacity={opacity_multiplier * farlogic($lidarMessageStore.right)}
 				points="
-            {image_width},{image_height * 0.1}
+            {image_width},{image_height * side_top}
             {image_width},{image_height}
-            {image_width * 0.85},{image_height * 0.8}
-            {image_width * 0.85},{image_height * 0.3}
-            {image_width},{image_height * 0.1}
+            {image_width * (1 - side_width)},{image_height * (1 - button_height)}
+            {image_width * (1 - side_width)},{image_height * side_height}
+            {image_width},{image_height * side_top}
             "
 			/>
 		{/if}
