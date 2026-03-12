@@ -47,7 +47,9 @@
 		<Disks id="left-disk" classes="" num={leftDiskStore} width={50} height={400} stroke={5} />
 	</div>
 	<div class="absolute top-[30vh] w-[5vw] h-[20vh] right-[5vw]">
-		<Disks id="right-disk" classes="" num={rightDiskStore} width={50} height={400} stroke={5} />
+		<div class="flex justify-end">
+			<Disks id="right-disk" classes="" num={rightDiskStore} width={50} height={400} stroke={5} />
+		</div>
 	</div>
 	<div class="absolute top-[15vh] left-1/2 -translate-x-1/2 flex items-center justify-center z-10">
 		<RobotStatus />
