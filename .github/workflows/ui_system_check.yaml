@@ -2,20 +2,26 @@ name: UI System Check
 on:
   pull_request:
     paths:
-      - "ui_system/src/**"
-      - "ui_system/src-tauri/**"
+      - "ui_system/**"
       - ".github/workflows/ui_system_check.yaml"
 env:
   CARGO_TERM_COLOR: always
   WORKDIR: ui_system
+  SCCACHE_GHA_ENABLED: "true"
+  RUSTC_WRAPPER: "sccache"
 jobs:
   UI_System_Check_Rust:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/core-ma-king/roboapp/ci-image:latest
     defaults:
       run:
         working-directory: ${{ env.WORKDIR }}/src-tauri
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-depth: 1
       - uses: ./.github/actions/mise
         with:
           workdir: ${{ env.WORKDIR }}
@@ -24,8 +30,7 @@ jobs:
           workdir: ${{ env.WORKDIR }}/src-tauri
       - name: Install Dependencies
         run: |
-          mise //:deps
-          mise //ui_system:deps
+          mise //${{ env.WORKDIR }}:deps
       - name: Lint
         run: |
           cargo clippy --all-targets --all-features -- -D warnings
@@ -37,17 +42,24 @@ jobs:
           cargo test --all-features -- --nocapture
   UI_System_Check_JS:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/core-ma-king/roboapp/ci-image:latest
     defaults:
       run:
         working-directory: ${{ env.WORKDIR }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
       - uses: ./.github/actions/mise
         with:
           workdir: ${{ env.WORKDIR }}
       - uses: ./.github/actions/nodejs
         with:
           workdir: ${{ env.WORKDIR }}
+      - name: Install Dependencies
+        run: |
+          mise //${{ env.WORKDIR }}:deps_node
       - name: Typecheck
         run: |
           pnpm check

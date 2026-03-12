@@ -4,6 +4,7 @@
 void to_json(nlohmann::json &j, const LiDARDataWrapper &p) {
   j = nlohmann::json{
       {"data", p.data},
+      {"name", p.name},
       {"x", p.x},
       {"y", p.y},
   };
@@ -11,6 +12,9 @@ void to_json(nlohmann::json &j, const LiDARDataWrapper &p) {
 
 void from_json(const nlohmann::json &j, LiDARDataWrapper &p) {
   j.at("data").get_to(p.data);
+  if (j.contains("name")) {
+    j.at("name").get_to(p.name);
+  }
   j.at("x").get_to(p.x);
   j.at("y").get_to(p.y);
 }

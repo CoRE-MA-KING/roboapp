@@ -21,14 +21,13 @@ def parse_args() -> argparse.Namespace:
 
 def run_application(
     robot_port: str,
-    zenoh_prefix: str = "",
 ) -> None:
     """アプリケーションを実行する"""
     with (
         SerialRobotDriver(robot_port) as robot_driver,
-        ZenohTransmitter(prefix=zenoh_prefix) as transmitter,
+        ZenohTransmitter() as transmitter,
     ):
-        app = Application(robot_driver, transmitter)
+        app = Application((robot_driver, transmitter))
         app.spin()
 
 
@@ -42,7 +41,6 @@ def main() -> None:
 
     run_application(
         robot_port=config.uart.device,
-        zenoh_prefix=config.global_.zenoh_prefix,
     )
 
 

@@ -8,26 +8,6 @@
 #include "gflags/gflags.h"
 #include "toml.hpp"
 
-class GlobalConfig {
- public:
-  std::string zenoh_prefix = "";
-  uint16_t websocket_port = 8080;
-
-  GlobalConfig() = default;
-  GlobalConfig(toml::value toml_config) {
-    if (toml_config.contains("global")) {
-      auto global_config = toml_config.at("global");
-      if (global_config.contains("zenoh_prefix")) {
-        zenoh_prefix = toml::find<std::string>(global_config, "zenoh_prefix");
-      }
-      if (global_config.contains("websocket_port")) {
-        websocket_port =
-            toml::get<uint16_t>(global_config.at("websocket_port"));
-      }
-    }
-  }
-};
-
 class LiDARDeviceConfig {
  public:
   std::string backend;
@@ -121,17 +101,23 @@ class LiDARConfig {
   };
 };
 
+inline std::filesystem::path get_default_path() {
+  if (const char* home = std::getenv("XDG_CONFIG_HOME")) {
+    return std::filesystem::path(home) / "roboapp";
+  } else if (const char* home = std::getenv("HOME")) {
+    return std::filesystem::path(home) / ".config/roboapp";
+  } else {
+    throw std::runtime_error("Cannot determine default config file path");
+  }
+}
+
 inline toml::value get_config_file(std::string config_path = "") {
   std::filesystem::path config_file;
 
   if (!config_path.empty()) {
     config_file = std::filesystem::path(config_path);
-  } else if (const char* home = std::getenv("XDG_CONFIG_HOME")) {
-    config_file = std::filesystem::path(home) / "roboapp/config.toml";
-  } else if (const char* home = std::getenv("HOME")) {
-    config_file = std::filesystem::path(home) / ".config/roboapp/config.toml";
   } else {
-    throw std::runtime_error("Cannot determine config file path");
+    config_file = get_default_path() / "config.toml";
   }
 
   if (!std::filesystem::exists(config_file)) {

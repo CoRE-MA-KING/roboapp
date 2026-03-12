@@ -35,3 +35,34 @@ Options:
 
 - `-c` ：設定ファイルを指定します
 - `-d` ：デバッグモードを有効にします
+
+## 設定ファイル
+
+設定ファイルは `config.toml` です。
+
+### 構成
+
+#### Camera (`[camera]`)
+
+- `websocket`: WebSocket 配信の有効化 (デフォルト: `true`)
+- `websocket_port`: WebSocket のポート番号 (デフォルト: `8080`)
+- `zenoh`: Zenoh 配信の有効化 (デフォルト: `false`)
+
+**デバイス設定 (`[[camera.devices]]`)**
+
+- `device`: デバイスパス (例: `/dev/video0`)
+- `width`: 解像度 幅 (デフォルト: `1280`)
+- `height`: 解像度 高さ (デフォルト: `720`)
+
+### 設定例
+
+```toml
+[camera]
+websocket = true
+zenoh = false
+
+[[camera.devices]]
+device = "/dev/video0"
+width = 1280
+height = 720
+```

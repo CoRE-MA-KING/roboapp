@@ -1,11 +1,9 @@
 name: Setup
 description: "Setup pnpm, nodejs, dependencies"
-
 inputs:
   workdir:
     description: "Working directory"
     required: true
-
 runs:
   using: "composite"
   steps:
@@ -20,8 +18,3 @@ runs:
         node-version: 22
         cache: "pnpm"
         cache-dependency-path: ${{ inputs.workdir }}/pnpm-lock.yaml
-    - name: Install dependencies
-      shell: bash
-      run: |
-        cd ${{ inputs.workdir }}
-        pnpm install

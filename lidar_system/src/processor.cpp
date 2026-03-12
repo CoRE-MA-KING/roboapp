@@ -1,45 +1,130 @@
 #include <gflags/gflags.h>
+#include <signal.h>
 
 #include <chrono>
 #include <cstdint>
+#include <deque>
+#include <future>
 #include <iostream>
-#include <lidar_types/lidar_data.hpp>
-#include <opencv2/opencv.hpp>
+#include <limits>
+#include <map>
+#include <mutex>
 #include <thread>
+#include <vector>
 
 #include "collision_avoidance/collision_avoidance.hpp"
 #include "config.hpp"
+#include "lidar_device/lidar_device_manager.hpp"
+#include "lidar_types/lidar_data.hpp"
+#include "proto/roboapp/lidar_range.pb.h"
+#include "proto/roboapp/lidar_vector.pb.h"
+#include "visualizer/range_separater.hpp"
 #include "zenoh.hxx"
 
 DEFINE_string(
     c, "", "config file path: Default `$XDG_CONFIG_DIR/roboapp/config.toml`");
 
-std::chrono::system_clock::time_point ntp64_to_timepoint(uint64_t ntp64) {
-  uint32_t seconds = (ntp64 >> 32);  // NTPエポックからの秒数
-  uint32_t fraction = ntp64 & 0xFFFFFFFF;
+volatile sig_atomic_t ctrl_c_pressed = 0;
 
-  // 小数部をナノ秒に変換
-  uint64_t nanos = (static_cast<uint64_t>(fraction) * 1000000000ULL) >> 32;
+void ctrlc_handler(int) { ctrl_c_pressed = 1; }
 
-  return std::chrono::system_clock::time_point{std::chrono::seconds(seconds) +
-                                               std::chrono::nanoseconds(nanos)};
+using LidarSharedState =
+    std::map<std::string, std::tuple<std::chrono::system_clock::time_point,
+                                     LiDARDataWrapper>>;
+
+void run_lidar_thread(std::string name, LiDARDeviceConfig config,
+                      zenoh::Session& session, LidarSharedState& timestamps,
+                      std::mutex& mtx, bool& updated) {
+  auto publisher = session.declare_publisher(  //
+      zenoh::KeyExpr("lidar/data"));
+
+  auto data = LiDARDataWrapper(name, config.x, config.y);
+  const int max_consecutive_errors = 3;
+
+  std::unique_ptr<LiDARDeviceManager> manager;
+  bool error_logged = false;
+  int consecutive_errors = 0;
+
+  while (!ctrl_c_pressed) {
+    if (!manager) {
+      try {
+        manager = std::make_unique<LiDARDeviceManager>(name, config);
+        std::cout << "LiDAR " << name << " initialized successfully."
+                  << std::endl;
+        error_logged = false;
+      } catch (const std::exception& e) {
+        if (!error_logged) {
+          std::cerr << "LiDAR " << name
+                    << " initialization failed: " << e.what()
+                    << ". Retrying every 5s..." << std::endl;
+          error_logged = true;
+        }
+        // Check ctrl_c_pressed every 100ms for 5 seconds
+        for (int i = 0; i < 50 && !ctrl_c_pressed; ++i) {
+          std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+        continue;
+      }
+    }
+
+    data.clear();
+
+    try {
+      if (manager->get(data)) {
+        auto now = std::chrono::system_clock::now();
+        {
+          std::lock_guard<std::mutex> lock(mtx);
+          timestamps[name] = {now, data};
+          updated = true;
+        }
+        publisher.put(data.dump());
+        consecutive_errors = 0;
+        std::this_thread::yield();
+      } else {
+        consecutive_errors++;
+        if (consecutive_errors >= max_consecutive_errors) {
+          std::cerr << "LiDAR " << name << " timed out " << consecutive_errors
+                    << " times in a row. Resetting manager..." << std::endl;
+          manager.reset();
+          consecutive_errors = 0;
+          std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      }
+    } catch (const std::exception& e) {
+      if (!error_logged) {
+        std::cerr << "LiDAR " << name << " runtime error: " << e.what()
+                  << ". Resetting manager..." << std::endl;
+        error_logged = true;
+      }
+      manager.reset();
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+  }
 }
 
-int main(int argc, char **argv) {
+struct LidarTask {
+  std::string name;
+  LiDARDeviceConfig config;
+  std::future<void> handle;
+  int restart_count = 0;
+  std::chrono::system_clock::time_point next_restart_time =
+      std::chrono::system_clock::now();
+};
+
+int main(int argc, char** argv) {
   // Flag Setup
-  gflags::SetUsageMessage("How To Use");
+  gflags::SetUsageMessage("LiDAR Processor (Integrated)");
   gflags::SetVersionString("1.0.0");
 
   gflags::ParseCommandLineFlags(&argc, &argv, true);
-
-  std::map<std::string,
-           std::tuple<std::chrono::system_clock::time_point, LiDARDataWrapper>>
-      timestamps;
+  signal(SIGINT, ctrlc_handler);
 
   auto config_file = get_config_file(FLAGS_c);
-  auto global_config = GlobalConfig(config_file);
   auto lidar_config_all = LiDARConfig(config_file);
 
+  LidarSharedState timestamps;
+  std::mutex mtx;
   bool updated = true;
 
   // Collision Avoidance
@@ -48,69 +133,185 @@ int main(int argc, char **argv) {
       lidar_config_all.repulsive_gain, lidar_config_all.influence_range);
 
   // Zenoh Setup
-  auto prefix = global_config.zenoh_prefix;
-  if (!prefix.empty() && prefix.back() != '/') {
-    prefix += "/";
-  }
-
-  auto zenoh_config = zenoh::Config::create_default();
-  zenoh_config.insert_json5(Z_CONFIG_ADD_TIMESTAMP_KEY, "true");
-
+  auto zenoh_config =
+      zenoh::Config::from_file((get_default_path() / "zenoh.json5").string());
   auto session = zenoh::Session(std::move(zenoh_config));
-  session.declare_background_subscriber(      //
-      zenoh::KeyExpr(prefix + "lidar/data"),  //
-      [&timestamps, &updated](const zenoh::Sample &sample) {
-        auto timestamp = ntp64_to_timepoint(sample.get_timestamp()->get_time());
-
-        auto id = sample.get_timestamp()->get_id().to_string();
-        auto data = sample.get_payload().as_vector();
-        auto z = LiDARDataWrapper(data);
-
-        timestamps[id] = {
-            timestamp,
-            z,
-        };
-
-        updated = true;
-      },
-      zenoh::closures::none);
 
   auto vec_publisher =
-      session.declare_publisher(zenoh::KeyExpr(prefix + "lidar/force_vector"));
+      session.declare_publisher(zenoh::KeyExpr("lidar/force_vector"));
+  auto range_publisher =
+      session.declare_publisher(zenoh::KeyExpr("lidar/range"));
 
-  while (true) {
+  // Initialize LiDAR tasks
+  std::vector<LidarTask> tasks;
+  for (const auto& [name, config] : lidar_config_all.devices) {
+    tasks.push_back({name, config,
+                     std::async(std::launch::async, run_lidar_thread, name,
+                                config, std::ref(session), std::ref(timestamps),
+                                std::ref(mtx), std::ref(updated))});
+  }
+
+  // Supervisor Thread: Monitor and restart LiDAR tasks without blocking the
+  // main loop
+  std::thread supervisor([&tasks, &session, &timestamps, &mtx, &updated]() {
+    while (!ctrl_c_pressed) {
+      auto now = std::chrono::system_clock::now();
+      for (auto& task : tasks) {
+        if (task.handle.valid() && task.handle.wait_for(std::chrono::seconds(
+                                       0)) == std::future_status::ready) {
+          try {
+            task.handle.get();  // Check for exceptions
+            task.restart_count = 0;
+          } catch (const std::exception& e) {
+            std::cerr << "Task " << task.name << " crashed: " << e.what()
+                      << std::endl;
+            task.restart_count++;
+          }
+
+          // Exponential backoff: 1s, 2s, 4s, 8s, 16s, 32s (max)
+          int backoff_power = std::max(0, task.restart_count - 1);
+          int delay = std::min(32, (1 << backoff_power));
+
+          task.next_restart_time = now + std::chrono::seconds(delay);
+          std::cerr << "Task " << task.name << " scheduled to restart in "
+                    << delay
+                    << " seconds (restart count: " << task.restart_count << ")."
+                    << std::endl;
+
+          task.handle = std::future<void>();
+        }
+
+        if (!task.handle.valid() && now >= task.next_restart_time &&
+            !ctrl_c_pressed) {
+          std::cerr << "Restarting task: " << task.name << std::endl;
+          task.handle =
+              std::async(std::launch::async, run_lidar_thread, task.name,
+                         task.config, std::ref(session), std::ref(timestamps),
+                         std::ref(mtx), std::ref(updated));
+        }
+      }
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+  });
+
+  std::cout << "Started " << tasks.size() << " LiDAR threads." << std::endl;
+
+  // Main Calculation Loop
+  constexpr size_t kRangeAvgWindow = 5;
+  std::deque<LiDARRange> range_history;
+
+  while (!ctrl_c_pressed) {
     auto now = std::chrono::system_clock::now();
     std::vector<cv::Point2d> data;
+    bool current_updated = false;
 
-    for (auto it = timestamps.begin(); it != timestamps.end();) {
-      if (now - std::get<0>(it->second) >
-          std::chrono::seconds(lidar_config_all.duration_seconds)) {
-        updated = true;
-        it = timestamps.erase(it);
-      } else {
-        ++it;
+    {
+      std::lock_guard<std::mutex> lock(mtx);
+      // Remove stale data
+      for (auto it = timestamps.begin(); it != timestamps.end();) {
+        if (now - std::get<0>(it->second) >
+            std::chrono::seconds(lidar_config_all.duration_seconds)) {
+          updated = true;
+          it = timestamps.erase(it);
+        } else {
+          ++it;
+        }
+      }
+
+      current_updated |= updated;
+      if (current_updated) {
+        for (auto& [id, pair] : timestamps) {
+          auto& [timestamp, lidar_data] = pair;
+          auto p = lidar_data.getPoint();
+          data.insert(data.end(), p.begin(), p.end());
+        }
+        updated = false;
       }
     }
 
-    if (updated) {
-      for (auto &[id, pair] : timestamps) {
-        auto &[timestamp, lidar_data] = pair;
-        auto p = lidar_data.getPoint();
-        data.insert(data.end(), p.begin(), p.end());
+    if (current_updated) {
+      // Calculate Repulsive Force
+      auto [lin, ang] = collision_avoidance.calcRepulsiveForce(data);
+      roboapp::LiDARVector vec_msg;
+      vec_msg.set_linear(lin);
+      vec_msg.set_angular(std::fmod(360.f - ang, 360));
+      vec_publisher.put(vec_msg.SerializeAsString());
+
+      // Calculate Range and maintain history for averaging
+      auto range_data = rangeSeparater(data);
+      range_history.push_back(range_data);
+      if (range_history.size() > kRangeAvgWindow) {
+        range_history.pop_front();
       }
 
-      auto vec = collision_avoidance.calcRepulsiveForce(data);
+      // Compute averaged range over available history entries (ignore no-data
+      // entries)
+      LiDARRange avg_range;
+      const float no_data = std::numeric_limits<float>::max();
+      double sum_left = 0, sum_right = 0, sum_rear_left = 0, sum_rear_right = 0;
+      int cnt_left = 0, cnt_right = 0, cnt_rear_left = 0, cnt_rear_right = 0;
+      for (const auto& r : range_history) {
+        if (r.left != no_data) {
+          sum_left += r.left;
+          ++cnt_left;
+        }
+        if (r.right != no_data) {
+          sum_right += r.right;
+          ++cnt_right;
+        }
+        if (r.rear_left != no_data) {
+          sum_rear_left += r.rear_left;
+          ++cnt_rear_left;
+        }
+        if (r.rear_right != no_data) {
+          sum_rear_right += r.rear_right;
+          ++cnt_rear_right;
+        }
+      }
 
-      // ロボット用に回転方向を反転
-      vec.angular = std::fmod(360.f - vec.angular, 360);
+      if (cnt_left)
+        avg_range.left = static_cast<float>(sum_left / cnt_left);
+      else
+        avg_range.left = no_data;
+      if (cnt_right)
+        avg_range.right = static_cast<float>(sum_right / cnt_right);
+      else
+        avg_range.right = no_data;
+      if (cnt_rear_left)
+        avg_range.rear_left = static_cast<float>(sum_rear_left / cnt_rear_left);
+      else
+        avg_range.rear_left = no_data;
+      if (cnt_rear_right)
+        avg_range.rear_right =
+            static_cast<float>(sum_rear_right / cnt_rear_right);
+      else
+        avg_range.rear_right = no_data;
 
-      vec_publisher.put(vec.dump());
+      roboapp::LiDARRange range_pb;
+      range_pb.set_left(avg_range.left);
+      range_pb.set_right(avg_range.right);
+      range_pb.set_rear_left(avg_range.rear_left);
+      range_pb.set_rear_right(avg_range.rear_right);
 
-      std::cout << vec.dump() << std::endl;
+      range_publisher.put(range_pb.SerializeAsString());
     }
 
-    updated = false;
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
+
+  std::cout << "Stopping..." << std::endl;
+  if (supervisor.joinable()) {
+    supervisor.join();
+  }
+
+  for (auto& task : tasks) {
+    if (task.handle.valid()) {
+      try {
+        task.handle.get();
+      } catch (...) {
+      }
+    }
+  }
+
   return 0;
 }

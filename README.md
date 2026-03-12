@@ -21,19 +21,7 @@
     mise deps
     ```
 
-## 設定ファイル
-
-本アプリケーション群は、`$XDG_CONFIG_HOME/` または `~/.config/` 以下 `roboapp/config.toml` に設定ファイルを配置します。
-
-設定ファイルの書式があっているかは、`configurator` アプリで確認できます。
-正常終了したら、書式はあっています。
-
-```bash
-cd configurator
-uv run python3 src/configurator/check.py
-```
-
-書式や設定内容は、[サンプルファイル](./configurator/test/resources/config_sample.toml)や、[設定の実装](./configurator/src/configurator/config.py)、各アプリケーションの実装・ドキュメントを参考にしてください。
+書式や設定内容は、各アプリケーションの実装・ドキュメントを参考にしてください。
 
 ## アプリ一覧
 
@@ -44,6 +32,10 @@ uv run python3 src/configurator/check.py
 ### Image Reciever Sample CPP / Python
 
 - main camera system で出力した画像を受信するサンプルです
+
+### lidar_system
+
+- LiDARを用いて、障害物回避のための力ベクトルを算出します
 
 ### ui_system
 
@@ -57,42 +49,46 @@ uv run python3 src/configurator/check.py
 
 ### 一覧
 
-| 送信元アプリ名         | 出力トピック名     | データ形式             |
-| ---------------------- | ------------------ | ---------------------- |
-| main_camera_system     | cam/jpg            | JPEG                   |
-| uart_bridge            | cam/switch         | CameraSwitchMessage    |
-| uart_bridge            | disks              | DisksMessage           |
-| uart_bridge            | flap               | FlapMessage            |
-| damage_panel_recog     | damagepanel        | DamagePanelRecognition |
-| lidar_system/sender    | lidar/data         | LiDARData              |
-| lidar_system/processor | lidar/force_vector | LiDARMessage           |
+| 送信元アプリ名         | 出力トピック名     | データ形式               |
+| ---------------------- | ------------------ | ------------------------ |
+| main_camera_system     | cam/jpg            | JPEG                     |
+| uart_bridge            | cam/switch         | CameraSwitchMessage      |
+| uart_bridge            | disks              | DisksMessage             |
+| uart_bridge            | flap               | FlapMessage              |
+| uart_bridge            | robotstate         | RobotStateMessage        |
+| uart_bridge            | damagepanel/color  | DamagePanelColorMessage  |
+| damaage_panel_recog    | damagepanel/target | DamagePanelTargetMessage |
+| lidar_system/processor | lidar/data         | LiDARData                |
+| lidar_system/processor | lidar/range        | LiDARRangeMessage        |
+| lidar_system/processor | lidar/force_vector | LiDARVectorMessage       |
 
 ### ネットワーク
 
 ```mermaid
-    flowchart LR
+flowchart LR
 
-    C[main_camera_system]
-    T[UI System]
+    LP(LiDAR System/Processor)
+    LV(LiDAR System/Viewer)
     M{{STM32}}
+    C[Main Camera System]
     U[Uart Bridge]
+    T[UI System]
     D[Damage Panel Recognition]
-    LS1(LiDARSystem/Sender1)
-    LS2(LiDARSystem/Sender2)
-    LP(LiDARSystem/Processor)
-    LV(LiDARSystem/Veiwer)
 
+    LP -- lidar/force_vector --> U
+    LP -- lidar/force_vector --> LV
+    LP -- lidar/data --> LV
+    LP -- lidar/range --> T
     C -- （WebSocket）--> T
     U -- cam/switch --> T
     U -- cam/switch --> C
     U -- disks --> T
     U -- flap --> T
+    U -- robotstate --> T
     U -- （UART：RobotCommand） --> M
     M -- （UART：RobotState） --> U
-    D -- damagepanel --> U
-    D -- damagepanel --> T
-    LS1 -- lidar/data --> LP
-    LS2 -- lidar/data --> LP
-    LP -- lidar/force_vector --> U
-    LP -- lidar/force_vector --> LV
+    U -- damagepanel/color --> D
+    U -- damagepanel/color --> T
+    D -- damagepanel/target --> U
+    D -- damagepanel/target --> T
 ```

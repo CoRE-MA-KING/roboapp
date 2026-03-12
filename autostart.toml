@@ -1,0 +1,17 @@
+[main_camera]
+working_dir = "main_camera_system"
+executable = "target/release/main-camera-system"
+
+[lidar_processor]
+working_dir = "lidar_system"
+executable = "build/processor"
+
+[uart_bridge]
+working_dir = "uart_bridge"
+executable =".venv/bin/python3"
+args = ["src/uart_bridge/main.py"]
+
+[ui_system]
+working_dir = "ui_system"
+executable = "src-tauri/target/release/ui_system"
+

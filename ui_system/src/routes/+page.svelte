@@ -2,6 +2,8 @@
 	import Background from "$lib/components/Background.svelte";
 	import Disks from "$lib/components/Disks.svelte";
 	import ImageViewer from "$lib/components/ImageViewer.svelte";
+	import LiDARRange from "$lib/components/LiDARRange.svelte";
+	import RobotStatus from "$lib/components/RobotStatus.svelte";
 	import { cameraIdStore } from "$lib/store/cameraid.svelte";
 	import { leftDiskStore, rightDiskStore } from "$lib/store/disks.svelte";
 	import { invoke } from "@tauri-apps/api/core";
@@ -11,7 +13,6 @@
 
 <script lang="ts">
 	let host = "localhost";
-	let port = "8080";
 
 	onMount(async () => {
 		const matches = await getMatches();
@@ -25,25 +26,30 @@
 			host = args.address.value;
 		}
 
-		if (args.port?.value && typeof args.port?.value === "string" && args.port.value.trim() !== "") {
-			port = args.port.value;
-		}
-
 		invoke("state_request");
 	});
 </script>
 
 <main>
 	<Background />
-	<ImageViewer {host} {port} />
 
-	<p>
-		"Camera ID: {$cameraIdStore}"
-	</p>
-	<div class="absolute top-[30vh] w-[5vw] h-[20vh] left-[5vw]">
-		<Disks id="left-disk" classes="" num={leftDiskStore} width={50} height={400} stroke={5} />
+	<div class="absolute w-full h-full">
+		<ImageViewer {host} />
 	</div>
-	<div class="absolute top-[30vh] w-[5vw] h-[20vh] right-[5vw]">
-		<Disks id="right-disk" classes="" num={rightDiskStore} width={50} height={400} stroke={5} />
+
+	{#if $cameraIdStore == 0}
+		<div class="absolute w-full h-full bottom-0">
+			<LiDARRange />
+		</div>
+	{/if}
+
+	<div class="absolute top-[30vh] w-[3vw] h-[30vh] left-[5vw]">
+		<Disks id="left-disk" num={leftDiskStore} stroke={5} />
+	</div>
+	<div class="absolute top-[30vh] w-[3vw] h-[30vh] right-[5vw]">
+		<Disks id="right-disk" num={rightDiskStore} stroke={5} />
+	</div>
+	<div class="absolute top-[15vh] left-1/2 -translate-x-1/2 flex items-center justify-center z-10">
+		<RobotStatus />
 	</div>
 </main>

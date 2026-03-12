@@ -22,42 +22,42 @@
 
 2. 実行
 
-   - ※実行アプリ数が使用方法によって変わるため、`mise start` は提供していません
-   - `sender`
-     - lidarデータを送信するソフトです
-     - `./build/sender -n foo` のように、`-n` オプションでデバイス名を指定して実行します
    - `processor`
-     - 障害物回避の計算と可視化を行うソフトです
-     - `./build/processor` で実行します
+     - LiDARデータの取得、障害物回避の計算を行うソフトです
+     - `mise start` もしくは `./build/processor` で実行します
    - `viewer`
      - 点群情報を可視化するソフトです
      - `./build/viewer` で実行します
 
 ## 設定ファイル
 
+設定ファイルは `config.toml` です。
+
 ```toml
 [lidar]
-# ロボットの幅（左右）
+# ロボットの幅（左右） (mm)
 robot_width = 800
-# ロボットの長さ（前後）
+# ロボットの長さ（前後） (mm)
 robot_length = 800
 # 斥力計算のゲイン
 repulsive_gain = 0.7
-# 斥力計算の範囲
+# 斥力計算の範囲 (mm)
 influence_range = 200
+# データの有効期間 (秒)
+duration_seconds = 1
 
 [lidar.devices.foo]
 # LiDARデバイスの種類（random / rplidar）
 backend = "random"
 # LiDARの接続先（rplidarのみ）
 device = "/dev/ttyUSB0"
-# 取り付け位置（左右）・ロボット座標系（右が正）
+# 取り付け位置（左右）・ロボット座標系（右が正） (mm)
 x = 0
-# 取り付け位置（前後）・ロボット座標系（前が正）
+# 取り付け位置（前後）・ロボット座標系（前が正） (mm)
 y = 0
 # 取り付け角度（度単位、反時計・左回りが正）
 rotation = 0
-# LiDARの最大距離（この距離に丸める）
+# LiDARの最大距離（この距離に丸める） (mm)
 max_distance = 1000
 # LiDARの検出角度（下限）
 min_degree = 0

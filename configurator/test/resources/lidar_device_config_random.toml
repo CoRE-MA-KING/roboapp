@@ -1,3 +1,0 @@
-[lidar]
-[lidar.devices]
-random = { backend = "random" }

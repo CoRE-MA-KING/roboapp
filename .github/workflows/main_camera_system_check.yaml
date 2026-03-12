@@ -2,19 +2,26 @@ name: Main Camera System Check
 on:
   pull_request:
     paths:
-      - "main_camera_system/src/**"
+      - "main_camera_system/**"
       - ".github/workflows/main_camera_system_check.yaml"
 env:
   CARGO_TERM_COLOR: always
   WORKDIR: main_camera_system
+  SCCACHE_GHA_ENABLED: "true"
+  RUSTC_WRAPPER: "sccache"
 jobs:
   MainCameraSystem_Check:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/core-ma-king/roboapp/ci-image:latest
     defaults:
       run:
         working-directory: ${{ env.WORKDIR }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-depth: 1
       - uses: ./.github/actions/mise
         with:
           workdir: ${{ env.WORKDIR }}
@@ -23,8 +30,7 @@ jobs:
           workdir: ${{ env.WORKDIR }}
       - name: Install Dependencies
         run: |
-          mise //:deps
-          mise //main_camera_system:deps
+          mise //${{ env.WORKDIR }}:deps
       - name: Lint
         run: |
           cargo clippy --all-targets --all-features -- -D warnings

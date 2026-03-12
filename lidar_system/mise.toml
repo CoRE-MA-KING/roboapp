@@ -1,44 +1,55 @@
+[env]
+CMAKE_CXX_COMPILER_LAUNCHER = "sccache"
+CMAKE_C_COMPILER_LAUNCHER = "sccache"
+
 [tools]
 just = "latest"
+sccache = "latest"
 
 [tasks.deps]
-description = "Generate Build Files"
+description = "Install dependencies and generate code"
+depends = ["//:generate_proto"]
 run = "just deps"
-sources = ["CMakeLists.txt", "src/**", "include/**"]
+sources = ["CMakeLists.txt", "src/**/*.cpp", "include/**/*/hpp"]
 outputs = ["./build/build.ninja", "./build/compile_commands.json"]
 
 [tasks.build]
 depends = ["deps"]
-description = "Build Application"
+description = "Compile C++ applications (processor, viewer)"
 run = "just build"
 sources = [
   "./build/build.ninja",
   "./build/compile_commands.json",
-  "include/**",
-  "src/**"
+  "include/**/*.hpp",
+  "src/**/*.cpp"
 ]
-outputs = ["./build/processor", "./build/sender", "./build/viewer"]
+outputs = ["./build/processor", "./build/viewer"]
 
 [tasks.lint]
-description = "Run linter"
+description = "Run C++ linters (clang-tidy) and format checks"
 run = [{ tasks = ["clang_tidy", "format_check"] }]
 
 [tasks.clang_tidy]
 depends = ["deps"]
-description = "Run clang-tidy"
+description = "Run static analysis with clang-tidy"
 run = "just clang-tidy"
 
 [tasks.format_check]
 depends = ["deps"]
-description = "Check Formatter"
+description = "Verify if C++ code follows the clang-format style"
 run = "just format-check"
 
 [tasks.format]
 depends = ["deps"]
-description = "Run Formatter"
+description = "Automatically format C++ code using clang-format"
 run = "just format"
+
+[tasks.start]
+depends = ["build"]
+description = "Execute Processor application"
+run = "./build/processor"
 
 [tasks.test]
 depends = ["build"]
-description = "Run Tests"
+description = "Execute C++ unit tests"
 run = "just test"

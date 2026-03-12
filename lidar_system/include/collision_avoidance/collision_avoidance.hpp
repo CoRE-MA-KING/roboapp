@@ -7,34 +7,13 @@
 #include <opencv2/core.hpp>
 #include <vector>
 
-struct RepulsiveForceVector {
-  double linear;
-  double angular;
-
-  RepulsiveForceVector(double lin = 0.0, double ang = 0.0)
-      : linear(lin), angular(ang) {}
-
-  RepulsiveForceVector(const std::string& str) {
-    auto j = nlohmann::json::parse(str);
-    j.at("linear").get_to(this->linear);
-    j.at("angular").get_to(this->angular);
-  }
-
-  std::string dump() const {
-    nlohmann::json j;
-    j["linear"] = linear;
-    j["angular"] = angular;
-    return j.dump();
-  }
-};
-
 class CollisionAvoidance {
  public:
   CollisionAvoidance(double robot_width = 0.4, double robot_length = 2.0,
                      double repulsive_gain = 0.7, double influence_range = 0.2);
 
   // LiDARからの点群を入力として受け取り、回避命令を計算
-  RepulsiveForceVector calcRepulsiveForce(
+  std::pair<double, double> calcRepulsiveForce(
       const std::vector<cv::Point2d>& lidar_points);
 
  private:
