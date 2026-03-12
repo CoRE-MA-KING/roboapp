@@ -1,10 +1,10 @@
 <script module lang="ts">
 	import { lidarMessageStore } from "$lib/store/lidar.svelte";
-	import { image_height, image_width } from "$lib/values/image";
 </script>
 
 <script lang="ts">
-	let viewBox = `0 0 ${image_width} ${image_height}`;
+	let image_width = $state(0);
+	let image_height = $state(0);
 
 	const side_top = 0.1;
 	const side_height = 0.3;
@@ -28,10 +28,15 @@
 	}
 </script>
 
-<div id="lidar-range" class="relative w-full aspect-video">
+<div
+	id="lidar-range"
+	class="relative w-full h-full"
+	bind:clientWidth={image_width}
+	bind:clientHeight={image_height}
+>
 	<svg
 		baseProfile="full"
-		{viewBox}
+		viewBox={`0 0 ${image_width} ${image_height}`}
 		class="absolute top-0 left-0 pointer-events-none"
 		xmlns="http://www.w3.org/2000/svg"
 		xmlns:xlink="http://www.w3.org/1999/xlink"
