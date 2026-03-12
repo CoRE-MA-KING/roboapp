@@ -88,7 +88,6 @@
 		width={image_width}
 		height={image_height}
 		class="absolute top-0 left-0 w-full h-full object-contain"
-		role="img"
 		aria-label="受信した画像がここに表示されます"
 	></canvas>
 	{#if $cameraIdStore == 0}
