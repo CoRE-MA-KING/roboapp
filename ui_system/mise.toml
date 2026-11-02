@@ -1,6 +1,9 @@
 [env]
 RUSTC_WRAPPER = "sccache"
 
+[settings]
+lockfile = true
+
 [tools]
 node = "22"
 pnpm = "10"
