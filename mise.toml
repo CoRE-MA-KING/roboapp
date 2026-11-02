@@ -1,4 +1,4 @@
-experimental_monorepo_root = true
+monorepo_root = true
 
 [monorepo]
 config_roots = [
@@ -11,6 +11,7 @@ config_roots = [
 [settings]
 experimental = true
 task.monorepo_depth = 2
+lockfile = true
 
 [tools]
 actionlint = "latest"
@@ -20,7 +21,7 @@ node = "lts"
 "npm:ts-proto" = "latest"
 "pipx:betterproto2-compiler" = "latest"
 ruff = "latest"
-uv = "0.9"
+uv = "0.13"
 yamlfmt = "latest"
 
 [tasks.generate_proto]

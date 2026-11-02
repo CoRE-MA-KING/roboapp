@@ -51,7 +51,7 @@ class RandomLiDAR : public ILiDAR {
     return true;
   }
 
-  inline ~RandomLiDAR(){};
+  inline ~RandomLiDAR() {};
 };
 
 #endif  // RANDOM_LIDAR_HPP
