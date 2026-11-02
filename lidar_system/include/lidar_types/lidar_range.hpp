@@ -15,7 +15,7 @@ class LiDARRange {
       : left(std::numeric_limits<float>::max()),
         rear_left(std::numeric_limits<float>::max()),
         rear_right(std::numeric_limits<float>::max()),
-        right(std::numeric_limits<float>::max()) {};
+        right(std::numeric_limits<float>::max()){};
 };
 
 inline void to_json(nlohmann::json& j, const LiDARRange& nr) {
