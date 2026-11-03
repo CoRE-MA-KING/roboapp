@@ -1,6 +1,7 @@
 [tools]
 "pipx:betterproto2-compiler" = "latest"
 python = "3.12"
+ruff = "latest"
 uv = "0.13"
 
 [tasks.generate_proto]

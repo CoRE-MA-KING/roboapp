@@ -24,6 +24,13 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 
 SHELL ["/bin/bash", "-c"]
 
+# Provide a no-op systemctl so Debian postinst scripts (e.g. zenohd) succeed
+# in the container, where systemd is not running as PID 1. The diversion keeps
+# the stub in place even if the systemd package is installed as a dependency.
+RUN dpkg-divert --local --no-rename --add /usr/bin/systemctl && \
+    printf '#!/bin/sh\nexit 0\n' > /usr/bin/systemctl && \
+    chmod +x /usr/bin/systemctl
+
 WORKDIR /workspace
 
 RUN \

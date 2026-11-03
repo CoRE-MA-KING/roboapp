@@ -63,7 +63,7 @@ description = "System and project bootstrap setup"
 run = """
 sudo apt-mark hold libzenohc libzenohc-dev libzenohcpp-dev zenohd
 
-if [ "$(command -v systemctl)" ]; then
+if [ -d /run/systemd/system ]; then
 	sudo systemctl disable zenohd --now
 fi
 
