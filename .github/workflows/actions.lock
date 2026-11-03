@@ -5,10 +5,10 @@ version: 'v0.0.3'
 workflows:
     '.github/workflows/build-image.yaml':
         - 'actions/checkout@v6.1.0'
-        - 'docker/build-push-action@v5.4.0'
-        - 'docker/login-action@v3.7.0'
-        - 'docker/metadata-action@v5.10.0'
-        - 'docker/setup-buildx-action@v3.12.0'
+        - 'docker/build-push-action@v7.4.0'
+        - 'docker/login-action@v4.7.0'
+        - 'docker/metadata-action@v6.2.0'
+        - 'docker/setup-buildx-action@v4.4.1'
     '.github/workflows/githubaction.yaml':
         - 'actions/checkout@v6.1.0'
         - 'jdx/mise-action@v3.6.3'
@@ -51,24 +51,24 @@ dependencies:
         commit: 'sha1-d0cc045d04ccac9d8b7881df0226f9e82c39688e'
         owner_id: 115962839
         repo_id: 846733598
-    'docker/build-push-action@v5.4.0':
-        ref: 'v5.4.0'
-        commit: 'sha1-ca052bb54ab0790a636c9b5f226502c73d547a25'
+    'docker/build-push-action@v7.4.0':
+        ref: 'v7.4.0'
+        commit: 'sha1-c3c9e263c25d99ce0380d002d59b67737d91b0dc'
         owner_id: 5429470
         repo_id: 241092383
-    'docker/login-action@v3.7.0':
-        ref: 'v3.7.0'
-        commit: 'sha1-c94ce9fb468520275223c153574b00df6fe4bcc9'
+    'docker/login-action@v4.7.0':
+        ref: 'v4.7.0'
+        commit: 'sha1-81c6f93d4bc991e510b342a00b419b3bb4efc5c6'
         owner_id: 5429470
         repo_id: 287743349
-    'docker/metadata-action@v5.10.0':
-        ref: 'v5.10.0'
-        commit: 'sha1-c299e40c65443455700f0fdfc63efafe5b349051'
+    'docker/metadata-action@v6.2.0':
+        ref: 'v6.2.0'
+        commit: 'sha1-dc802804100637a589fabce1cb79ff13a1411302'
         owner_id: 5429470
         repo_id: 306769011
-    'docker/setup-buildx-action@v3.12.0':
-        ref: 'v3.12.0'
-        commit: 'sha1-8d2750c68a42422c14e847fe6c8ac0403b4cbd6f'
+    'docker/setup-buildx-action@v4.4.1':
+        ref: 'v4.4.1'
+        commit: 'sha1-f87e5991a6d7451dcb8d9637bfbc97413f497069'
         owner_id: 5429470
         repo_id: 288485773
     'jdx/mise-action@v3.6.3':
