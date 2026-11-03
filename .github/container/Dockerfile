@@ -33,13 +33,14 @@ RUN dpkg-divert --local --no-rename --add /usr/bin/systemctl && \
 
 WORKDIR /workspace
 
+# `services` needs systemd, which the container does not run.
 RUN \
     --mount=type=bind,from=jdxcode/mise:2026.10.24,source=/usr/local/bin/mise,target=/usr/local/bin/mise \
     --mount=type=bind,source=mise.toml,target=/workspace/mise.toml \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     mise trust && \
-    mise bootstrap --skip tools
+    mise bootstrap --skip tools,services
 
 RUN \
     --mount=type=bind,from=jdxcode/mise:2026.10.24,source=/usr/local/bin/mise,target=/usr/local/bin/mise \
