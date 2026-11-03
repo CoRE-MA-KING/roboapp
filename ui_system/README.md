@@ -4,11 +4,10 @@
 
 1. 依存関係のインストール
 
-   - ```bash
-
-      eval "$(mise activate)"
-      mise i
-     ```
+   ```bash
+   eval "$(mise activate)"
+   mise i
+   ```
 
 2. NodeJS依存関係の更新
    - `mise deps`
@@ -19,8 +18,8 @@
    - `mise build`
    - `./src-tauri/target/release/ui_system` に実行ファイルが生成されます
 2. 実行
-   - `./src-tauri/target/release/ui_system` or `mise start` でアプリケーションを起動します
-   - 画像配信は、`config.toml` に `websocket = true` オプションをつけて実行する必要があります
+   - `./src-tauri/target/release/ui_system` または `mise start` でアプリケーションを起動します
+   - 画像を配信するには、`config.toml` に `websocket = true` を設定して `main_camera_system` を起動する必要があります
 
 ## 設定ファイル
 

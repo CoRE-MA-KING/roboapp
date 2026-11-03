@@ -4,21 +4,21 @@
 
 1. 依存関係のインストール
 
-    - ```bash
-      eval "$(mise activate)"
-      mise i
-      ```
+   ```bash
+   eval "$(mise activate)"
+   mise i
+   ```
 
 2. 依存関係のインストール
 
-    - `mise deps`
+   `mise deps`
 
 ## 実行方法
 
 1. ビルド
 
    - `mise build`
-   - `build/processor` と `build/sender` と `build/viewer` に実行ファイルが生成されます
+   - `build/processor`、`build/sender`、`build/viewer` に実行ファイルが生成されます
 
 2. 実行
 
@@ -81,9 +81,9 @@ max_degree = 360
 
 ### RPLiDAR（A2M8）
 
-- 本体から生えたケーブルが180度
+- 本体から出ているケーブルの向きが180度です
   - 写真の向きの場合、右が0度、左が180度
-  - ケーブルの反対が0度
+  - ケーブルの反対側が0度
   - 角度は時計回りに増加
 
 ![左側にケーブルを出したRPLiDAR A2M8](./docs/image/rplidar.avif)
