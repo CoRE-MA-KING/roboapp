@@ -15,17 +15,71 @@ task.monorepo_depth = 2
 [tools]
 actionlint = "latest"
 buf = "latest"
-markdownlint-cli2 = "latest"
-node = "lts"
-"npm:ts-proto" = "latest"
-"pipx:betterproto2-compiler" = "latest"
-ruff = "latest"
-uv = "0.9"
+rumdl = "latest"
 yamlfmt = "latest"
 
+[bootstrap.apt.sources.zenoh]
+uris = "https://download.eclipse.org/zenoh/debian-repo/"
+suites = "/"
+key = "https://download.eclipse.org/zenoh/debian-repo/zenoh-public-key"
+fingerprint = "0ABC5913672BBE50921B3B9395D19EA1F7DF9E8E"
+
+[bootstrap.packages]
+# Common
+"apt:build-essential" = "latest"
+"apt:cmake" = "latest"
+"apt:ninja-build" = "latest"
+"apt:libzenohc" = "1.6.2"
+"apt:libzenohc-dev" = "1.6.2"
+"apt:libzenohcpp-dev" = "1.6.2"
+"apt:zenohd" = "latest"
+# UI System
+"apt:libwebkit2gtk-4.1-dev" = "latest"
+"apt:file" = "latest"
+"apt:libxdo-dev" = "latest"
+"apt:libssl-dev" = "latest"
+"apt:libayatana-appindicator3-dev" = "latest"
+"apt:librsvg2-dev" = "latest"
+"apt:clang" = "latest"
+"apt:libclang-dev" = "latest"
+"apt:llvm" = "latest"
+"apt:llvm-dev" = "latest"
+# Main Camera System
+"apt:nasm" = "latest"
+# Lidar System
+"apt:libgflags-dev" = "latest"
+"apt:libopencv-dev" = "latest"
+"apt:nlohmann-json3-dev" = "latest"
+"apt:clang-tidy" = "latest"
+"apt:clang-format" = "latest"
+"apt:libprotobuf-dev" = "latest"
+"apt:libprotobuf-c-dev" = "latest"
+"apt:protobuf-compiler" = "latest"
+# UART Bridge
+"apt:socat" = "latest"
+
+[tasks.bootstrap]
+description = "System and project bootstrap setup"
+run = """
+sudo apt-mark hold libzenohc libzenohc-dev libzenohcpp-dev zenohd
+
+if [ "$(command -v systemctl)" ]; then
+	sudo systemctl disable zenohd --now
+fi
+
+if [ -d ".git" ]; then
+	echo "Cloning Submodules"
+	git submodule update --init --recursive
+fi
+"""
+
 [tasks.generate_proto]
-run = ["buf generate --clean"]
-sources = ["buf.gen.yaml", "utils/proto"]
+description = "Generate protobuf code across all components"
+depends = [
+  "//uart_bridge:generate_proto",
+  "//ui_system:generate_proto",
+  "//lidar_system:generate_proto",
+]
 
 [tasks.action_lint]
 description = "Perform static analysis on GitHub Actions workflow files using actionlint and yamlfmt"
@@ -36,12 +90,12 @@ description = "Automatically format GitHub Actions workflow files using yamlfmt"
 run = "yamlfmt .github"
 
 [tasks.markdown_lint]
-description = "Lint all Markdown files in the repository, excluding environment and build directories"
-run = 'markdownlint-cli2 "**/*.md" "#**/.venv" "#**/node_modules" "#**/target" "#**/build" "#**/3rdparty"'
+description = "Lint all Markdown files in the repository using rumdl"
+run = "rumdl check ."
 
 [tasks.markdown_format]
-description = "Automatically format and fix issues in all Markdown files"
-run = 'markdownlint-cli2 "**/*.md" "#**/.venv" "#**/node_modules" "#**/target" "#**/build" "#**/3rdparty" --fix'
+description = "Automatically format and fix issues in all Markdown files using rumdl"
+run = "rumdl fmt ."
 
 [tasks.build]
 description = "Build all sub-projects (camera, uart, ui, lidar) in the correct order"

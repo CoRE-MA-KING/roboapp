@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - "**/*.md"
+      - ".rumdl.toml"
       - ".github/workflows/markdown.yaml"
 jobs:
   Markdown_Check:
