@@ -1,0 +1,10 @@
+version: v2
+inputs:
+  - directory: ../utils/proto
+    paths:
+      - ../utils/proto/buf
+      - ../utils/proto/roboapp
+plugins:
+  - protoc_builtin: ts_proto
+    out: src/lib/types/proto
+    strategy: all

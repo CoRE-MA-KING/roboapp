@@ -1,13 +1,20 @@
 [tools]
+"pipx:betterproto2-compiler" = "latest"
+python = "3.12"
 uv = "0.13"
 
 [settings]
 lockfile = true
 
+[tasks.generate_proto]
+description = "Generate Python protobuf code using betterproto2"
+run = ["buf generate --clean"]
+sources = ["buf.gen.yaml", "../utils/proto"]
+
 [tasks.deps]
 alias = "build"
 description = "Install dependencies and generate code"
-depends = ["//:generate_proto"]
+depends = ["generate_proto"]
 run = "uv sync"
 sources = [
   "pyproject.toml",

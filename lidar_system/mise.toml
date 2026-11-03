@@ -9,9 +9,14 @@ lockfile = true
 just = "latest"
 sccache = "latest"
 
+[tasks.generate_proto]
+description = "Generate C++ protobuf code"
+run = ["buf generate --clean"]
+sources = ["buf.gen.yaml", "../utils/proto"]
+
 [tasks.deps]
 description = "Install dependencies and generate code"
-depends = ["//:generate_proto"]
+depends = ["generate_proto"]
 run = "just deps"
 sources = ["CMakeLists.txt", "src/**/*.cpp", "include/**/*/hpp"]
 outputs = ["./build/build.ninja", "./build/compile_commands.json"]

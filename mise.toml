@@ -18,16 +18,17 @@ actionlint = "latest"
 buf = "latest"
 markdownlint-cli2 = "latest"
 node = "lts"
-"npm:ts-proto" = "latest"
-"pipx:betterproto2-compiler" = "latest"
-python = "3.12"
 ruff = "latest"
 uv = "0.13"
 yamlfmt = "latest"
 
 [tasks.generate_proto]
-run = ["buf generate --clean"]
-sources = ["buf.gen.yaml", "utils/proto"]
+description = "Generate protobuf code across all components"
+depends = [
+  "//uart_bridge:generate_proto",
+  "//ui_system:generate_proto",
+  "//lidar_system:generate_proto",
+]
 
 [tasks.action_lint]
 description = "Perform static analysis on GitHub Actions workflow files using actionlint and yamlfmt"

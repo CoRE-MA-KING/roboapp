@@ -3,7 +3,7 @@ revision = 5
 requires-python = ">=3.10, <4.0"
 
 [options]
-exclude-newer = "2026-10-30T16:20:23.067729833Z"
+exclude-newer = "2026-10-31T01:15:39.053286301Z"
 
 [[package]]
 name = "betterproto2"
