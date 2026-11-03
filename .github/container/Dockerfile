@@ -20,22 +20,23 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     curl \
     git \
     gpg \
-    sudo \
-    pipx
-
-RUN --mount=type=bind,source=.mise/tasks/init,target=/tmp/init \
-    --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    bash /tmp/init
+    sudo
 
 SHELL ["/bin/bash", "-c"]
 
 WORKDIR /workspace
 
 RUN \
-    --mount=type=bind,from=jdxcode/mise:2026.2.13,source=/usr/local/bin/mise,target=/tmp/mise \
+    --mount=type=bind,from=jdxcode/mise:2026.2.13,source=/usr/local/bin/mise,target=/usr/local/bin/mise \
     --mount=type=bind,source=mise.toml,target=/workspace/mise.toml \
-    eval "$(/tmp/mise activate bash)" && \
-    /tmp/mise trust && \
-    /tmp/mise install
+    --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    mise trust && \
+    mise run init
+
+RUN \
+    --mount=type=bind,from=jdxcode/mise:2026.2.13,source=/usr/local/bin/mise,target=/usr/local/bin/mise \
+    --mount=type=bind,source=mise.toml,target=/workspace/mise.toml \
+    mise trust && \
+    mise install
 
