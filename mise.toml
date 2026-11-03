@@ -72,12 +72,15 @@ fi
 """
 
 [tasks.bootstrap]
-alias = "init"
 description = "System and project bootstrap setup"
 depends = ["submodules"]
 run = """
 # sudo apt-mark hold libzenohc libzenohc-dev libzenohcpp-dev zenohd
 """
+
+[tasks.init]
+description = "Alias for mise bootstrap"
+run = "mise bootstrap"
 
 [tasks.generate_proto]
 description = "Generate protobuf code across all components"
