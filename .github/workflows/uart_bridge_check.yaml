@@ -15,13 +15,13 @@ jobs:
       run:
         working-directory: ${{ env.WORKDIR }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.1.0
         with:
           submodules: recursive
-      - uses: ./.github/actions/mise
+      - uses: $/.github/actions/mise
         with:
           workdir: ${{ env.WORKDIR }}
-      - uses: ./.github/actions/python
+      - uses: $/.github/actions/python
         with:
           workdir: ${{ env.WORKDIR }}
       - name: Install Dependencies

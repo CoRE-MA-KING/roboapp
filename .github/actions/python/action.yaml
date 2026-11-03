@@ -7,6 +7,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: astral-sh/setup-uv@v6
+    - uses: astral-sh/setup-uv@v6.8.0
       with:
         enable-cache: true

@@ -14,8 +14,8 @@ task.monorepo_depth = 2
 lockfile = true
 
 [tools]
-actionlint = "latest"
 buf = "latest"
+"github:jdx/jactionlint" = "latest"
 rumdl = "latest"
 yamlfmt = "latest"
 
@@ -92,8 +92,8 @@ depends = [
 ]
 
 [tasks.action_lint]
-description = "Perform static analysis on GitHub Actions workflow files using actionlint and yamlfmt"
-run = ["yamlfmt -lint .github", "actionlint"]
+description = "Perform static analysis on GitHub Actions workflow files using jactionlint and yamlfmt"
+run = ["yamlfmt -lint .github", "jactionlint --profile correctness"]
 
 [tasks.action_format]
 description = "Automatically format GitHub Actions workflow files using yamlfmt"
