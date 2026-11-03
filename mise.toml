@@ -58,19 +58,24 @@ fingerprint = "0ABC5913672BBE50921B3B9395D19EA1F7DF9E8E"
 # UART Bridge
 "apt:socat" = "latest"
 
+[tasks.submodules]
+description = "Initialize and update git submodules"
+run = """
+if [ -e .git ]; then
+	echo "Cloning Submodules"
+	git submodule update --init
+fi
+"""
+
 [tasks.bootstrap]
 alias = "init"
 description = "System and project bootstrap setup"
+depends = ["submodules"]
 run = """
 # sudo apt-mark hold libzenohc libzenohc-dev libzenohcpp-dev zenohd
 
 if [ -d /run/systemd/system ]; then
 	sudo systemctl disable zenohd --now
-fi
-
-if [ -d ".git" ]; then
-	echo "Cloning Submodules"
-	git submodule update --init --recursive
 fi
 """
 
