@@ -59,9 +59,10 @@ fingerprint = "0ABC5913672BBE50921B3B9395D19EA1F7DF9E8E"
 "apt:socat" = "latest"
 
 [tasks.bootstrap]
+alias = "init"
 description = "System and project bootstrap setup"
 run = """
-sudo apt-mark hold libzenohc libzenohc-dev libzenohcpp-dev zenohd
+# sudo apt-mark hold libzenohc libzenohc-dev libzenohcpp-dev zenohd
 
 if [ -d /run/systemd/system ]; then
 	sudo systemctl disable zenohd --now
