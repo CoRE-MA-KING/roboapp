@@ -2,6 +2,9 @@
 CMAKE_CXX_COMPILER_LAUNCHER = "sccache"
 CMAKE_C_COMPILER_LAUNCHER = "sccache"
 
+[settings]
+lockfile = true
+
 [tools]
 just = "latest"
 sccache = "latest"
