@@ -9,4 +9,4 @@ runs:
   steps:
     - uses: pnpm/setup@v3.1.2
       with:
-        package_json_file: ${{ inputs.workdir }}/package.json
+        package-json-file: ${{ inputs.workdir }}/package.json
