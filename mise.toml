@@ -11,6 +11,7 @@ config_roots = [
 [settings]
 experimental = true
 task.monorepo_depth = 2
+lockfile = true
 
 [tools]
 actionlint = "latest"

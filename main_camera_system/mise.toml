@@ -1,6 +1,9 @@
 [env]
 RUSTC_WRAPPER = "sccache"
 
+[settings]
+lockfile = true
+
 [tools]
 rust = { version = "1.91", components = "rust-analyzer" }
 sccache = "latest"
