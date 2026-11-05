@@ -2,12 +2,6 @@
 
 lockfile_version = 3
 
-[[tools."pipx:betterproto2-compiler"]]
-version = "0.10.1"
-backend = "pipx:betterproto2-compiler"
-specifiers = ["latest"]
-uv = { path = ".mise/locks/pipx-betterproto2-compiler/0.10.1", digest = "sha256:6e90571ae6f020c4c04aa98c51d3fd8e999e2f13fb8a89fd053f5b83db8af97e" }
-
 [[tools.python]]
 version = "3.12.16"
 backend = "core:python"

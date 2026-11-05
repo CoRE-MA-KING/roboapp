@@ -6,22 +6,25 @@ lockfile = true
 
 [tools]
 node = "22"
-"npm:ts-proto" = "latest"
 pnpm = "10"
 rust = { version = "1.91", components = "rust-analyzer" }
 sccache = "latest"
 
-[tasks.generate_proto]
-description = "Generate TypeScript protobuf code using ts-proto"
-run = ["buf generate --clean"]
-sources = ["buf.gen.yaml", "../utils/proto"]
-
-[tasks.deps_node]
+[tasks.install_node]
 description = "Install Node.js dependencies using pnpm"
-depends = ["generate_proto"]
 run = "pnpm i"
 sources = ["package.json", "pnpm-lock.yaml"]
 outputs = { auto = true }
+
+[tasks.generate_proto]
+description = "Generate TypeScript protobuf code using ts-proto"
+depends = ["install_node"]
+run = ["pnpm exec buf generate --clean"]
+sources = ["buf.gen.yaml", "../utils/proto"]
+
+[tasks.deps_node]
+description = "Install Node.js dependencies and generate code"
+depends = ["generate_proto"]
 
 [tasks.deps_rust]
 description = "Fetch Rust dependencies for the Tauri backend"

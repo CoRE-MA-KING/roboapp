@@ -42,9 +42,21 @@ RUN \
     mise trust && \
     mise bootstrap --skip tools,services
 
+# Install the mise-managed tools declared at the repo root.
+#
+# The lock file must be mounted as well. Without it mise regenerates the lock
+# inside the build, which downloads release artifacts for every supported
+# platform (macOS/Windows/arm64/...) and fails when GitHub returns transient
+# errors. `--locked` also fails fast when mise.toml and mise.lock are out of
+# sync.
+#
+# Component toolchains are intentionally not installed here. They are installed
+# per job by jdx/mise-action (which caches them); baking them in would add
+# ~1.5 GB to every image pull to save only a few seconds per job.
 RUN \
     --mount=type=bind,from=jdxcode/mise:2026.10.24,source=/usr/local/bin/mise,target=/usr/local/bin/mise \
     --mount=type=bind,source=mise.toml,target=/workspace/mise.toml \
+    --mount=type=bind,source=mise.lock,target=/workspace/mise.lock \
     mise trust && \
-    mise install
+    mise install --locked
 

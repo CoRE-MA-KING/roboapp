@@ -1,5 +1,4 @@
 [tools]
-"pipx:betterproto2-compiler" = "latest"
 python = "3.12"
 uv = "0.13"
 
@@ -9,7 +8,7 @@ lockfile = true
 [tasks.generate_proto]
 description = "Generate Python protobuf code using betterproto2"
 # uv run syncs the project first and puts .venv/bin on PATH, so the
-# betterproto2 compiler can use the ruff version pinned in uv.lock.
+# betterproto2 compiler and ruff pinned in uv.lock are used.
 run = ["uv run buf generate --clean"]
 sources = ["buf.gen.yaml", "pyproject.toml", "uv.lock", "../utils/proto"]
 
