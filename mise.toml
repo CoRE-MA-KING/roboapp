@@ -41,10 +41,11 @@ fingerprint = "0ABC5913672BBE50921B3B9395D19EA1F7DF9E8E"
 "apt:libssl-dev" = "latest"
 "apt:libayatana-appindicator3-dev" = "latest"
 "apt:librsvg2-dev" = "latest"
-"apt:clang" = "latest"
-"apt:libclang-dev" = "latest"
-"apt:llvm" = "latest"
-"apt:llvm-dev" = "latest"
+# libclang (runtime) is required by bindgen (v4l2-sys-mit in
+# main_camera_system). Neither the clang compiler nor llvm-dev is needed:
+# C/C++ is built with GCC from build-essential, and clang-tidy/clang-format
+# ship their own binaries.
+"apt:libclang1-18" = "latest"
 # Main Camera System
 "apt:nasm" = "latest"
 # Lidar System

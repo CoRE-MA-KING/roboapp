@@ -35,12 +35,6 @@ url = "https://nodejs.org/dist/v22.23.4/node-v22.23.4-darwin-x64.tar.gz"
 checksum = "sha256:cbc74b5e0982c9dbb41525fd8fb5dcd32fbee237863f7829072f4639a1ce5f20"
 url = "https://nodejs.org/dist/v22.23.4/node-v22.23.4-win-x64.zip"
 
-[[tools."npm:ts-proto"]]
-version = "2.18.3"
-aube = { path = ".mise/locks/npm-ts-proto/2.18.3", digest = "sha256:152eea4e6fc66307c2d9f6dddfa009745b5ecd2a76a4652faeee761daa87c902" }
-backend = "npm:ts-proto"
-specifiers = ["latest"]
-
 [[tools.pnpm]]
 version = "11.28.10"
 backend = "aqua:pnpm/pnpm"

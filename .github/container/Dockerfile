@@ -34,17 +34,37 @@ RUN dpkg-divert --local --no-rename --add /usr/bin/systemctl && \
 WORKDIR /workspace
 
 # `services` needs systemd, which the container does not run.
+#
+# - Disable apt recommends: they pull GUI/GPU/documentation packages that are
+#   not needed to build, lint or test in CI (about 250 MB).
+# - Drop package documentation and manpages in the same layer as the install;
+#   deleting them afterwards would not shrink the image (lower layers keep the
+#   files).
 RUN \
     --mount=type=bind,from=jdxcode/mise:2026.10.24,source=/usr/local/bin/mise,target=/usr/local/bin/mise \
     --mount=type=bind,source=mise.toml,target=/workspace/mise.toml \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    printf 'APT::Install-Recommends "false";\n' > /etc/apt/apt.conf.d/99no-install-recommends && \
     mise trust && \
-    mise bootstrap --skip tools,services
+    mise bootstrap --skip tools,services && \
+    rm -rf /usr/share/doc/* /usr/share/man/*
 
+# Install the mise-managed tools declared at the repo root.
+#
+# The lock file must be mounted as well. Without it mise regenerates the lock
+# inside the build, which downloads release artifacts for every supported
+# platform (macOS/Windows/arm64/...) and fails when GitHub returns transient
+# errors. `--locked` also fails fast when mise.toml and mise.lock are out of
+# sync.
+#
+# Component toolchains are intentionally not installed here. They are installed
+# per job by jdx/mise-action (which caches them); baking them in would add
+# ~1.5 GB to every image pull to save only a few seconds per job.
 RUN \
     --mount=type=bind,from=jdxcode/mise:2026.10.24,source=/usr/local/bin/mise,target=/usr/local/bin/mise \
     --mount=type=bind,source=mise.toml,target=/workspace/mise.toml \
+    --mount=type=bind,source=mise.lock,target=/workspace/mise.lock \
     mise trust && \
-    mise install
+    mise install --locked
 
