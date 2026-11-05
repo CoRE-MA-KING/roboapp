@@ -3,10 +3,9 @@ RUSTC_WRAPPER = "sccache"
 
 [settings]
 lockfile = true
+idiomatic_version_file_enable_tools = ["node", "pnpm"]
 
 [tools]
-node = "22"
-pnpm = "10"
 rust = { version = "1.91", components = "rust-analyzer" }
 sccache = "latest"
 
