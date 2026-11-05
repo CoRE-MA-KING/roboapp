@@ -10,6 +10,6 @@ runs:
     - name: Run sccache-action
       uses: mozilla-actions/sccache-action@v0.0.9
     - name: Rust Cache
-      uses: Swatinem/rust-cache@v2
+      uses: Swatinem/rust-cache@v2.9.3
       with:
         workspaces: ${{ inputs.workdir }}
