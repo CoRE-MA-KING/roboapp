@@ -1,0 +1,11 @@
+exclude = [
+  "**/3rdparty/**",
+  "**/.venv/**",
+  "**/node_modules/**",
+  "**/target/**",
+  "**/build/**",
+  "**/utils/**",
+]
+
+[MD013]
+enabled = false

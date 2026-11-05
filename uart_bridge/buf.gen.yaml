@@ -1,0 +1,10 @@
+version: v2
+inputs:
+  - directory: ../utils/proto
+    paths:
+      - ../utils/proto/buf
+      - ../utils/proto/roboapp
+plugins:
+  - local: protoc-gen-python_betterproto2
+    out: src/uart_bridge/domain/proto
+    strategy: all

@@ -20,22 +20,31 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     curl \
     git \
     gpg \
-    sudo \
-    pipx
-
-RUN --mount=type=bind,source=.mise/tasks/init,target=/tmp/init \
-    --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    bash /tmp/init
+    sudo
 
 SHELL ["/bin/bash", "-c"]
 
+# Provide a no-op systemctl so Debian postinst scripts (e.g. zenohd) succeed
+# in the container, where systemd is not running as PID 1. The diversion keeps
+# the stub in place even if the systemd package is installed as a dependency.
+RUN dpkg-divert --local --no-rename --add /usr/bin/systemctl && \
+    printf '#!/bin/sh\nexit 0\n' > /usr/bin/systemctl && \
+    chmod +x /usr/bin/systemctl
+
 WORKDIR /workspace
 
+# `services` needs systemd, which the container does not run.
 RUN \
-    --mount=type=bind,from=jdxcode/mise:2026.2.13,source=/usr/local/bin/mise,target=/tmp/mise \
+    --mount=type=bind,from=jdxcode/mise:2026.10.24,source=/usr/local/bin/mise,target=/usr/local/bin/mise \
     --mount=type=bind,source=mise.toml,target=/workspace/mise.toml \
-    eval "$(/tmp/mise activate bash)" && \
-    /tmp/mise trust && \
-    /tmp/mise install
+    --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    mise trust && \
+    mise bootstrap --skip tools,services
+
+RUN \
+    --mount=type=bind,from=jdxcode/mise:2026.10.24,source=/usr/local/bin/mise,target=/usr/local/bin/mise \
+    --mount=type=bind,source=mise.toml,target=/workspace/mise.toml \
+    mise trust && \
+    mise install
 
