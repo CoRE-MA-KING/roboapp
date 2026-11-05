@@ -1,0 +1,11 @@
+# The CI image only needs the mise config/lock files (bind-mounted by the
+# Dockerfile). Keep the build context small so it is fast to transfer.
+.git
+.github
+**/node_modules
+**/.svelte-kit
+**/target
+**/build
+**/htmlcov
+**/__pycache__
+**/.venv

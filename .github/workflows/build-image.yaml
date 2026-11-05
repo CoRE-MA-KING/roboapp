@@ -1,14 +1,27 @@
 name: Build and Push CI Image
 on:
+  # Only publish `latest` from main. Building on every branch used to make
+  # stacked PRs race on the same tag and never share a cache.
   push:
+    branches:
+      - main
     paths:
-      - ".github/container/Dockerfile"
+      - ".github/container/**"
       - ".github/workflows/build-image.yaml"
       - "mise.toml"
+      - "mise.lock"
   workflow_dispatch:
+# Never run two image builds at once: they would overwrite each other's cache
+# and `latest` tag.
+concurrency:
+  group: ci-image
+  cancel-in-progress: true
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/ci-image
+  # Registry cache is shared across branches and is not limited by the 10 GB
+  # GitHub Actions cache quota.
+  CACHE_IMAGE: ${{ github.repository }}/ci-image:buildcache
 jobs:
   build-and-push:
     runs-on: ubuntu-26.04
@@ -44,5 +57,5 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             GITHUB_REPOSITORY=${{ github.repository }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.CACHE_IMAGE }}
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.CACHE_IMAGE }},mode=max
