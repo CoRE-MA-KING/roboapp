@@ -5,9 +5,18 @@ CMAKE_C_COMPILER_LAUNCHER = "sccache"
 [settings]
 lockfile = true
 
+# clang ツールは OS 由来のツール (CI: ubuntu:24.04 apt の clang-format 18.1.3 /
+# 手元: 26.04 の LLVM 21) とフォーマット結果が変わるため、conda バックエンドで固定
+# (clang-format は conda-forge に 18.1.8 / 21.x、clang-tidy は conda:clang-tools に 20.1.0 以降のみ存在)
+[tool_alias]
+clang-format = "conda:clang-format"
+clang-tools = "conda:clang-tools"
+
 [tools]
 just = "latest"
 sccache = "latest"
+clang-format = "21.1.8"
+clang-tools = "21.1.8"
 
 [tasks.generate_proto]
 description = "Generate C++ protobuf code"
