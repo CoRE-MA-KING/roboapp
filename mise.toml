@@ -16,6 +16,7 @@ lockfile = true
 [tools]
 buf = "latest"
 "github:jdx/jactionlint" = "latest"
+"github:microsoft/apm" = "0.34"
 rumdl = "latest"
 yamlfmt = "latest"
 

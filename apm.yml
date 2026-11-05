@@ -1,0 +1,17 @@
+name: roboapp
+version: 1.0.0
+description: roboapp
+author: MA-KING
+# Which agent platforms to deploy to.
+# Resolution order: --target flag > this field > auto-detect from filesystem.
+# Accepted values: agent-skills, antigravity, claude, codex, copilot, cursor, gemini, grok-bot, grok-build, hermes, kiro, opencode, vscode, windsurf
+targets:
+  - claude
+  - codex
+  - copilot
+dependencies:
+  apm:
+    - nanaism/yomiyasu#29d67ccb05e370b5958d72920a9cd1aa829dee80
+  mcp: []
+includes: auto
+scripts: {}
