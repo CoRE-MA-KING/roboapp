@@ -4,14 +4,14 @@
 
 1. 依存関係のインストール
 
-    - ```bash
-      eval "$(mise activate)"
-      mise i
-      ```
+   ```bash
+   eval "$(mise activate)"
+   mise i
+   ```
 
 2. 依存関係のインストール
 
-    - `mise deps`
+   `mise deps`
 
 ## 実行方法
 
@@ -20,7 +20,7 @@
    - `./target/release/main-camera-system` に実行ファイルが生成されます
 
 2. 実行
-   - `mise start` or `./target/release/main-camera-system`
+   - `mise start` または `./target/release/main-camera-system`
 
 ### コマンドラインオプション
 
@@ -33,8 +33,8 @@ Options:
   -h, --help                         Print help
 ```
 
-- `-c` ：設定ファイルを指定します
-- `-d` ：デバッグモードを有効にします
+- `-c`：設定ファイルを指定します
+- `-d`：デバッグモードを有効にします
 
 ## 設定ファイル
 
@@ -51,8 +51,8 @@ Options:
 **デバイス設定 (`[[camera.devices]]`)**
 
 - `device`: デバイスパス (例: `/dev/video0`)
-- `width`: 解像度 幅 (デフォルト: `1280`)
-- `height`: 解像度 高さ (デフォルト: `720`)
+- `width`: 解像度の幅 (デフォルト: `1280`)
+- `height`: 解像度の高さ (デフォルト: `720`)
 
 ### 設定例
 

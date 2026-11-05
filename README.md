@@ -7,19 +7,19 @@
 
 1. miseのインストール
 
-- 本アプリケーションの設定には、[mise](https://mise.jdx.dev)を用いています
+- 本アプリケーションの設定には[mise](https://mise.jdx.dev)を用いています
   - [インストールドキュメント](https://mise.jdx.dev/getting-started.html)を基に、miseをインストールしてください
-  - Activate miseを行うと、いくつかのパスを上書きするため、必要に応じて選択してください。
-  - 都度Activateする運用で問題ありません
+  - mise を activate すると、いくつかのパスを上書きするため、必要に応じて選択してください。
+  - 都度 activate する運用で問題ありません
 
-1. 依存関係のインストール
+2. 依存関係のインストール
 
-- 以下のコマンドを実行します
+以下のコマンドを実行します。
 
-- ```bash
-    mise i
-    mise deps
-    ```
+```bash
+mise i
+mise deps
+```
 
 書式や設定内容は、各アプリケーションの実装・ドキュメントを参考にしてください。
 
@@ -29,9 +29,9 @@
 
 - Webカメラの映像を、Zenoh query と WebSocket で配信します
 
-### Image Reciever Sample CPP / Python
+### Image Receiver Sample CPP / Python
 
-- main camera system で出力した画像を受信するサンプルです
+- `main_camera_system` で出力した画像を受信するサンプルです
 
 ### lidar_system
 
