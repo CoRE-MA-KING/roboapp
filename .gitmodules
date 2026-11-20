@@ -6,4 +6,4 @@
 	url = https://github.com/ToruNiina/toml11
 [submodule "utils"]
 	path = utils
-	url = https://github.com/core-ma-king/roboapp_utils
+	url = ../roboapp_utils
